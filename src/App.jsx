@@ -1,7 +1,37 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 // ============================================================
-// SCHOLARSHIP DATABASE (curated sample — full 469 via backend)
+// SUPABASE CONFIG — pulls 457 scholarships from your database
+// ============================================================
+const SUPABASE_URL = "https://zudczsepvkjbjgomgilz.supabase.co";
+const SUPABASE_KEY = typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_KEY 
+  ? import.meta.env.VITE_SUPABASE_KEY 
+  : null;
+
+async function fetchScholarshipsFromSupabase() {
+  if (!SUPABASE_KEY) return null;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/scholarships?select=*`, {
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
+    });
+    if (!res.ok) return null;
+    const rows = await res.json();
+    return rows.map(r => ({
+      id: r.id, name: r.name, criteria: r.criteria || "",
+      link: r.link || "", deadline: r.deadline || "Varies",
+      amount: r.amount || "Varies", needBased: r.need_based || "",
+    }));
+  } catch(e) { return null; }
+}
+
+// Simple localStorage helper (works in all browsers, unlike window.storage)
+const store = {
+  get: (key) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch(e) { return null; } },
+  set: (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} },
+};
+
+// ============================================================
+// SCHOLARSHIP DATABASE (30 verified fallback — full 457 loads from Supabase)
 // ============================================================
 const DEFAULT_SCHOLARSHIP_DB = [
   {id:"a91bc024",name:"Gates Scholarship",criteria:"High school seniors from minority backgrounds (African American, Hispanic, Asian/Pacific Islander, Native American). Pell-eligible. Must demonstrate leadership and academic excellence. 3.3+ GPA on 4.0 scale. U.S. citizen, national, or permanent resident.",link:"https://www.thegatesscholarship.org/",deadline:"2026-09-15",amount:"Full Tuition",needBased:"Y"},
@@ -276,30 +306,21 @@ export default function ScholarBotPro() {
     setFetchingUrl(false);
   };
 
-  // Load saved data from storage (including auto-updated scholarship DB)
+  // Load saved data from localStorage + scholarships from Supabase
   useEffect(() => {
-    (async () => {
-      try {
-        const p = await window.storage.get("scholarbot-profile");
-        if (p) setProfile(JSON.parse(p.value));
-        const l = await window.storage.get("scholarbot-letters");
-        if (l) setSavedLetters(JSON.parse(l.value));
-        const t = await window.storage.get("scholarbot-templates");
-        if (t) setTemplates(JSON.parse(t.value));
-        const a = await window.storage.get("scholarbot-answers");
-        if (a) setAppAnswers(JSON.parse(a.value));
-        // Load updated scholarship database if one exists in storage
-        const dbData = await window.storage.get("scholarbot-db");
-        if (dbData) {
-          const parsed = JSON.parse(dbData.value);
-          if (parsed.scholarships && parsed.scholarships.length > 0) {
-            setScholarshipDB(parsed.scholarships);
-            setDbLastUpdated(parsed.lastUpdated || "unknown");
-            setDbSource(parsed.source || "synced");
-          }
-        }
-      } catch(e) { /* first run — uses built-in defaults */ }
-    })();
+    // Load user data from localStorage
+    const p = store.get("scholarbot-profile"); if (p) setProfile(p);
+    const l = store.get("scholarbot-letters"); if (l) setSavedLetters(l);
+    const t = store.get("scholarbot-templates"); if (t) setTemplates(t);
+    const a = store.get("scholarbot-answers"); if (a) setAppAnswers(a);
+    // Load scholarships from Supabase
+    fetchScholarshipsFromSupabase().then(rows => {
+      if (rows && rows.length > 0) {
+        setScholarshipDB(rows);
+        setDbLastUpdated(new Date().toISOString().split("T")[0]);
+        setDbSource("synced");
+      }
+    });
   }, []);
 
   const notify = (msg) => {
@@ -309,19 +330,19 @@ export default function ScholarBotPro() {
 
   const saveProfile = async (p) => {
     setProfile(p);
-    try { await window.storage.set("scholarbot-profile", JSON.stringify(p)); } catch(e) {}
+    store.set("scholarbot-profile", p);
   };
 
   const saveLetter = async (letter) => {
     const updated = [...savedLetters, { ...letter, id: Date.now(), date: new Date().toLocaleDateString() }];
     setSavedLetters(updated);
-    try { await window.storage.set("scholarbot-letters", JSON.stringify(updated)); } catch(e) {}
+    store.set("scholarbot-letters", updated);
     notify("Letter saved!");
   };
 
   const saveTemplates = async (t) => {
     setTemplates(t);
-    try { await window.storage.set("scholarbot-templates", JSON.stringify(t)); } catch(e) {}
+    store.set("scholarbot-templates", t);
   };
 
   // MATCHING ENGINE
@@ -876,7 +897,7 @@ ${Object.keys(appAnswers).length > 0 ? `\nAPPLICATION ANSWERS:\n${JSON.stringify
                 <textarea value={appAnswers[`q${i}`] || ""} onChange={e => {
                   const next = {...appAnswers, [`q${i}`]: e.target.value};
                   setAppAnswers(next);
-                  window.storage.set("scholarbot-answers", JSON.stringify(next)).catch(()=>{});
+                  store.set("scholarbot-answers", next);
                 }} rows={5} style={{
                   width:"100%",padding:"14px 18px",background:"#111118",border:"1px solid #1e1e2e",
                   borderRadius:8,color:"#e8e4dc",fontSize:14,fontFamily:"'DM Sans',sans-serif",
@@ -1165,7 +1186,7 @@ ${Object.keys(appAnswers).length > 0 ? `\nAPPLICATION ANSWERS:\n${JSON.stringify
                         <button onClick={async () => {
                           const next = savedLetters.filter((_,j) => j !== i);
                           setSavedLetters(next);
-                          try { await window.storage.set("scholarbot-letters", JSON.stringify(next)); } catch(e) {}
+                          try { store.set("scholarbot-letters", next); } catch(e) {}
                           notify("Deleted.");
                         }} style={{
                           padding:"6px 14px",background:"transparent",border:"1px solid #333",borderRadius:6,
