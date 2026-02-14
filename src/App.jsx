@@ -276,7 +276,7 @@ export default function ScholarBotPro() {
     if (!scholarshipUrl.trim()) { notify("Please enter a URL."); return; }
     setFetchingUrl(true);
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -433,7 +433,7 @@ CANDIDATE PROFILE:
 ${profileSummary}`;
 
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -467,7 +467,7 @@ Write a compelling, authentic letter (350-500 words) that matches this specific 
     const profileData = PROFILE_QUESTIONS.map(q => `${q.q}: ${Array.isArray(profile[q.id]) ? profile[q.id].join(", ") : (profile[q.id] || "N/A")}`).join("\n");
     
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
