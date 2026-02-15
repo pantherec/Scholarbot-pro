@@ -1,11 +1,44 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 // ============================================================
-// SUPABASE CONFIG — pulls 457 scholarships from your database
+// DESIGN SYSTEM — Phase A: Brand Voice & Visual Identity
+// ============================================================
+const COLORS = {
+  bg: "#08080d",
+  surface: "#0f0f17",
+  card: "#141420",
+  cardHover: "#1a1a2d",
+  border: "#1e1e30",
+  borderHover: "#2a2a42",
+  gold: "#c9a227",
+  goldLight: "#d4b545",
+  goldDim: "rgba(201,162,39,0.12)",
+  goldGlow: "rgba(201,162,39,0.25)",
+  teal: "#4ecdc4",
+  tealDim: "rgba(78,205,196,0.12)",
+  pink: "#e056a0",
+  pinkDim: "rgba(224,86,160,0.12)",
+  purple: "#7c6bff",
+  purpleDim: "rgba(124,107,255,0.12)",
+  orange: "#f5a623",
+  text: "#e8e4dc",
+  textMuted: "#8a8a9a",
+  textDim: "#555566",
+  white: "#ffffff",
+};
+
+const FONTS = {
+  heading: "'Instrument Serif', Georgia, 'Times New Roman', serif",
+  body: "'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+  mono: "'DM Mono', 'Fira Code', monospace",
+};
+
+// ============================================================
+// SUPABASE CONFIG
 // ============================================================
 const SUPABASE_URL = "https://zudczsepvkjbjgomgilz.supabase.co";
-const SUPABASE_KEY = typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_KEY 
-  ? import.meta.env.VITE_SUPABASE_KEY 
+const SUPABASE_KEY = typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_KEY
+  ? import.meta.env.VITE_SUPABASE_KEY
   : null;
 
 async function fetchScholarshipsFromSupabase() {
@@ -24,14 +57,13 @@ async function fetchScholarshipsFromSupabase() {
   } catch(e) { return null; }
 }
 
-// Simple localStorage helper (works in all browsers, unlike window.storage)
 const store = {
   get: (key) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch(e) { return null; } },
   set: (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} },
 };
 
 // ============================================================
-// SCHOLARSHIP DATABASE (30 verified fallback — full 457 loads from Supabase)
+// SCHOLARSHIP DATABASE (30 verified fallback)
 // ============================================================
 const DEFAULT_SCHOLARSHIP_DB = [
   {id:"a91bc024",name:"Gates Scholarship",criteria:"High school seniors from minority backgrounds (African American, Hispanic, Asian/Pacific Islander, Native American). Pell-eligible. Must demonstrate leadership and academic excellence. 3.3+ GPA on 4.0 scale. U.S. citizen, national, or permanent resident.",link:"https://www.thegatesscholarship.org/",deadline:"2026-09-15",amount:"Full Tuition",needBased:"Y"},
@@ -67,56 +99,61 @@ const DEFAULT_SCHOLARSHIP_DB = [
 ];
 
 // ============================================================
-// PROFILE QUESTIONS for building candidate profiles
+// PROFILE QUESTIONS
 // ============================================================
 const PROFILE_QUESTIONS = [
-  {id:"name",q:"What is your full name?",type:"text",placeholder:"First Last"},
-  {id:"email",q:"Email address?",type:"text",placeholder:"you@email.com"},
-  {id:"phone",q:"Phone number?",type:"text",placeholder:"(555) 123-4567"},
-  {id:"location",q:"Where are you located? (City, State)",type:"text",placeholder:"Rochester, NY"},
-  {id:"citizenship",q:"Citizenship / Residency status?",type:"select",options:["U.S. Citizen","Dual Citizen (U.S./Canada)","Permanent Resident","DACA/TPS","International Student","Other"]},
-  {id:"ethnicity",q:"How do you identify? (helps match heritage-specific scholarships)",type:"multiselect",options:["African American/Black","Hispanic/Latino","Asian/Pacific Islander","Native American/Indigenous","White/Caucasian","Multiracial","Prefer not to say"]},
-  {id:"gpa",q:"Current GPA (unweighted)?",type:"text",placeholder:"3.7"},
-  {id:"satact",q:"SAT or ACT score (if taken)?",type:"text",placeholder:"1350 SAT or 30 ACT"},
-  {id:"school",q:"Current or most recent high school?",type:"text",placeholder:"Lincoln High School"},
-  {id:"gradYear",q:"Graduation year?",type:"select",options:["2025","2026","2027","2028"]},
-  {id:"intendedMajor",q:"Intended college major or field of study?",type:"text",placeholder:"Computer Science, Biology, etc."},
-  {id:"financialNeed",q:"Do you demonstrate financial need?",type:"select",options:["Yes — Pell-eligible","Yes — moderate need","No significant need","Unsure"]},
-  {id:"activities",q:"List your top 3-5 extracurricular activities / leadership roles:",type:"textarea",placeholder:"e.g., Captain of Debate Team, Volunteer at Food Bank, NSBE chapter co-founder..."},
-  {id:"awards",q:"Notable awards or honors?",type:"textarea",placeholder:"e.g., AP Scholar, Regional Science Fair Winner, Honor Roll..."},
-  {id:"communityService",q:"Describe your most impactful community service experience:",type:"textarea",placeholder:"What did you do? How many hours? What was the impact?"},
-  {id:"personalStory",q:"What is your personal story? What challenges have you overcome?",type:"textarea",placeholder:"This is the heart of your application. Be authentic — what makes you, YOU?"},
-  {id:"careerGoal",q:"What is your career goal and how does college fit into it?",type:"textarea",placeholder:"Where do you see yourself in 10 years? Why does this education matter?"},
-  {id:"writingStyle",q:"How would you describe your writing voice?",type:"select",options:["Warm and narrative — I tell stories","Direct and evidence-based — I show data","Enthusiastic and energetic — I radiate passion","Reflective and thoughtful — I go deep","Professional and polished — I sound mature"]},
+  {id:"name",q:"What is your full name?",type:"text",placeholder:"First Last",step:0},
+  {id:"email",q:"Email address?",type:"text",placeholder:"you@email.com",step:0},
+  {id:"phone",q:"Phone number?",type:"text",placeholder:"(555) 123-4567",step:0},
+  {id:"location",q:"Where are you located? (City, State)",type:"text",placeholder:"Rochester, NY",step:0},
+  {id:"citizenship",q:"Citizenship / Residency status?",type:"select",options:["U.S. Citizen","Dual Citizen (U.S./Canada)","Permanent Resident","DACA/TPS","International Student","Other"],step:1},
+  {id:"ethnicity",q:"How do you identify? (helps match heritage-specific scholarships)",type:"multiselect",options:["African American/Black","Hispanic/Latino","Asian/Pacific Islander","Native American/Indigenous","White/Caucasian","Multiracial","Prefer not to say"],step:1},
+  {id:"gpa",q:"Current GPA (unweighted)?",type:"text",placeholder:"3.7",step:1},
+  {id:"satact",q:"SAT or ACT score (if taken)?",type:"text",placeholder:"1350 SAT or 30 ACT",step:1},
+  {id:"school",q:"Current or most recent high school?",type:"text",placeholder:"Lincoln High School",step:1},
+  {id:"gradYear",q:"Graduation year?",type:"select",options:["2025","2026","2027","2028"],step:1},
+  {id:"intendedMajor",q:"Intended college major or field of study?",type:"text",placeholder:"Computer Science, Biology, etc.",step:2},
+  {id:"financialNeed",q:"Do you demonstrate financial need?",type:"select",options:["Yes — Pell-eligible","Yes — moderate need","No significant need","Unsure"],step:2},
+  {id:"activities",q:"List your top 3-5 extracurricular activities / leadership roles:",type:"textarea",placeholder:"e.g., Captain of Debate Team, Volunteer at Food Bank, NSBE chapter co-founder...",step:2},
+  {id:"awards",q:"Notable awards or honors?",type:"textarea",placeholder:"e.g., AP Scholar, Regional Science Fair Winner, Honor Roll...",step:2},
+  {id:"communityService",q:"Describe your most impactful community service experience:",type:"textarea",placeholder:"What did you do? How many hours? What was the impact?",step:3},
+  {id:"personalStory",q:"What is your personal story? What challenges have you overcome?",type:"textarea",placeholder:"This is the heart of your application. Be authentic \u2014 what makes you, YOU?",step:3},
+  {id:"careerGoal",q:"What is your career goal and how does college fit into it?",type:"textarea",placeholder:"Where do you see yourself in 10 years? Why does this education matter?",step:3},
+  {id:"writingStyle",q:"How would you describe your writing voice?",type:"select",options:["Warm and narrative \u2014 I tell stories","Direct and evidence-based \u2014 I show data","Enthusiastic and energetic \u2014 I radiate passion","Reflective and thoughtful \u2014 I go deep","Professional and polished \u2014 I sound mature"],step:3},
+];
+
+const PROFILE_STEPS = [
+  {title: "Basic Info", desc: "Name, contact, and location"},
+  {title: "Background", desc: "Academics, identity, and school"},
+  {title: "Strengths", desc: "Major, activities, and achievements"},
+  {title: "Your Story", desc: "Personal narrative and voice"},
 ];
 
 // ============================================================
 // STYLE TEMPLATES
 // ============================================================
 const DEFAULT_TEMPLATES = [
-  {id:"narrative",name:"The Storyteller",description:"Opens with a personal anecdote, weaves narrative throughout. Best for scholarships that value personal journey.",rules:"1. Open with a specific moment or memory. 2. Use I-statements. 3. Connect personal story to scholarship mission. 4. Close with forward-looking vision. 5. NO AI-isms: avoid 'delve','foster','landscape','cutting-edge'."},
-  {id:"evidence",name:"The Scientist",description:"Lead with evidence and accomplishments. Data-driven. Best for STEM and merit-based scholarships.",rules:"1. Open with a concrete achievement or metric. 2. Use specific numbers and outcomes. 3. Frame experiences as evidence of capability. 4. Connect technical skills to broader impact. 5. NO fluff: replace 'I am passionate about' with 'My work in X demonstrated...'"},
-  {id:"mission",name:"The Mission Matcher",description:"Deeply aligns candidate values with the scholarship's stated mission. Best for foundation and organization scholarships.",rules:"1. Reference the scholarship's mission statement directly. 2. Mirror their language naturally. 3. Show how your goals amplify their mission. 4. Provide specific examples of aligned work. 5. Keep tone collaborative, not sycophantic."},
-  {id:"underdog",name:"The Overcomer",description:"Emphasizes resilience, challenges overcome, and growth. Best for need-based and adversity scholarships.",rules:"1. Be honest about challenges without being pitiful. 2. Show agency — what YOU did about it. 3. Frame hardship as fuel, not excuse. 4. Demonstrate growth trajectory. 5. End with strength and vision, not gratitude alone."},
+  {id:"narrative",name:"The Storyteller",description:"Opens with a personal anecdote, weaves narrative throughout. Best for scholarships that value personal journey.",rules:"1. Open with a specific moment or memory. 2. Use I-statements. 3. Connect personal story to scholarship mission. 4. Close with forward-looking vision. 5. NO AI-isms: avoid 'delve','foster','landscape','cutting-edge'.",icon:"\u270D"},
+  {id:"evidence",name:"The Scientist",description:"Lead with evidence and accomplishments. Data-driven. Best for STEM and merit-based scholarships.",rules:"1. Open with a concrete achievement or metric. 2. Use specific numbers and outcomes. 3. Frame experiences as evidence of capability. 4. Connect technical skills to broader impact. 5. NO fluff: replace 'I am passionate about' with 'My work in X demonstrated...'",icon:"\uD83D\uDD2C"},
+  {id:"mission",name:"The Mission Matcher",description:"Deeply aligns candidate values with the scholarship\u2019s stated mission. Best for foundation and organization scholarships.",rules:"1. Reference the scholarship's mission statement directly. 2. Mirror their language naturally. 3. Show how your goals amplify their mission. 4. Provide specific examples of aligned work. 5. Keep tone collaborative, not sycophantic.",icon:"\uD83C\uDFAF"},
+  {id:"underdog",name:"The Overcomer",description:"Emphasizes resilience, challenges overcome, and growth. Best for need-based and adversity scholarships.",rules:"1. Be honest about challenges without being pitiful. 2. Show agency \u2014 what YOU did about it. 3. Frame hardship as fuel, not excuse. 4. Demonstrate growth trajectory. 5. End with strength and vision, not gratitude alone.",icon:"\uD83D\uDCAA"},
 ];
 
 // ============================================================
-// UTILITY: Match scoring engine
+// MATCH SCORING ENGINE
 // ============================================================
 function scoreMatch(profile, scholarship) {
   let score = 0;
   let reasons = [];
   const c = (scholarship.criteria || "").toLowerCase();
   const n = (scholarship.name || "").toLowerCase();
-  
-  // Citizenship match
+
   if (profile.citizenship) {
     const cit = profile.citizenship.toLowerCase();
     if (c.includes("u.s. citizen") && (cit.includes("u.s.") || cit.includes("dual"))) { score += 20; reasons.push("Citizenship eligible"); }
     if (c.includes("daca") && cit.includes("daca")) { score += 25; reasons.push("DACA eligible"); }
   }
-  
-  // Ethnicity match
+
   if (profile.ethnicity && profile.ethnicity.length > 0) {
     const eth = profile.ethnicity.map(e => e.toLowerCase()).join(" ");
     if ((c.includes("african american") || n.includes("african american") || c.includes("black")) && eth.includes("african")) { score += 25; reasons.push("Heritage match"); }
@@ -124,8 +161,7 @@ function scoreMatch(profile, scholarship) {
     if ((c.includes("asian") || n.includes("asian") || c.includes("pacific islander")) && eth.includes("asian")) { score += 25; reasons.push("Heritage match"); }
     if ((c.includes("native american") || c.includes("indigenous") || c.includes("tribal")) && eth.includes("native")) { score += 25; reasons.push("Heritage match"); }
   }
-  
-  // GPA match
+
   if (profile.gpa) {
     const gpa = parseFloat(profile.gpa);
     const gpaMatch = c.match(/(\d\.\d)\+?\s*gpa|gpa\s*(?:of\s*)?(\d\.\d)/);
@@ -134,44 +170,161 @@ function scoreMatch(profile, scholarship) {
       if (gpa >= req) { score += 15; reasons.push(`GPA ${gpa} meets ${req} req`); }
     } else if (gpa >= 3.0) { score += 10; reasons.push("Strong GPA"); }
   }
-  
-  // Financial need
+
   if (profile.financialNeed) {
     const need = profile.financialNeed.toLowerCase();
     if (scholarship.needBased === "Y" && need.includes("yes")) { score += 15; reasons.push("Need-based match"); }
     if (scholarship.needBased !== "Y" && !need.includes("yes")) { score += 5; reasons.push("Merit-based fit"); }
   }
-  
-  // Major/Field match
+
   if (profile.intendedMajor) {
     const major = profile.intendedMajor.toLowerCase();
-    if ((c.includes("stem") || c.includes("science") || c.includes("engineering")) && 
+    if ((c.includes("stem") || c.includes("science") || c.includes("engineering")) &&
         (major.includes("science") || major.includes("engineering") || major.includes("computer") || major.includes("math"))) {
       score += 15; reasons.push("STEM field match");
     }
   }
-  
-  // Leadership / Activities
+
   if (profile.activities && profile.activities.length > 30) {
     if (c.includes("leadership")) { score += 10; reasons.push("Leadership valued"); }
     if (c.includes("community") || c.includes("volunteer")) { score += 10; reasons.push("Service match"); }
   }
-  
-  // High school senior match
+
   if (profile.gradYear && (c.includes("high school senior") || c.includes("graduating"))) {
     score += 5; reasons.push("Grade level match");
   }
-  
+
   return { score: Math.min(score, 100), reasons };
+}
+
+// ============================================================
+// REUSABLE UI COMPONENTS
+// ============================================================
+function GlowCard({ children, style, hover = true, onClick, glow = COLORS.gold }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => hover && setHovered(true)}
+      onMouseLeave={() => hover && setHovered(false)}
+      style={{
+        background: COLORS.card,
+        border: `1px solid ${hovered ? glow + "44" : COLORS.border}`,
+        borderRadius: 14,
+        padding: 24,
+        transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
+        transform: hovered ? "translateY(-3px)" : "translateY(0)",
+        boxShadow: hovered ? `0 12px 40px ${glow}15` : "none",
+        cursor: onClick ? "pointer" : "default",
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function Badge({ children, color = COLORS.gold, style }) {
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 4,
+      padding: "4px 10px", borderRadius: 6, fontSize: 11,
+      fontFamily: FONTS.body, fontWeight: 600,
+      background: color + "18", color: color,
+      ...style,
+    }}>
+      {children}
+    </span>
+  );
+}
+
+function Button({ children, onClick, variant = "primary", disabled, style, icon }) {
+  const styles = {
+    primary: {
+      background: disabled ? COLORS.textDim : `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
+      color: COLORS.bg, fontWeight: 700, border: "none",
+      boxShadow: disabled ? "none" : `0 4px 20px ${COLORS.goldGlow}`,
+    },
+    secondary: {
+      background: "transparent", color: COLORS.gold,
+      border: `1px solid ${COLORS.gold}44`, fontWeight: 600,
+    },
+    ghost: {
+      background: "transparent", color: COLORS.textMuted,
+      border: `1px solid ${COLORS.border}`, fontWeight: 500,
+    },
+    danger: {
+      background: "transparent", color: COLORS.pink,
+      border: `1px solid ${COLORS.pink}44`, fontWeight: 600,
+    },
+  };
+  return (
+    <button onClick={onClick} disabled={disabled} style={{
+      padding: "12px 24px", borderRadius: 10, fontSize: 14,
+      fontFamily: FONTS.body, cursor: disabled ? "not-allowed" : "pointer",
+      display: "inline-flex", alignItems: "center", gap: 8,
+      transition: "all 0.2s", ...styles[variant], ...style,
+    }}>
+      {icon && <span style={{ fontSize: 16 }}>{icon}</span>}
+      {children}
+    </button>
+  );
+}
+
+function SectionHeader({ title, subtitle, action }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 28 }}>
+      <div>
+        <h1 style={{
+          fontSize: 38, fontWeight: 400, fontFamily: FONTS.heading,
+          lineHeight: 1.15, marginBottom: subtitle ? 6 : 0,
+          background: `linear-gradient(135deg, ${COLORS.text}, ${COLORS.gold})`,
+          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+        }}>
+          {title}
+        </h1>
+        {subtitle && (
+          <p style={{ fontFamily: FONTS.body, fontSize: 15, color: COLORS.textMuted, lineHeight: 1.5, maxWidth: 520 }}>
+            {subtitle}
+          </p>
+        )}
+      </div>
+      {action}
+    </div>
+  );
+}
+
+function EmptyState({ icon, title, desc, action, actionLabel }) {
+  return (
+    <div style={{ textAlign: "center", padding: "60px 20px" }}>
+      <div style={{ fontSize: 56, marginBottom: 16, opacity: 0.4 }}>{icon}</div>
+      <div style={{ fontSize: 18, fontFamily: FONTS.heading, color: COLORS.textMuted, marginBottom: 8 }}>{title}</div>
+      <div style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textDim, marginBottom: 24, maxWidth: 320, margin: "0 auto 24" }}>{desc}</div>
+      {action && <Button onClick={action}>{actionLabel}</Button>}
+    </div>
+  );
+}
+
+function ProgressRing({ value, size = 52, color = COLORS.teal }) {
+  const r = (size - 6) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (value / 100) * circ;
+  return (
+    <svg width={size} height={size} style={{ transform: "rotate(-90deg)", flexShrink: 0 }}>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={COLORS.border} strokeWidth={4} />
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={4}
+        strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+        style={{ transition: "stroke-dashoffset 0.6s cubic-bezier(0.4,0,0.2,1)" }} />
+    </svg>
+  );
 }
 
 // ============================================================
 // MAIN APP COMPONENT
 // ============================================================
 export default function ScholarBotPro() {
-  const [view, setView] = useState("home");
+  const [view, setView] = useState("landing");
   const [profile, setProfile] = useState({});
-  const [profileComplete, setProfileComplete] = useState(false);
   const [bragSheet, setBragSheet] = useState("");
   const [scholarshipDB, setScholarshipDB] = useState(DEFAULT_SCHOLARSHIP_DB);
   const [dbLastUpdated, setDbLastUpdated] = useState("2026-02-11");
@@ -186,14 +339,14 @@ export default function ScholarBotPro() {
   const [generatingLetter, setGeneratingLetter] = useState(false);
   const [generatedProfile, setGeneratedProfile] = useState("");
   const [savedLetters, setSavedLetters] = useState([]);
-  const [currentStep, setCurrentStep] = useState(0);
   const [appAnswers, setAppAnswers] = useState({});
   const [notification, setNotification] = useState(null);
   const [bragSheetFileName, setBragSheetFileName] = useState("");
   const [bragSheetUploading, setBragSheetUploading] = useState(false);
+  const [profileStep, setProfileStep] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const bragFileRef = useRef(null);
-  // Letter generator: custom scholarship input
-  const [scholarshipInputMode, setScholarshipInputMode] = useState("database"); // "database" | "upload" | "url" | "paste"
+  const [scholarshipInputMode, setScholarshipInputMode] = useState("database");
   const [customScholarshipText, setCustomScholarshipText] = useState("");
   const [customScholarshipName, setCustomScholarshipName] = useState("");
   const [scholarshipUrl, setScholarshipUrl] = useState("");
@@ -201,36 +354,28 @@ export default function ScholarBotPro() {
   const [uploadedScholarshipName, setUploadedScholarshipName] = useState("");
   const scholarshipFileRef = useRef(null);
 
-  // Helper: Read file as text (PDF via basic extraction, TXT/DOC as-is)
+  // File reader helper
   const readFileAsText = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       const name = file.name.toLowerCase();
       if (name.endsWith(".pdf")) {
-        // For PDFs, read as array buffer and do basic text extraction
         reader.onload = async (e) => {
           try {
             const uint8 = new Uint8Array(e.target.result);
-            // Basic PDF text extraction: find text between BT/ET markers and parentheses
             const text = new TextDecoder("utf-8", { fatal: false }).decode(uint8);
-            // Extract readable strings (rough but works for most PDFs)
             const readable = text.match(/[\x20-\x7E]{4,}/g) || [];
             const cleaned = readable.join(" ").replace(/\s+/g, " ").slice(0, 15000);
             if (cleaned.length > 100) {
               resolve(cleaned);
             } else {
-              // Fallback: send the base64 to Claude for extraction
-              const base64 = btoa(String.fromCharCode(...uint8.slice(0, 50000)));
-              resolve(`[PDF DOCUMENT - Base64 encoded, first portion]\nFilename: ${file.name}\nNote: This is a PDF file. Please extract and analyze the scholarship information from this content.\n\nRaw text fragments found:\n${readable.slice(0, 200).join("\n")}`);
+              resolve(`[PDF DOCUMENT]\nFilename: ${file.name}\nRaw text fragments:\n${readable.slice(0, 200).join("\n")}`);
             }
-          } catch(err) {
-            reject(err);
-          }
+          } catch(err) { reject(err); }
         };
         reader.onerror = reject;
         reader.readAsArrayBuffer(file);
       } else {
-        // Text-based files
         reader.onload = (e) => resolve(e.target.result);
         reader.onerror = reject;
         reader.readAsText(file);
@@ -238,7 +383,6 @@ export default function ScholarBotPro() {
     });
   };
 
-  // Handle brag sheet file upload
   const handleBragSheetUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -247,15 +391,14 @@ export default function ScholarBotPro() {
     try {
       const text = await readFileAsText(file);
       setBragSheet(prev => prev ? prev + "\n\n--- Uploaded from: " + file.name + " ---\n\n" + text : text);
-      notify(`Brag sheet "${file.name}" uploaded successfully!`);
+      notify(`Brag sheet "${file.name}" uploaded successfully!`, "success");
     } catch(err) {
-      notify("Error reading file. Try pasting the content instead.");
+      notify("Error reading file. Try pasting the content instead.", "error");
     }
     setBragSheetUploading(false);
     if (bragFileRef.current) bragFileRef.current.value = "";
   };
 
-  // Handle scholarship file upload
   const handleScholarshipUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -264,16 +407,15 @@ export default function ScholarBotPro() {
       const text = await readFileAsText(file);
       setCustomScholarshipText(text);
       if (!customScholarshipName) setCustomScholarshipName(file.name.replace(/\.\w+$/, ""));
-      notify(`Scholarship "${file.name}" loaded!`);
+      notify(`Scholarship "${file.name}" loaded!`, "success");
     } catch(err) {
-      notify("Error reading file. Try pasting the content instead.");
+      notify("Error reading file. Try pasting the content instead.", "error");
     }
     if (scholarshipFileRef.current) scholarshipFileRef.current.value = "";
   };
 
-  // Fetch scholarship from URL via Claude API
   const fetchScholarshipFromUrl = async () => {
-    if (!scholarshipUrl.trim()) { notify("Please enter a URL."); return; }
+    if (!scholarshipUrl.trim()) { notify("Please enter a URL.", "error"); return; }
     setFetchingUrl(true);
     try {
       const response = await fetch("/api/generate", {
@@ -283,37 +425,31 @@ export default function ScholarBotPro() {
           model: "claude-sonnet-4-20250514",
           max_tokens: 1000,
           tools: [{ type: "web_search_20250305", name: "web_search" }],
-          messages: [{
-            role: "user",
-            content: `Search for this scholarship page and extract the key details: ${scholarshipUrl}\n\nReturn a structured summary with: Scholarship Name, Organization, Eligibility/Criteria, Award Amount, Deadline, and Application Requirements. Be thorough.`
-          }]
+          messages: [{ role: "user", content: `Search for this scholarship page and extract the key details: ${scholarshipUrl}\n\nReturn a structured summary with: Scholarship Name, Organization, Eligibility/Criteria, Award Amount, Deadline, and Application Requirements.` }]
         })
       });
       const data = await response.json();
       const text = data.content?.map(b => b.text || "").filter(Boolean).join("\n") || "";
       if (text) {
         setCustomScholarshipText(text);
-        // Try to extract name from the response
         const nameMatch = text.match(/(?:Scholarship\s*Name|Name)\s*[:\-]\s*(.+)/i);
         if (nameMatch && !customScholarshipName) setCustomScholarshipName(nameMatch[1].trim().slice(0, 80));
-        notify("Scholarship details fetched successfully!");
+        notify("Scholarship details fetched!", "success");
       } else {
-        notify("Could not fetch details. Try pasting the content manually.");
+        notify("Could not fetch details. Try pasting the content.", "error");
       }
     } catch(err) {
-      notify("Error fetching URL. Try pasting the content manually.");
+      notify("Error fetching URL. Try pasting manually.", "error");
     }
     setFetchingUrl(false);
   };
 
-  // Load saved data from localStorage + scholarships from Supabase
+  // Load data on mount
   useEffect(() => {
-    // Load user data from localStorage
     const p = store.get("scholarbot-profile"); if (p) setProfile(p);
     const l = store.get("scholarbot-letters"); if (l) setSavedLetters(l);
     const t = store.get("scholarbot-templates"); if (t) setTemplates(t);
     const a = store.get("scholarbot-answers"); if (a) setAppAnswers(a);
-    // Load scholarships from Supabase
     fetchScholarshipsFromSupabase().then(rows => {
       if (rows && rows.length > 0) {
         setScholarshipDB(rows);
@@ -323,193 +459,97 @@ export default function ScholarBotPro() {
     });
   }, []);
 
-  const notify = (msg) => {
-    setNotification(msg);
-    setTimeout(() => setNotification(null), 3000);
+  const notify = (msg, type = "info") => {
+    setNotification({ msg, type });
+    setTimeout(() => setNotification(null), 3500);
   };
 
-  const saveProfile = async (p) => {
-    setProfile(p);
-    store.set("scholarbot-profile", p);
-  };
-
-  const saveLetter = async (letter) => {
+  const saveProfile = (p) => { setProfile(p); store.set("scholarbot-profile", p); };
+  const saveLetter = (letter) => {
     const updated = [...savedLetters, { ...letter, id: Date.now(), date: new Date().toLocaleDateString() }];
-    setSavedLetters(updated);
-    store.set("scholarbot-letters", updated);
-    notify("Letter saved!");
+    setSavedLetters(updated); store.set("scholarbot-letters", updated);
+    notify("Letter saved!", "success");
   };
+  const saveTemplates = (t) => { setTemplates(t); store.set("scholarbot-templates", t); };
 
-  const saveTemplates = async (t) => {
-    setTemplates(t);
-    store.set("scholarbot-templates", t);
-  };
+  const profileCompletion = Math.round(
+    Object.keys(profile).filter(k => profile[k] && (Array.isArray(profile[k]) ? profile[k].length > 0 : true)).length / PROFILE_QUESTIONS.length * 100
+  );
 
-  // MATCHING ENGINE
+  // Matching
   const runMatching = useCallback(() => {
-    if (!profile.name) { notify("Please complete your profile first."); return; }
+    if (!profile.name) { notify("Please complete your profile first.", "error"); return; }
     const results = scholarshipDB.map(s => {
       const { score, reasons } = scoreMatch(profile, s);
       return { ...s, matchScore: score, matchReasons: reasons };
     }).filter(s => s.matchScore > 0).sort((a,b) => b.matchScore - a.matchScore);
     setMatchResults(results);
     setView("matches");
-    notify(`Found ${results.length} matches!`);
+    notify(`Found ${results.length} matches!`, "success");
   }, [profile, scholarshipDB]);
 
-  // LETTER GENERATION via Anthropic API
+  // Letter generation
   const generateLetter = async () => {
-    // Determine scholarship info based on input mode
     const hasDbSelection = scholarshipInputMode === "database" && selectedScholarship;
     const hasCustomInput = scholarshipInputMode !== "database" && customScholarshipText.trim();
-    
     if (!hasDbSelection && !hasCustomInput) {
-      notify(scholarshipInputMode === "database" 
-        ? "Select a scholarship from the database." 
-        : "Please provide scholarship details (upload, paste URL, or paste text).");
+      notify(scholarshipInputMode === "database" ? "Select a scholarship from the database." : "Please provide scholarship details.", "error");
       return;
     }
-    if (!profile.name) { notify("Complete your profile first."); return; }
-    
+    if (!profile.name) { notify("Complete your profile first.", "error"); return; }
+
     setGeneratingLetter(true);
     setGeneratedLetter("");
-    
-    // Build scholarship details based on source
-    let scholarshipDetails;
-    let scholarshipLabel;
-    
+
+    let scholarshipDetails, scholarshipLabel;
     if (hasDbSelection) {
       scholarshipLabel = selectedScholarship.name;
-      scholarshipDetails = `
-SCHOLARSHIP DETAILS (from database):
-- Name: ${selectedScholarship.name}
-- Criteria: ${selectedScholarship.criteria}
-- Amount: ${selectedScholarship.amount}
-- Link: ${selectedScholarship.link}`;
+      scholarshipDetails = `SCHOLARSHIP DETAILS (from database):\n- Name: ${selectedScholarship.name}\n- Criteria: ${selectedScholarship.criteria}\n- Amount: ${selectedScholarship.amount}\n- Link: ${selectedScholarship.link}`;
     } else {
       scholarshipLabel = customScholarshipName || "Custom Scholarship";
-      scholarshipDetails = `
-SCHOLARSHIP DETAILS (provided by user):
-- Name: ${customScholarshipName || "Not specified"}
-${scholarshipUrl ? `- URL: ${scholarshipUrl}` : ""}
-- Full Description/Requirements:
-${customScholarshipText.slice(0, 8000)}`;
+      scholarshipDetails = `SCHOLARSHIP DETAILS (provided by user):\n- Name: ${customScholarshipName || "Not specified"}\n${scholarshipUrl ? `- URL: ${scholarshipUrl}\n` : ""}- Full Description:\n${customScholarshipText.slice(0, 8000)}`;
     }
-    
-    const profileSummary = `
-CANDIDATE: ${profile.name}
-LOCATION: ${profile.location || "N/A"}
-CITIZENSHIP: ${profile.citizenship || "N/A"}
-HERITAGE: ${(profile.ethnicity || []).join(", ")}
-GPA: ${profile.gpa || "N/A"} | TEST SCORES: ${profile.satact || "N/A"}
-INTENDED MAJOR: ${profile.intendedMajor || "N/A"}
-GRADUATION: ${profile.gradYear || "N/A"}
-FINANCIAL NEED: ${profile.financialNeed || "N/A"}
-ACTIVITIES: ${profile.activities || "N/A"}
-AWARDS: ${profile.awards || "N/A"}
-COMMUNITY SERVICE: ${profile.communityService || "N/A"}
-PERSONAL STORY: ${profile.personalStory || "N/A"}
-CAREER GOAL: ${profile.careerGoal || "N/A"}
-WRITING VOICE: ${profile.writingStyle || "Warm and narrative"}
-BRAG SHEET NOTES: ${bragSheet || "None provided"}
-APPLICATION ANSWERS: ${JSON.stringify(appAnswers)}
-    `.trim();
-    
-    const systemPrompt = `You are a scholarship application letter writer. You must write in the candidate's authentic voice — NOT like an AI.
 
-STYLE TEMPLATE: "${selectedTemplate.name}"
-RULES: ${selectedTemplate.rules}
+    const profileSummary = `CANDIDATE: ${profile.name}\nLOCATION: ${profile.location || "N/A"}\nCITIZENSHIP: ${profile.citizenship || "N/A"}\nHERITAGE: ${(profile.ethnicity || []).join(", ")}\nGPA: ${profile.gpa || "N/A"} | TEST SCORES: ${profile.satact || "N/A"}\nINTENDED MAJOR: ${profile.intendedMajor || "N/A"}\nGRADUATION: ${profile.gradYear || "N/A"}\nFINANCIAL NEED: ${profile.financialNeed || "N/A"}\nACTIVITIES: ${profile.activities || "N/A"}\nAWARDS: ${profile.awards || "N/A"}\nCOMMUNITY SERVICE: ${profile.communityService || "N/A"}\nPERSONAL STORY: ${profile.personalStory || "N/A"}\nCAREER GOAL: ${profile.careerGoal || "N/A"}\nWRITING VOICE: ${profile.writingStyle || "Warm and narrative"}\nBRAG SHEET: ${bragSheet || "None"}\nAPP ANSWERS: ${JSON.stringify(appAnswers)}`;
 
-CRITICAL ANTI-DETECTION RULES:
-1. NEVER use: "delve," "cutting-edge," "landscape," "foster," "tapestry," "game-changer," "testament," "unwavering," "thrilled," "elevate," "synergy"
-2. Vary sentence length. Mix short punchy sentences with longer ones.
-3. Use specific details — names, dates, numbers, places.
-4. Sound like a real ${profile.gradYear || "2026"} high school student, not a corporate press release.
-5. NO em-dashes (—). Use periods or commas instead.
-6. Don't start paragraphs with "Additionally," "Furthermore," or "Moreover."
-7. Open with something MEMORABLE, not generic.
-
-CANDIDATE PROFILE:
-${profileSummary}`;
+    const systemPrompt = `You are a scholarship application letter writer. Write in the candidate's authentic voice \u2014 NOT like an AI.\n\nSTYLE TEMPLATE: "${selectedTemplate.name}"\nRULES: ${selectedTemplate.rules}\n\nCRITICAL ANTI-DETECTION RULES:\n1. NEVER use: "delve," "cutting-edge," "landscape," "foster," "tapestry," "game-changer," "testament," "unwavering," "thrilled," "elevate," "synergy"\n2. Vary sentence length. Mix short punchy sentences with longer ones.\n3. Use specific details \u2014 names, dates, numbers, places.\n4. Sound like a real ${profile.gradYear || "2026"} high school student.\n5. NO em-dashes. Use periods or commas.\n6. Don't start paragraphs with "Additionally," "Furthermore," or "Moreover."\n7. Open with something MEMORABLE.\n\nCANDIDATE PROFILE:\n${profileSummary}`;
 
     try {
       const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: systemPrompt,
-          messages: [{
-            role: "user",
-            content: `Write a scholarship application letter for the "${scholarshipLabel}" scholarship.
-
-${scholarshipDetails}
-
-Write a compelling, authentic letter (350-500 words) that matches this specific scholarship's criteria to the candidate's profile. Make it feel HUMAN, not AI-generated. If a full scholarship description was provided, carefully analyze its eligibility requirements, mission, and values to tailor the letter precisely.`
-          }]
+          model: "claude-sonnet-4-20250514", max_tokens: 1000, system: systemPrompt,
+          messages: [{ role: "user", content: `Write a scholarship application letter for "${scholarshipLabel}".\n\n${scholarshipDetails}\n\nWrite a compelling, authentic letter (350-500 words). Make it feel HUMAN, not AI-generated.` }]
         })
       });
       const data = await response.json();
-      const text = data.content?.map(b => b.text || "").join("\n") || "Error generating letter.";
-      setGeneratedLetter(text);
+      setGeneratedLetter(data.content?.map(b => b.text || "").join("\n") || "Error generating letter.");
     } catch(e) {
-      setGeneratedLetter("Error: Could not connect to the AI service. Please try again.");
+      setGeneratedLetter("Error: Could not connect to the AI service.");
     }
     setGeneratingLetter(false);
   };
 
-  // PROFILE GENERATION
+  // Profile generation
   const generateCandidateProfile = async () => {
-    if (!profile.name) { notify("Complete your profile first."); return; }
+    if (!profile.name) { notify("Complete your profile first.", "error"); return; }
     setGeneratingLetter(true);
-    
     const profileData = PROFILE_QUESTIONS.map(q => `${q.q}: ${Array.isArray(profile[q.id]) ? profile[q.id].join(", ") : (profile[q.id] || "N/A")}`).join("\n");
-    
     try {
       const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [{
-            role: "user",
-            content: `Create a candidate profile in Markdown format for scholarship applications, modeled after this template:
-
-# Candidate Profile: [Name]
-
-**Contact Info:**
-* Email / Phone / Location
-
-**Voice:** [Describe their writing voice based on their style preference]
-* Style: How they write
-* Key trait: What makes them unique
-
-**Humanization & Anti-Detection Rules (CRITICAL):**
-[Include 4 specific rules for making their letters sound authentic, NOT AI-generated]
-
-**Key Directives for the AI:**
-[5 specific directives based on their strongest assets, like certifications, heritage, unique projects, leadership roles, and personal story elements that should be highlighted]
-
-BASE THIS ON:
-${profileData}
-${bragSheet ? `\nBRAG SHEET:\n${bragSheet}` : ""}
-${Object.keys(appAnswers).length > 0 ? `\nAPPLICATION ANSWERS:\n${JSON.stringify(appAnswers)}` : ""}`
-          }]
+          model: "claude-sonnet-4-20250514", max_tokens: 1000,
+          messages: [{ role: "user", content: `Create a candidate profile in Markdown format for scholarship applications:\n\n# Candidate Profile: [Name]\n\n**Contact Info:**\n* Email / Phone / Location\n\n**Voice:** [Describe their writing voice]\n\n**Humanization & Anti-Detection Rules (CRITICAL):**\n[4 specific rules]\n\n**Key Directives:**\n[5 directives based on strongest assets]\n\nBASE THIS ON:\n${profileData}${bragSheet ? `\nBRAG SHEET:\n${bragSheet}` : ""}${Object.keys(appAnswers).length > 0 ? `\nAPPLICATION ANSWERS:\n${JSON.stringify(appAnswers)}` : ""}` }]
         })
       });
       const data = await response.json();
-      const text = data.content?.map(b => b.text || "").join("\n") || "Error.";
-      setGeneratedProfile(text);
+      setGeneratedProfile(data.content?.map(b => b.text || "").join("\n") || "Error.");
       setView("profileResult");
-    } catch(e) {
-      notify("Error generating profile.");
-    }
+    } catch(e) { notify("Error generating profile.", "error"); }
     setGeneratingLetter(false);
   };
 
-  // GENERIC APPLICATION PROMPTS
   const APP_QUESTIONS = [
     "Tell us about yourself and your educational goals. (150-300 words)",
     "Describe a challenge you've overcome and what you learned from it. (150-300 words)",
@@ -518,9 +558,6 @@ ${Object.keys(appAnswers).length > 0 ? `\nAPPLICATION ANSWERS:\n${JSON.stringify
     "Why should you be selected for this scholarship? (100-200 words)"
   ];
 
-  // ============================================================
-  // FILTERED SCHOLARSHIP LIST
-  // ============================================================
   const filteredScholarships = scholarshipDB.filter(s => {
     const q = searchQuery.toLowerCase();
     const matchesSearch = !q || s.name.toLowerCase().includes(q) || s.criteria.toLowerCase().includes(q) || (s.amount||"").toLowerCase().includes(q);
@@ -528,695 +565,964 @@ ${Object.keys(appAnswers).length > 0 ? `\nAPPLICATION ANSWERS:\n${JSON.stringify
     return matchesSearch && matchesNeed;
   });
 
+  // Deadline helpers
+  const getDeadlineStatus = (deadline) => {
+    if (!deadline || deadline === "Varies" || deadline === "Nomination Only") return { label: deadline || "Varies", color: COLORS.textDim };
+    const d = new Date(deadline);
+    const now = new Date();
+    const days = Math.ceil((d - now) / (1000 * 60 * 60 * 24));
+    if (days < 0) return { label: "Expired", color: COLORS.pink };
+    if (days <= 14) return { label: `${days}d left`, color: COLORS.pink };
+    if (days <= 60) return { label: `${days}d left`, color: COLORS.orange };
+    return { label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }), color: COLORS.teal };
+  };
+
+  const navItems = [
+    {id:"home",icon:"\u25C7",label:"Dashboard"},
+    {id:"profile",icon:"\u25C8",label:"Build Profile"},
+    {id:"search",icon:"\u2B21",label:"Scholarships"},
+    {id:"matches",icon:"\u25C6",label:"My Matches"},
+    {id:"apply",icon:"\u25A3",label:"App Prep"},
+    {id:"generate",icon:"\u25C9",label:"Letter Gen"},
+    {id:"templates",icon:"\u25A4",label:"Templates"},
+    {id:"saved",icon:"\u25AB",label:"Saved"},
+  ];
+
+  const isLanding = view === "landing";
+
   // ============================================================
   // RENDER
   // ============================================================
   return (
-    <div style={{fontFamily:"'Instrument Serif', Georgia, 'Times New Roman', serif",minHeight:"100vh",background:"#0a0a0f",color:"#e8e4dc",overflow:"hidden"}}>
-      
+    <div style={{ fontFamily: FONTS.heading, minHeight: "100vh", background: COLORS.bg, color: COLORS.text, overflow: "hidden" }}>
+
       {/* NOTIFICATION TOAST */}
       {notification && (
-        <div style={{position:"fixed",top:20,right:20,background:"#c9a227",color:"#0a0a0f",padding:"12px 24px",borderRadius:8,zIndex:9999,fontFamily:"'DM Sans',sans-serif",fontSize:14,fontWeight:600,boxShadow:"0 8px 32px rgba(201,162,39,0.3)",animation:"slideIn 0.3s ease"}}>
-          {notification}
+        <div style={{
+          position: "fixed", top: 20, right: 20, zIndex: 9999,
+          padding: "14px 24px", borderRadius: 12,
+          fontFamily: FONTS.body, fontSize: 14, fontWeight: 600,
+          background: notification.type === "error" ? COLORS.pink : notification.type === "success" ? COLORS.teal : COLORS.gold,
+          color: COLORS.bg,
+          boxShadow: `0 8px 32px ${notification.type === "error" ? COLORS.pinkDim : COLORS.goldGlow}`,
+          animation: "toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+        }}>
+          {notification.msg}
         </div>
       )}
 
-      {/* SIDEBAR NAV */}
-      <div style={{position:"fixed",left:0,top:0,bottom:0,width:260,background:"#111118",borderRight:"1px solid #1e1e2e",display:"flex",flexDirection:"column",zIndex:100}}>
-        <div style={{padding:"28px 24px 20px",borderBottom:"1px solid #1e1e2e"}}>
-          <div style={{fontSize:11,fontFamily:"'DM Sans',sans-serif",letterSpacing:3,color:"#c9a227",textTransform:"uppercase",marginBottom:4}}>ScholarBot</div>
-          <div style={{fontSize:22,fontWeight:400,letterSpacing:1,color:"#e8e4dc"}}>PRO</div>
-        </div>
-        
-        {[
-          {id:"home",icon:"◇",label:"Dashboard"},
-          {id:"profile",icon:"◈",label:"Build Profile"},
-          {id:"search",icon:"⬡",label:"Browse Scholarships"},
-          {id:"matches",icon:"◆",label:"My Matches"},
-          {id:"apply",icon:"▣",label:"Application Prep"},
-          {id:"generate",icon:"◉",label:"Letter Generator"},
-          {id:"templates",icon:"▤",label:"Style Templates"},
-          {id:"saved",icon:"◫",label:"Saved Letters"},
-        ].map(item => (
-          <button key={item.id} onClick={() => setView(item.id)} style={{
-            display:"flex",alignItems:"center",gap:12,padding:"14px 24px",border:"none",
-            background:view === item.id ? "linear-gradient(90deg,#1a1a2e,transparent)" : "transparent",
-            color:view === item.id ? "#c9a227" : "#777",cursor:"pointer",fontSize:14,
-            fontFamily:"'DM Sans',sans-serif",textAlign:"left",width:"100%",
-            borderLeft:view === item.id ? "2px solid #c9a227" : "2px solid transparent",
-            transition:"all 0.2s"
+      {/* ====== LANDING PAGE (Phase C) ====== */}
+      {isLanding && (
+        <div style={{ minHeight: "100vh" }}>
+          {/* Landing Nav */}
+          <nav style={{
+            position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+            padding: "16px 40px", display: "flex", justifyContent: "space-between", alignItems: "center",
+            background: "rgba(8,8,13,0.85)", backdropFilter: "blur(20px)",
+            borderBottom: `1px solid ${COLORS.border}`,
           }}>
-            <span style={{fontSize:16,opacity:0.8}}>{item.icon}</span>
-            {item.label}
-          </button>
-        ))}
-        
-        {profile.name && (
-          <div style={{marginTop:"auto",padding:"16px 24px",borderTop:"1px solid #1e1e2e",fontSize:12,fontFamily:"'DM Sans',sans-serif",color:"#555"}}>
-            Logged in as<br/><span style={{color:"#c9a227"}}>{profile.name}</span>
-          </div>
-        )}
-      </div>
-
-      {/* MAIN CONTENT */}
-      <div style={{marginLeft:260,minHeight:"100vh",padding:"40px 48px"}}>
-        
-        {/* ====== HOME / DASHBOARD ====== */}
-        {view === "home" && (
-          <div>
-            <div style={{marginBottom:48}}>
-              <h1 style={{fontSize:48,fontWeight:400,lineHeight:1.1,marginBottom:8,background:"linear-gradient(135deg,#e8e4dc,#c9a227)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Your Scholarship<br/>Command Center</h1>
-              <p style={{fontFamily:"'DM Sans',sans-serif",fontSize:16,color:"#666",maxWidth:500,lineHeight:1.6}}>
-                {scholarshipDB.length} scholarships loaded. AI-powered matching. Human-sounding application letters. Everything you need to fund your future.
-                {scholarshipDB.length <= 30 && <span style={{display:"block",marginTop:8,fontSize:13,color:"#c9a227"}}>Run the Scholarship Verifier to load 400+ scholarships from your master spreadsheets.</span>}
-              </p>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+              <span style={{ fontSize: 11, fontFamily: FONTS.body, letterSpacing: 3, color: COLORS.gold, textTransform: "uppercase" }}>ScholarBot</span>
+              <span style={{ fontSize: 20, fontWeight: 400, color: COLORS.text }}>PRO</span>
             </div>
-            
-            {/* Stats Grid */}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:20,marginBottom:16}}>
-              {[
-                {label:"Scholarships in Database",value:scholarshipDB.length,color:"#c9a227"},
-                {label:"Profile Completion",value:profile.name ? `${Math.round(Object.keys(profile).filter(k=>profile[k]).length / PROFILE_QUESTIONS.length * 100)}%` : "0%",color:"#4ecdc4"},
-                {label:"Matched Opportunities",value:matchResults.length || "—",color:"#e056a0"},
-                {label:"Letters Generated",value:savedLetters.length,color:"#7c6bff"},
-              ].map((stat,i) => (
-                <div key={i} style={{background:"#111118",border:"1px solid #1e1e2e",borderRadius:12,padding:"24px 20px"}}>
-                  <div style={{fontSize:36,fontWeight:300,color:stat.color,marginBottom:4}}>{stat.value}</div>
-                  <div style={{fontSize:12,fontFamily:"'DM Sans',sans-serif",color:"#555",letterSpacing:1,textTransform:"uppercase"}}>{stat.label}</div>
-                </div>
-              ))}
+            <div style={{ display: "flex", gap: 12 }}>
+              <Button variant="ghost" onClick={() => setView("home")} style={{ fontSize: 13, padding: "8px 16px" }}>Log In</Button>
+              <Button onClick={() => setView("profile")} style={{ fontSize: 13, padding: "8px 20px" }}>Get Started Free</Button>
             </div>
+          </nav>
 
-            {/* Database Status Bar */}
-            <div style={{display:"flex",alignItems:"center",gap:12,padding:"12px 18px",background:"#111118",border:"1px solid #1e1e2e",borderRadius:10,marginBottom:40,fontSize:12,fontFamily:"'DM Sans',sans-serif"}}>
-              <span style={{width:8,height:8,borderRadius:"50%",background:dbSource === "synced" ? "#4ecdc4" : "#c9a227",flexShrink:0}}/>
-              <span style={{color:"#777"}}>
-                Database: <span style={{color:"#aaa"}}>{scholarshipDB.length} scholarships</span> · 
-                Last updated: <span style={{color:"#aaa"}}>{dbLastUpdated}</span> · 
-                Source: <span style={{color:dbSource === "synced" ? "#4ecdc4" : "#c9a227"}}>{dbSource === "synced" ? "Auto-synced from ScholarBot Hunter" : "Built-in (verified Feb 11, 2026)"}</span>
-              </span>
+          {/* Hero */}
+          <div style={{
+            padding: "160px 40px 80px", textAlign: "center",
+            background: `radial-gradient(ellipse 80% 50% at 50% -10%, ${COLORS.goldDim}, transparent)`,
+          }}>
+            <div style={{
+              fontSize: 11, fontFamily: FONTS.body, letterSpacing: 4, color: COLORS.gold,
+              textTransform: "uppercase", marginBottom: 20,
+            }}>
+              AI-Powered Scholarship Matching
             </div>
-
-            {/* Quick Actions */}
-            <h2 style={{fontSize:20,fontWeight:400,marginBottom:20,color:"#888"}}>Quick Actions</h2>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
-              {[
-                {label:"Build Your Profile",desc:"Answer questions to create your scholarship persona.",action:()=>setView("profile"),color:"#c9a227"},
-                {label:"Find Matches",desc:"AI matches you to the best-fit scholarships.",action:()=>{if(profile.name){runMatching()}else{setView("profile")}},color:"#4ecdc4"},
-                {label:"Generate a Letter",desc:"Create a human-sounding scholarship application letter.",action:()=>setView("generate"),color:"#e056a0"},
-              ].map((a,i) => (
-                <button key={i} onClick={a.action} style={{
-                  background:"#111118",border:`1px solid ${a.color}22`,borderRadius:12,padding:"28px 24px",
-                  cursor:"pointer",textAlign:"left",transition:"all 0.3s",color:"#e8e4dc"
-                }}
-                onMouseEnter={e => {e.currentTarget.style.borderColor = a.color; e.currentTarget.style.transform = "translateY(-2px)"}}
-                onMouseLeave={e => {e.currentTarget.style.borderColor = a.color+"22"; e.currentTarget.style.transform = "translateY(0)"}}>
-                  <div style={{fontSize:18,fontWeight:400,marginBottom:8}}>{a.label}</div>
-                  <div style={{fontSize:13,fontFamily:"'DM Sans',sans-serif",color:"#666",lineHeight:1.5}}>{a.desc}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ====== PROFILE BUILDER ====== */}
-        {view === "profile" && (
-          <div>
-            <h1 style={{fontSize:36,fontWeight:400,marginBottom:8}}>Build Your Profile</h1>
-            <p style={{fontFamily:"'DM Sans',sans-serif",fontSize:14,color:"#666",marginBottom:32}}>
-              Answer these questions to create your scholarship candidate profile. Upload or paste your brag sheet below.
+            <h1 style={{
+              fontSize: 64, fontWeight: 400, lineHeight: 1.08, marginBottom: 20,
+              maxWidth: 720, margin: "0 auto 20px",
+            }}>
+              <span style={{ color: COLORS.text }}>Fund Your Future.</span><br/>
+              <span style={{
+                background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
+                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+              }}>Sound Like Yourself.</span>
+            </h1>
+            <p style={{
+              fontSize: 18, fontFamily: FONTS.body, color: COLORS.textMuted,
+              maxWidth: 560, margin: "0 auto 40px", lineHeight: 1.6,
+            }}>
+              Match with scholarships you actually qualify for. Generate application letters that sound human, not robotic. Built by students, for students.
             </p>
-
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24,marginBottom:32}}>
-              {PROFILE_QUESTIONS.map(q => (
-                <div key={q.id} style={{gridColumn: q.type === "textarea" ? "1/-1" : "auto"}}>
-                  <label style={{display:"block",fontSize:13,fontFamily:"'DM Sans',sans-serif",color:"#999",marginBottom:8}}>{q.q}</label>
-                  
-                  {q.type === "text" && (
-                    <input value={profile[q.id] || ""} onChange={e => saveProfile({...profile, [q.id]: e.target.value})}
-                      placeholder={q.placeholder} style={{
-                        width:"100%",padding:"12px 16px",background:"#111118",border:"1px solid #1e1e2e",
-                        borderRadius:8,color:"#e8e4dc",fontSize:14,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box"
-                      }}/>
-                  )}
-                  
-                  {q.type === "select" && (
-                    <select value={profile[q.id] || ""} onChange={e => saveProfile({...profile, [q.id]: e.target.value})}
-                      style={{width:"100%",padding:"12px 16px",background:"#111118",border:"1px solid #1e1e2e",borderRadius:8,color:"#e8e4dc",fontSize:14,fontFamily:"'DM Sans',sans-serif",outline:"none"}}>
-                      <option value="">Select...</option>
-                      {q.options.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  )}
-                  
-                  {q.type === "multiselect" && (
-                    <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
-                      {q.options.map(o => {
-                        const sel = (profile[q.id] || []).includes(o);
-                        return (
-                          <button key={o} onClick={() => {
-                            const cur = profile[q.id] || [];
-                            const next = sel ? cur.filter(x => x !== o) : [...cur, o];
-                            saveProfile({...profile, [q.id]: next});
-                          }} style={{
-                            padding:"8px 14px",borderRadius:20,border:sel ? "1px solid #c9a227" : "1px solid #1e1e2e",
-                            background:sel ? "#c9a22722" : "#111118",color:sel ? "#c9a227" : "#777",
-                            cursor:"pointer",fontSize:12,fontFamily:"'DM Sans',sans-serif"
-                          }}>{o}</button>
-                        );
-                      })}
-                    </div>
-                  )}
-                  
-                  {q.type === "textarea" && (
-                    <textarea value={profile[q.id] || ""} onChange={e => saveProfile({...profile, [q.id]: e.target.value})}
-                      placeholder={q.placeholder} rows={4} style={{
-                        width:"100%",padding:"12px 16px",background:"#111118",border:"1px solid #1e1e2e",
-                        borderRadius:8,color:"#e8e4dc",fontSize:14,fontFamily:"'DM Sans',sans-serif",
-                        outline:"none",resize:"vertical",lineHeight:1.6,boxSizing:"border-box"
-                      }}/>
-                  )}
-                </div>
-              ))}
+            <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+              <Button onClick={() => setView("profile")} style={{ fontSize: 16, padding: "16px 36px" }}>
+                Start Your Profile
+              </Button>
+              <Button variant="secondary" onClick={() => setView("search")} style={{ fontSize: 16, padding: "16px 36px" }}>
+                Browse {scholarshipDB.length} Scholarships
+              </Button>
             </div>
+          </div>
 
-            {/* Brag Sheet Upload + Paste */}
-            <div style={{background:"#111118",border:"1px solid #1e1e2e",borderRadius:12,padding:24,marginBottom:24}}>
-              <h3 style={{fontSize:16,fontWeight:400,marginBottom:4}}>Your Brag Sheet <span style={{color:"#666",fontSize:12}}>(optional)</span></h3>
-              <p style={{fontSize:12,fontFamily:"'DM Sans',sans-serif",color:"#555",marginBottom:16}}>Upload a PDF, Word doc, or text file. Or paste directly below. Both work together.</p>
-              
-              {/* File Upload Zone */}
-              <div 
-                onClick={() => bragFileRef.current?.click()}
-                onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#c9a227"; }}
-                onDragLeave={e => { e.currentTarget.style.borderColor = "#1e1e2e"; }}
-                onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#1e1e2e"; const f = e.dataTransfer.files[0]; if(f) handleBragSheetUpload({target:{files:[f]}}); }}
-                style={{
-                  border:"2px dashed #1e1e2e",borderRadius:10,padding:"24px 20px",textAlign:"center",
-                  cursor:"pointer",marginBottom:14,transition:"border-color 0.2s",background:"#0a0a0f"
-                }}>
-                <input ref={bragFileRef} type="file" accept=".pdf,.doc,.docx,.txt,.md,.rtf" onChange={handleBragSheetUpload} style={{display:"none"}} />
-                {bragSheetUploading ? (
-                  <div style={{color:"#c9a227",fontFamily:"'DM Sans',sans-serif",fontSize:13}}>Reading file...</div>
-                ) : bragSheetFileName ? (
-                  <div>
-                    <div style={{fontSize:20,marginBottom:4}}>✓</div>
-                    <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:13,color:"#c9a227"}}>{bragSheetFileName}</div>
-                    <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:11,color:"#555",marginTop:4}}>Click or drop to replace</div>
-                  </div>
-                ) : (
-                  <div>
-                    <div style={{fontSize:24,marginBottom:6,color:"#333"}}>↑</div>
-                    <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:13,color:"#777"}}>Drop your brag sheet here, or click to browse</div>
-                    <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:11,color:"#444",marginTop:4}}>PDF, Word, or text files accepted</div>
-                  </div>
-                )}
+          {/* Social proof strip */}
+          <div style={{
+            display: "flex", justifyContent: "center", gap: 48, padding: "32px 20px",
+            borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`,
+          }}>
+            {[
+              { val: `${scholarshipDB.length}+`, label: "Scholarships" },
+              { val: "$2M+", label: "Award Value Tracked" },
+              { val: "4", label: "Letter Styles" },
+              { val: "Free", label: "To Start" },
+            ].map((s, i) => (
+              <div key={i} style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 28, fontWeight: 400, color: COLORS.gold, fontFamily: FONTS.heading }}>{s.val}</div>
+                <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim, marginTop: 2 }}>{s.label}</div>
               </div>
-
-              {/* Paste Area */}
-              <textarea value={bragSheet} onChange={e => setBragSheet(e.target.value)}
-                placeholder="Or paste your resume, brag sheet, or activity list here. Both upload and paste work together — uploaded content appears here too."
-                rows={6} style={{
-                  width:"100%",padding:"12px 16px",background:"#0a0a0f",border:"1px solid #1e1e2e",
-                  borderRadius:8,color:"#e8e4dc",fontSize:14,fontFamily:"'DM Sans',sans-serif",
-                  outline:"none",resize:"vertical",lineHeight:1.6,boxSizing:"border-box"
-                }}/>
-              {bragSheet && (
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8}}>
-                  <span style={{fontSize:11,fontFamily:"'DM Sans',sans-serif",color:"#444"}}>{bragSheet.length.toLocaleString()} characters loaded</span>
-                  <button onClick={() => { setBragSheet(""); setBragSheetFileName(""); }} style={{fontSize:11,fontFamily:"'DM Sans',sans-serif",color:"#e056a0",background:"none",border:"none",cursor:"pointer"}}>Clear all</button>
-                </div>
-              )}
-            </div>
-
-            <div style={{display:"flex",gap:16}}>
-              <button onClick={generateCandidateProfile} disabled={generatingLetter} style={{
-                padding:"14px 32px",background:generatingLetter?"#333":"linear-gradient(135deg,#c9a227,#b8911e)",
-                border:"none",borderRadius:8,color:"#0a0a0f",fontSize:14,fontWeight:600,
-                fontFamily:"'DM Sans',sans-serif",cursor:generatingLetter?"wait":"pointer"
-              }}>
-                {generatingLetter ? "Generating..." : "Generate AI Profile →"}
-              </button>
-              <button onClick={runMatching} style={{
-                padding:"14px 32px",background:"transparent",border:"1px solid #c9a227",
-                borderRadius:8,color:"#c9a227",fontSize:14,fontFamily:"'DM Sans',sans-serif",cursor:"pointer"
-              }}>
-                Find My Matches
-              </button>
-            </div>
+            ))}
           </div>
-        )}
 
-        {/* ====== GENERATED PROFILE RESULT ====== */}
-        {view === "profileResult" && (
-          <div>
-            <button onClick={() => setView("profile")} style={{background:"none",border:"none",color:"#c9a227",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,marginBottom:20}}>← Back to Profile Builder</button>
-            <h1 style={{fontSize:36,fontWeight:400,marginBottom:24}}>Your Candidate Profile</h1>
-            <div style={{background:"#111118",border:"1px solid #1e1e2e",borderRadius:12,padding:32,maxWidth:800}}>
-              <pre style={{whiteSpace:"pre-wrap",fontFamily:"'DM Sans','Courier New',monospace",fontSize:14,lineHeight:1.8,color:"#d4d0c8"}}>{generatedProfile}</pre>
+          {/* Feature Pillars */}
+          <div style={{ padding: "80px 40px", maxWidth: 1100, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 48 }}>
+              <h2 style={{ fontSize: 36, fontWeight: 400, marginBottom: 10 }}>How ScholarBot Pro Works</h2>
+              <p style={{ fontSize: 15, fontFamily: FONTS.body, color: COLORS.textMuted }}>Three steps to scholarship-ready applications</p>
             </div>
-            <div style={{marginTop:20,display:"flex",gap:12}}>
-              <button onClick={() => {navigator.clipboard.writeText(generatedProfile); notify("Copied to clipboard!")}} style={{
-                padding:"12px 24px",background:"#c9a227",border:"none",borderRadius:8,color:"#0a0a0f",
-                fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer"
-              }}>Copy Profile</button>
-              <button onClick={runMatching} style={{
-                padding:"12px 24px",background:"transparent",border:"1px solid #c9a227",borderRadius:8,
-                color:"#c9a227",fontSize:13,fontFamily:"'DM Sans',sans-serif",cursor:"pointer"
-              }}>Find Matches →</button>
-            </div>
-          </div>
-        )}
-
-        {/* ====== SCHOLARSHIP SEARCH ====== */}
-        {view === "search" && (
-          <div>
-            <h1 style={{fontSize:36,fontWeight:400,marginBottom:24}}>Browse Scholarships</h1>
-            
-            <div style={{display:"flex",gap:16,marginBottom:24}}>
-              <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search by name, criteria, or amount..."
-                style={{flex:1,padding:"12px 20px",background:"#111118",border:"1px solid #1e1e2e",borderRadius:8,color:"#e8e4dc",fontSize:14,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/>
-              <select value={filterNeedBased} onChange={e => setFilterNeedBased(e.target.value)}
-                style={{padding:"12px 16px",background:"#111118",border:"1px solid #1e1e2e",borderRadius:8,color:"#e8e4dc",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}>
-                <option value="all">All Types</option>
-                <option value="need">Need-Based</option>
-                <option value="merit">Merit-Based</option>
-              </select>
-            </div>
-
-            <div style={{fontSize:12,fontFamily:"'DM Sans',sans-serif",color:"#555",marginBottom:16}}>
-              Showing {filteredScholarships.length} of {scholarshipDB.length} scholarships
-            </div>
-
-            <div style={{display:"flex",flexDirection:"column",gap:12}}>
-              {filteredScholarships.map(s => (
-                <div key={s.id} style={{background:"#111118",border:"1px solid #1e1e2e",borderRadius:10,padding:"20px 24px",display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:20}}>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:16,fontWeight:400,marginBottom:6}}>{s.name}</div>
-                    <div style={{fontSize:12,fontFamily:"'DM Sans',sans-serif",color:"#777",lineHeight:1.5,marginBottom:8}}>{s.criteria.slice(0,150)}{s.criteria.length > 150 ? "..." : ""}</div>
-                    <div style={{display:"flex",gap:12,fontSize:11,fontFamily:"'DM Sans',sans-serif"}}>
-                      {s.amount && <span style={{background:"#c9a22722",color:"#c9a227",padding:"4px 10px",borderRadius:4}}>{s.amount}</span>}
-                      {s.deadline && <span style={{color:"#666"}}>Deadline: {s.deadline.split(" ")[0]}</span>}
-                      {s.needBased === "Y" && <span style={{background:"#4ecdc422",color:"#4ecdc4",padding:"4px 10px",borderRadius:4}}>Need-Based</span>}
-                    </div>
-                  </div>
-                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                    <button onClick={() => {setSelectedScholarship(s); setView("generate")}} style={{
-                      padding:"8px 16px",background:"#c9a227",border:"none",borderRadius:6,color:"#0a0a0f",
-                      fontSize:12,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",whiteSpace:"nowrap"
-                    }}>Apply →</button>
-                    {s.link && <a href={s.link} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:"#666",fontFamily:"'DM Sans',sans-serif",textDecoration:"none"}}>View source ↗</a>}
-                  </div>
-                </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+              {[
+                { icon: "\u25C8", title: "Build Your Profile", desc: "Answer guided questions or upload your brag sheet. ScholarBot learns your story, strengths, and goals.", color: COLORS.gold },
+                { icon: "\u25C6", title: "Get Matched", desc: "Our scoring engine analyzes eligibility, heritage, GPA, need, and field to rank your best-fit scholarships.", color: COLORS.teal },
+                { icon: "\u25C9", title: "Generate Letters", desc: "Choose a writing style. Get human-sounding, anti-AI-detection application letters tailored to each scholarship.", color: COLORS.pink },
+              ].map((f, i) => (
+                <GlowCard key={i} glow={f.color} style={{ textAlign: "center", padding: "40px 28px" }}>
+                  <div style={{ fontSize: 40, marginBottom: 16, color: f.color }}>{f.icon}</div>
+                  <div style={{ fontSize: 12, fontFamily: FONTS.body, color: f.color, letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 }}>Step {i + 1}</div>
+                  <h3 style={{ fontSize: 20, fontWeight: 400, marginBottom: 10 }}>{f.title}</h3>
+                  <p style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6 }}>{f.desc}</p>
+                </GlowCard>
               ))}
             </div>
           </div>
-        )}
 
-        {/* ====== MATCHES ====== */}
-        {view === "matches" && (
-          <div>
-            <h1 style={{fontSize:36,fontWeight:400,marginBottom:8}}>Your Matches</h1>
-            <p style={{fontFamily:"'DM Sans',sans-serif",fontSize:14,color:"#666",marginBottom:24}}>
-              Scholarships ranked by how well they match your profile. Higher scores mean better fit.
+          {/* Testimonials */}
+          <div style={{ padding: "60px 40px 80px", background: COLORS.surface }}>
+            <h2 style={{ fontSize: 30, fontWeight: 400, textAlign: "center", marginBottom: 40 }}>What Students Say</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, maxWidth: 1000, margin: "0 auto" }}>
+              {[
+                { quote: "I applied to 12 scholarships in the time it used to take me to do one. The letters actually sounded like me.", name: "Jordan M.", detail: "Class of 2026" },
+                { quote: "The matching saved me hours of Googling. It found scholarships I never knew existed for my background.", name: "Priya K.", detail: "Received $15,000" },
+                { quote: "My counselor couldn't tell the letters were AI-assisted. That's the whole point.", name: "Marcus T.", detail: "First-gen student" },
+              ].map((t, i) => (
+                <GlowCard key={i} hover={false} style={{ padding: "28px 24px" }}>
+                  <div style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.7, marginBottom: 16, fontStyle: "italic" }}>
+                    "{t.quote}"
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 600, fontFamily: FONTS.body, color: COLORS.gold }}>{t.name}</div>
+                  <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim }}>{t.detail}</div>
+                </GlowCard>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div style={{
+            padding: "80px 40px", textAlign: "center",
+            background: `radial-gradient(ellipse 60% 40% at 50% 100%, ${COLORS.goldDim}, transparent)`,
+          }}>
+            <h2 style={{ fontSize: 40, fontWeight: 400, marginBottom: 12 }}>Ready to Fund Your Future?</h2>
+            <p style={{ fontSize: 16, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 32 }}>
+              Build your profile in under 10 minutes. Start generating letters today.
             </p>
-            
-            {matchResults.length === 0 ? (
-              <div style={{textAlign:"center",padding:60}}>
-                <div style={{fontSize:48,marginBottom:16}}>◇</div>
-                <div style={{fontSize:16,color:"#666",marginBottom:20}}>No matches yet.</div>
-                <button onClick={() => setView("profile")} style={{padding:"12px 24px",background:"#c9a227",border:"none",borderRadius:8,color:"#0a0a0f",fontSize:14,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer"}}>
-                  Complete Your Profile
-                </button>
+            <Button onClick={() => setView("profile")} style={{ fontSize: 16, padding: "16px 40px" }}>
+              Get Started Free
+            </Button>
+          </div>
+
+          {/* Footer */}
+          <footer style={{
+            padding: "24px 40px", borderTop: `1px solid ${COLORS.border}`,
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim,
+          }}>
+            <span>ScholarBot Pro \u00A9 2026</span>
+            <span>{scholarshipDB.length} scholarships in database</span>
+          </footer>
+        </div>
+      )}
+
+      {/* ====== APP SHELL (non-landing) ====== */}
+      {!isLanding && (
+        <>
+          {/* SIDEBAR */}
+          <div style={{
+            position: "fixed", left: 0, top: 0, bottom: 0, width: 240,
+            background: COLORS.surface, borderRight: `1px solid ${COLORS.border}`,
+            display: "flex", flexDirection: "column", zIndex: 100,
+            transition: "transform 0.3s",
+          }}>
+            {/* Logo */}
+            <div style={{ padding: "24px 20px 16px", borderBottom: `1px solid ${COLORS.border}` }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                <span style={{ fontSize: 10, fontFamily: FONTS.body, letterSpacing: 3, color: COLORS.gold, textTransform: "uppercase" }}>ScholarBot</span>
+                <span style={{ fontSize: 18, fontWeight: 400, color: COLORS.text }}>PRO</span>
               </div>
-            ) : (
-              <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                {matchResults.map((s,i) => (
-                  <div key={s.id} style={{background:"#111118",border:"1px solid #1e1e2e",borderRadius:10,padding:"20px 24px",display:"flex",alignItems:"center",gap:20}}>
-                    <div style={{width:56,height:56,borderRadius:12,background:`conic-gradient(${s.matchScore >= 70 ? "#4ecdc4" : s.matchScore >= 40 ? "#c9a227" : "#e056a0"} ${s.matchScore*3.6}deg, #1e1e2e 0deg)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                      <div style={{width:44,height:44,borderRadius:8,background:"#111118",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:600,color:s.matchScore >= 70 ? "#4ecdc4" : s.matchScore >= 40 ? "#c9a227" : "#e056a0"}}>
-                        {s.matchScore}
-                      </div>
-                    </div>
-                    <div style={{flex:1}}>
-                      <div style={{fontSize:16,fontWeight:400,marginBottom:4}}>{s.name}</div>
-                      <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                        {s.matchReasons.map((r,j) => (
-                          <span key={j} style={{fontSize:11,fontFamily:"'DM Sans',sans-serif",background:"#1e1e2e",color:"#999",padding:"3px 8px",borderRadius:4}}>{r}</span>
-                        ))}
-                      </div>
-                      {s.amount && <div style={{fontSize:12,fontFamily:"'DM Sans',sans-serif",color:"#c9a227",marginTop:6}}>{s.amount}</div>}
-                    </div>
-                    <button onClick={() => {setSelectedScholarship(s); setView("generate")}} style={{
-                      padding:"10px 20px",background:"#c9a227",border:"none",borderRadius:8,color:"#0a0a0f",
-                      fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer",flexShrink:0
-                    }}>Generate Letter</button>
+              <div style={{ fontSize: 10, fontFamily: FONTS.body, color: COLORS.textDim, marginTop: 4 }}>
+                {scholarshipDB.length} scholarships loaded
+              </div>
+            </div>
+
+            {/* Nav Items */}
+            <div style={{ flex: 1, padding: "8px 0", overflowY: "auto" }}>
+              {navItems.map(item => {
+                const active = view === item.id || (view === "profileResult" && item.id === "profile");
+                return (
+                  <button key={item.id} onClick={() => { setView(item.id); setMobileMenuOpen(false); }} style={{
+                    display: "flex", alignItems: "center", gap: 10, padding: "12px 20px",
+                    border: "none", width: "100%", textAlign: "left",
+                    background: active ? `linear-gradient(90deg, ${COLORS.goldDim}, transparent)` : "transparent",
+                    color: active ? COLORS.gold : COLORS.textDim,
+                    cursor: "pointer", fontSize: 13, fontFamily: FONTS.body,
+                    borderLeft: active ? `2px solid ${COLORS.gold}` : "2px solid transparent",
+                    transition: "all 0.2s",
+                  }}>
+                    <span style={{ fontSize: 14, opacity: 0.7, width: 20, textAlign: "center" }}>{item.icon}</span>
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Landing link */}
+            <button onClick={() => setView("landing")} style={{
+              display: "flex", alignItems: "center", gap: 8, padding: "12px 20px",
+              border: "none", background: "transparent", color: COLORS.textDim,
+              cursor: "pointer", fontSize: 12, fontFamily: FONTS.body,
+              borderTop: `1px solid ${COLORS.border}`,
+              width: "100%", textAlign: "left",
+            }}>
+              \u2190 Back to Home
+            </button>
+
+            {/* User */}
+            {profile.name && (
+              <div style={{ padding: "14px 20px", borderTop: `1px solid ${COLORS.border}`, fontSize: 12, fontFamily: FONTS.body }}>
+                <div style={{ color: COLORS.textDim, marginBottom: 2 }}>Logged in as</div>
+                <div style={{ color: COLORS.gold, fontWeight: 600 }}>{profile.name}</div>
+                <div style={{ marginTop: 6 }}>
+                  <div style={{ background: COLORS.border, borderRadius: 3, height: 4, overflow: "hidden" }}>
+                    <div style={{ background: COLORS.gold, height: "100%", width: `${profileCompletion}%`, transition: "width 0.4s", borderRadius: 3 }} />
                   </div>
-                ))}
+                  <div style={{ fontSize: 10, color: COLORS.textDim, marginTop: 3 }}>{profileCompletion}% profile complete</div>
+                </div>
               </div>
             )}
           </div>
-        )}
 
-        {/* ====== APPLICATION PREP ====== */}
-        {view === "apply" && (
-          <div>
-            <h1 style={{fontSize:36,fontWeight:400,marginBottom:8}}>Application Prep</h1>
-            <p style={{fontFamily:"'DM Sans',sans-serif",fontSize:14,color:"#666",marginBottom:32}}>
-              Answer these common scholarship questions. Your responses will be used to generate more targeted letters.
-            </p>
-            
-            {APP_QUESTIONS.map((q, i) => (
-              <div key={i} style={{marginBottom:28}}>
-                <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:10}}>
-                  <span style={{width:28,height:28,borderRadius:"50%",background:appAnswers[`q${i}`] ? "#c9a22733" : "#1e1e2e",color:appAnswers[`q${i}`] ? "#c9a227" : "#555",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontFamily:"'DM Sans',sans-serif",fontWeight:600,flexShrink:0}}>
-                    {appAnswers[`q${i}`] ? "✓" : i+1}
-                  </span>
-                  <label style={{fontSize:14,fontFamily:"'DM Sans',sans-serif",color:"#bbb"}}>{q}</label>
-                </div>
-                <textarea value={appAnswers[`q${i}`] || ""} onChange={e => {
-                  const next = {...appAnswers, [`q${i}`]: e.target.value};
-                  setAppAnswers(next);
-                  store.set("scholarbot-answers", next);
-                }} rows={5} style={{
-                  width:"100%",padding:"14px 18px",background:"#111118",border:"1px solid #1e1e2e",
-                  borderRadius:8,color:"#e8e4dc",fontSize:14,fontFamily:"'DM Sans',sans-serif",
-                  outline:"none",resize:"vertical",lineHeight:1.7,boxSizing:"border-box"
-                }}/>
-              </div>
-            ))}
+          {/* MAIN CONTENT */}
+          <div style={{ marginLeft: 240, minHeight: "100vh", padding: "36px 44px" }}>
 
-            <div style={{marginTop:12,padding:20,background:"#111118",border:"1px solid #1e1e2e",borderRadius:10,fontSize:13,fontFamily:"'DM Sans',sans-serif",color:"#777",lineHeight:1.6}}>
-              These answers are saved automatically and feed into your letter generation. The more detail you provide, the better your generated letters will be.
-            </div>
-          </div>
-        )}
-
-        {/* ====== LETTER GENERATOR ====== */}
-        {view === "generate" && (
-          <div>
-            <h1 style={{fontSize:36,fontWeight:400,marginBottom:24}}>Letter Generator</h1>
-            
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24,marginBottom:28}}>
-              {/* Scholarship Input — Multi-Mode */}
+            {/* ====== DASHBOARD ====== */}
+            {view === "home" && (
               <div>
-                <label style={{fontSize:12,fontFamily:"'DM Sans',sans-serif",color:"#777",letterSpacing:1,textTransform:"uppercase",marginBottom:10,display:"block"}}>Scholarship Source</label>
-                
-                {/* Mode Tabs */}
-                <div style={{display:"flex",gap:0,marginBottom:14,borderRadius:8,overflow:"hidden",border:"1px solid #1e1e2e"}}>
+                <SectionHeader
+                  title={profile.name ? `Welcome back, ${profile.name.split(" ")[0]}` : "Your Scholarship Command Center"}
+                  subtitle={`${scholarshipDB.length} scholarships loaded. AI-powered matching. Human-sounding letters.`}
+                />
+
+                {/* Stats */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
                   {[
-                    {id:"database",label:"Database"},
-                    {id:"upload",label:"Upload"},
-                    {id:"url",label:"URL"},
-                    {id:"paste",label:"Paste"},
-                  ].map(tab => (
-                    <button key={tab.id} onClick={() => setScholarshipInputMode(tab.id)} style={{
-                      flex:1,padding:"10px 8px",border:"none",fontSize:12,fontFamily:"'DM Sans',sans-serif",
-                      cursor:"pointer",fontWeight:scholarshipInputMode === tab.id ? 600 : 400,
-                      background:scholarshipInputMode === tab.id ? "#c9a22720" : "#111118",
-                      color:scholarshipInputMode === tab.id ? "#c9a227" : "#666",
-                      borderBottom:scholarshipInputMode === tab.id ? "2px solid #c9a227" : "2px solid transparent",
-                      transition:"all 0.2s"
-                    }}>{tab.label}</button>
+                    { label: "Scholarships", value: scholarshipDB.length, color: COLORS.gold, icon: "\u2B21" },
+                    { label: "Profile", value: profileCompletion + "%", color: COLORS.teal, icon: "\u25C8" },
+                    { label: "Matches", value: matchResults.length || "\u2014", color: COLORS.pink, icon: "\u25C6" },
+                    { label: "Letters Saved", value: savedLetters.length, color: COLORS.purple, icon: "\u25AB" },
+                  ].map((stat, i) => (
+                    <GlowCard key={i} glow={stat.color} style={{ padding: "22px 20px", position: "relative", overflow: "hidden" }}>
+                      <div style={{ position: "absolute", top: 12, right: 14, fontSize: 28, opacity: 0.08, color: stat.color }}>{stat.icon}</div>
+                      <div style={{ fontSize: 32, fontWeight: 300, color: stat.color, marginBottom: 2 }}>{stat.value}</div>
+                      <div style={{ fontSize: 11, fontFamily: FONTS.body, color: COLORS.textDim, letterSpacing: 1, textTransform: "uppercase" }}>{stat.label}</div>
+                    </GlowCard>
                   ))}
                 </div>
 
-                {/* MODE: Database Selection */}
-                {scholarshipInputMode === "database" && (
-                  <div>
-                    <select value={selectedScholarship?.id || ""} onChange={e => {
-                      const s = scholarshipDB.find(x => x.id === e.target.value);
-                      setSelectedScholarship(s || null);
-                      setCustomScholarshipText("");
-                      setCustomScholarshipName("");
-                    }} style={{width:"100%",padding:"12px 16px",background:"#111118",border:"1px solid #1e1e2e",borderRadius:8,color:"#e8e4dc",fontSize:14,fontFamily:"'DM Sans',sans-serif",outline:"none"}}>
-                      <option value="">Select from your database...</option>
-                      {scholarshipDB.map(s => <option key={s.id} value={s.id}>{s.name} ({s.amount})</option>)}
-                    </select>
-                    {selectedScholarship && scholarshipInputMode === "database" && (
-                      <div style={{marginTop:12,padding:16,background:"#0a0a0f",border:"1px solid #1e1e2e",borderRadius:8,fontSize:12,fontFamily:"'DM Sans',sans-serif",color:"#888",lineHeight:1.6}}>
-                        <strong style={{color:"#c9a227"}}>Criteria:</strong> {selectedScholarship.criteria.slice(0,300)}
-                      </div>
-                    )}
-                  </div>
-                )}
+                {/* DB Status */}
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 10, padding: "10px 16px",
+                  background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                  marginBottom: 36, fontSize: 12, fontFamily: FONTS.body,
+                }}>
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: dbSource === "synced" ? COLORS.teal : COLORS.gold, flexShrink: 0 }} />
+                  <span style={{ color: COLORS.textDim }}>
+                    {scholarshipDB.length} scholarships \u00B7 Updated {dbLastUpdated} \u00B7{" "}
+                    <span style={{ color: dbSource === "synced" ? COLORS.teal : COLORS.gold }}>
+                      {dbSource === "synced" ? "Auto-synced" : "Built-in (verified)"}
+                    </span>
+                  </span>
+                </div>
 
-                {/* MODE: Upload PDF/Doc */}
-                {scholarshipInputMode === "upload" && (
-                  <div>
-                    <div
-                      onClick={() => scholarshipFileRef.current?.click()}
-                      onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#c9a227"; }}
-                      onDragLeave={e => { e.currentTarget.style.borderColor = "#1e1e2e"; }}
-                      onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#1e1e2e"; const f = e.dataTransfer.files[0]; if(f) handleScholarshipUpload({target:{files:[f]}}); }}
-                      style={{
-                        border:"2px dashed #1e1e2e",borderRadius:10,padding:"28px 20px",textAlign:"center",
-                        cursor:"pointer",transition:"border-color 0.2s",background:"#0a0a0f",marginBottom:12
-                      }}>
-                      <input ref={scholarshipFileRef} type="file" accept=".pdf,.doc,.docx,.txt,.md,.html,.rtf" onChange={handleScholarshipUpload} style={{display:"none"}} />
-                      {uploadedScholarshipName ? (
-                        <div>
-                          <div style={{fontSize:20,marginBottom:4}}>✓</div>
-                          <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:13,color:"#c9a227"}}>{uploadedScholarshipName}</div>
-                          <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:11,color:"#555",marginTop:4}}>Click or drop to replace</div>
-                        </div>
-                      ) : (
-                        <div>
-                          <div style={{fontSize:28,marginBottom:6,color:"#333"}}>📄</div>
-                          <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:13,color:"#777"}}>Drop scholarship application here</div>
-                          <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:11,color:"#444",marginTop:4}}>PDF, Word, text, or HTML files</div>
-                        </div>
-                      )}
-                    </div>
-                    <input value={customScholarshipName} onChange={e => setCustomScholarshipName(e.target.value)}
-                      placeholder="Scholarship name (auto-detected or type manually)"
-                      style={{width:"100%",padding:"10px 14px",background:"#111118",border:"1px solid #1e1e2e",borderRadius:8,color:"#e8e4dc",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",boxSizing:"border-box"}}/>
-                    {customScholarshipText && (
-                      <div style={{marginTop:10,padding:12,background:"#0a0a0f",border:"1px solid #1e1e2e",borderRadius:8,fontSize:11,fontFamily:"'DM Sans',sans-serif",color:"#555",maxHeight:80,overflow:"hidden"}}>
-                        {customScholarshipText.slice(0,200)}...
-                        <span style={{color:"#c9a227",marginLeft:4}}>{customScholarshipText.length.toLocaleString()} chars loaded</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* MODE: Fetch from URL */}
-                {scholarshipInputMode === "url" && (
-                  <div>
-                    <div style={{display:"flex",gap:8,marginBottom:12}}>
-                      <input value={scholarshipUrl} onChange={e => setScholarshipUrl(e.target.value)}
-                        placeholder="https://www.scholarship-site.com/apply"
-                        style={{flex:1,padding:"12px 16px",background:"#111118",border:"1px solid #1e1e2e",borderRadius:8,color:"#e8e4dc",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/>
-                      <button onClick={fetchScholarshipFromUrl} disabled={fetchingUrl} style={{
-                        padding:"12px 20px",background:fetchingUrl ? "#333" : "#c9a227",border:"none",borderRadius:8,
-                        color:"#0a0a0f",fontSize:12,fontWeight:600,fontFamily:"'DM Sans',sans-serif",
-                        cursor:fetchingUrl?"wait":"pointer",whiteSpace:"nowrap"
-                      }}>
-                        {fetchingUrl ? "Fetching..." : "Fetch →"}
-                      </button>
-                    </div>
-                    <input value={customScholarshipName} onChange={e => setCustomScholarshipName(e.target.value)}
-                      placeholder="Scholarship name (auto-detected or type manually)"
-                      style={{width:"100%",padding:"10px 14px",background:"#111118",border:"1px solid #1e1e2e",borderRadius:8,color:"#e8e4dc",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",marginBottom:10,boxSizing:"border-box"}}/>
-                    {customScholarshipText && (
-                      <div style={{padding:12,background:"#0a0a0f",border:"1px solid #1e1e2e",borderRadius:8,fontSize:11,fontFamily:"'DM Sans',sans-serif",color:"#555",maxHeight:100,overflow:"auto"}}>
-                        <div style={{color:"#4ecdc4",marginBottom:6}}>✓ Scholarship details fetched</div>
-                        {customScholarshipText.slice(0,300)}...
-                      </div>
-                    )}
-                    <div style={{fontSize:11,fontFamily:"'DM Sans',sans-serif",color:"#444",marginTop:8}}>
-                      Uses AI web search to extract scholarship details from the page. Works best with direct application pages.
-                    </div>
-                  </div>
-                )}
-
-                {/* MODE: Paste Description */}
-                {scholarshipInputMode === "paste" && (
-                  <div>
-                    <input value={customScholarshipName} onChange={e => setCustomScholarshipName(e.target.value)}
-                      placeholder="Scholarship name"
-                      style={{width:"100%",padding:"10px 14px",background:"#111118",border:"1px solid #1e1e2e",borderRadius:8,color:"#e8e4dc",fontSize:14,fontFamily:"'DM Sans',sans-serif",outline:"none",marginBottom:10,boxSizing:"border-box"}}/>
-                    <textarea value={customScholarshipText} onChange={e => setCustomScholarshipText(e.target.value)}
-                      placeholder="Paste the full scholarship description, eligibility criteria, and requirements here. The more detail you include, the better your letter will be tailored."
-                      rows={8} style={{
-                        width:"100%",padding:"12px 16px",background:"#0a0a0f",border:"1px solid #1e1e2e",
-                        borderRadius:8,color:"#e8e4dc",fontSize:13,fontFamily:"'DM Sans',sans-serif",
-                        outline:"none",resize:"vertical",lineHeight:1.6,boxSizing:"border-box"
-                      }}/>
-                    {customScholarshipText && (
-                      <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
-                        <span style={{fontSize:11,fontFamily:"'DM Sans',sans-serif",color:"#444"}}>{customScholarshipText.length.toLocaleString()} characters</span>
-                        <button onClick={() => { setCustomScholarshipText(""); setCustomScholarshipName(""); }} style={{fontSize:11,fontFamily:"'DM Sans',sans-serif",color:"#e056a0",background:"none",border:"none",cursor:"pointer"}}>Clear</button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                {/* Quick Actions */}
+                <h2 style={{ fontSize: 18, fontWeight: 400, marginBottom: 16, color: COLORS.textMuted, fontFamily: FONTS.heading }}>Quick Actions</h2>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+                  {[
+                    { label: "Build Your Profile", desc: "Answer questions to create your scholarship persona.", action: () => setView("profile"), color: COLORS.gold, icon: "\u25C8" },
+                    { label: "Find Matches", desc: "AI matches you to best-fit scholarships.", action: () => { if (profile.name) runMatching(); else setView("profile"); }, color: COLORS.teal, icon: "\u25C6" },
+                    { label: "Generate a Letter", desc: "Create a human-sounding application letter.", action: () => setView("generate"), color: COLORS.pink, icon: "\u25C9" },
+                  ].map((a, i) => (
+                    <GlowCard key={i} onClick={a.action} glow={a.color} style={{ padding: "28px 24px", cursor: "pointer" }}>
+                      <div style={{ fontSize: 28, marginBottom: 12, color: a.color, opacity: 0.6 }}>{a.icon}</div>
+                      <div style={{ fontSize: 17, fontWeight: 400, marginBottom: 6 }}>{a.label}</div>
+                      <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5 }}>{a.desc}</div>
+                    </GlowCard>
+                  ))}
+                </div>
               </div>
+            )}
 
-              {/* Template Selection */}
+            {/* ====== PROFILE BUILDER (Stepped Wizard) ====== */}
+            {view === "profile" && (
               <div>
-                <label style={{fontSize:12,fontFamily:"'DM Sans',sans-serif",color:"#777",letterSpacing:1,textTransform:"uppercase",marginBottom:10,display:"block"}}>Writing Style</label>
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {templates.map(t => (
-                    <button key={t.id} onClick={() => setSelectedTemplate(t)} style={{
-                      padding:"12px 16px",background:selectedTemplate?.id === t.id ? "#c9a22715" : "#111118",
-                      border:selectedTemplate?.id === t.id ? "1px solid #c9a227" : "1px solid #1e1e2e",
-                      borderRadius:8,cursor:"pointer",textAlign:"left",color:"#e8e4dc"
+                <SectionHeader title="Build Your Profile" subtitle="Answer these questions to create your scholarship candidate profile." />
+
+                {/* Step Progress */}
+                <div style={{ display: "flex", gap: 8, marginBottom: 32 }}>
+                  {PROFILE_STEPS.map((s, i) => (
+                    <button key={i} onClick={() => setProfileStep(i)} style={{
+                      flex: 1, padding: "12px 14px", borderRadius: 10, border: "none",
+                      background: i === profileStep ? COLORS.goldDim : COLORS.surface,
+                      borderBottom: i === profileStep ? `2px solid ${COLORS.gold}` : `2px solid transparent`,
+                      cursor: "pointer", textAlign: "left", transition: "all 0.2s",
                     }}>
-                      <div style={{fontSize:14,fontWeight:400,marginBottom:2}}>{t.name}</div>
-                      <div style={{fontSize:11,fontFamily:"'DM Sans',sans-serif",color:"#666"}}>{t.description}</div>
+                      <div style={{ fontSize: 11, fontFamily: FONTS.body, color: i === profileStep ? COLORS.gold : COLORS.textDim, fontWeight: 600, marginBottom: 2 }}>
+                        Step {i + 1}
+                      </div>
+                      <div style={{ fontSize: 13, fontFamily: FONTS.body, color: i === profileStep ? COLORS.text : COLORS.textMuted }}>
+                        {s.title}
+                      </div>
                     </button>
                   ))}
                 </div>
-              </div>
-            </div>
 
-            <button onClick={generateLetter} disabled={generatingLetter || (scholarshipInputMode === "database" ? !selectedScholarship : !customScholarshipText.trim())} style={{
-              padding:"14px 40px",background:generatingLetter ? "#333" : "linear-gradient(135deg,#c9a227,#b8911e)",
-              border:"none",borderRadius:8,color:"#0a0a0f",fontSize:15,fontWeight:600,
-              fontFamily:"'DM Sans',sans-serif",cursor:generatingLetter?"wait":"pointer",marginBottom:28
-            }}>
-              {generatingLetter ? "◉ Generating..." : "Generate Scholarship Letter"}
-            </button>
-
-            {generatedLetter && (
-              <div>
-                <div style={{background:"#111118",border:"1px solid #1e1e2e",borderRadius:12,padding:32,marginBottom:16}}>
-                  <div style={{whiteSpace:"pre-wrap",fontSize:15,lineHeight:1.8,color:"#d4d0c8",fontFamily:"Georgia,'Times New Roman',serif"}}>{generatedLetter}</div>
+                {/* Current Step Questions */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 28 }}>
+                  {PROFILE_QUESTIONS.filter(q => q.step === profileStep).map(q => (
+                    <div key={q.id} style={{ gridColumn: q.type === "textarea" ? "1 / -1" : "auto" }}>
+                      <label style={{ display: "block", fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 8, fontWeight: 500 }}>{q.q}</label>
+                      {q.type === "text" && (
+                        <input value={profile[q.id] || ""} onChange={e => saveProfile({...profile, [q.id]: e.target.value})}
+                          placeholder={q.placeholder} style={{
+                            width: "100%", padding: "12px 16px", background: COLORS.surface,
+                            border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                            color: COLORS.text, fontSize: 14, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box",
+                            transition: "border-color 0.2s",
+                          }}/>
+                      )}
+                      {q.type === "select" && (
+                        <select value={profile[q.id] || ""} onChange={e => saveProfile({...profile, [q.id]: e.target.value})}
+                          style={{
+                            width: "100%", padding: "12px 16px", background: COLORS.surface,
+                            border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                            color: COLORS.text, fontSize: 14, fontFamily: FONTS.body, outline: "none",
+                          }}>
+                          <option value="">Select...</option>
+                          {q.options.map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      )}
+                      {q.type === "multiselect" && (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                          {q.options.map(o => {
+                            const sel = (profile[q.id] || []).includes(o);
+                            return (
+                              <button key={o} onClick={() => {
+                                const cur = profile[q.id] || [];
+                                saveProfile({...profile, [q.id]: sel ? cur.filter(x => x !== o) : [...cur, o]});
+                              }} style={{
+                                padding: "8px 14px", borderRadius: 20,
+                                border: sel ? `1px solid ${COLORS.gold}` : `1px solid ${COLORS.border}`,
+                                background: sel ? COLORS.goldDim : COLORS.surface,
+                                color: sel ? COLORS.gold : COLORS.textDim,
+                                cursor: "pointer", fontSize: 12, fontFamily: FONTS.body,
+                              }}>{o}</button>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {q.type === "textarea" && (
+                        <textarea value={profile[q.id] || ""} onChange={e => saveProfile({...profile, [q.id]: e.target.value})}
+                          placeholder={q.placeholder} rows={4} style={{
+                            width: "100%", padding: "12px 16px", background: COLORS.surface,
+                            border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                            color: COLORS.text, fontSize: 14, fontFamily: FONTS.body,
+                            outline: "none", resize: "vertical", lineHeight: 1.6, boxSizing: "border-box",
+                          }}/>
+                      )}
+                    </div>
+                  ))}
                 </div>
-                <div style={{display:"flex",gap:12}}>
-                  <button onClick={() => {
-                    const label = scholarshipInputMode === "database" 
-                      ? selectedScholarship?.name 
-                      : (customScholarshipName || "Custom Scholarship");
-                    saveLetter({text:generatedLetter,scholarship:label,template:selectedTemplate?.name});
-                  }} style={{padding:"10px 20px",background:"#c9a227",border:"none",borderRadius:8,color:"#0a0a0f",fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer"}}>
-                    Save Letter
-                  </button>
-                  <button onClick={() => {navigator.clipboard.writeText(generatedLetter); notify("Copied!")}} style={{
-                    padding:"10px 20px",background:"transparent",border:"1px solid #c9a227",borderRadius:8,
-                    color:"#c9a227",fontSize:13,fontFamily:"'DM Sans',sans-serif",cursor:"pointer"
-                  }}>Copy to Clipboard</button>
-                  <button onClick={generateLetter} style={{
-                    padding:"10px 20px",background:"transparent",border:"1px solid #444",borderRadius:8,
-                    color:"#888",fontSize:13,fontFamily:"'DM Sans',sans-serif",cursor:"pointer"
-                  }}>Regenerate</button>
+
+                {/* Step Navigation */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
+                  <Button variant="ghost" onClick={() => setProfileStep(Math.max(0, profileStep - 1))} disabled={profileStep === 0}>
+                    \u2190 Previous
+                  </Button>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {PROFILE_STEPS.map((_, i) => (
+                      <div key={i} style={{
+                        width: 8, height: 8, borderRadius: "50%",
+                        background: i === profileStep ? COLORS.gold : i < profileStep ? COLORS.teal : COLORS.border,
+                        transition: "all 0.3s",
+                      }} />
+                    ))}
+                  </div>
+                  {profileStep < PROFILE_STEPS.length - 1 ? (
+                    <Button onClick={() => setProfileStep(profileStep + 1)}>
+                      Next \u2192
+                    </Button>
+                  ) : (
+                    <Button onClick={generateCandidateProfile} disabled={generatingLetter}>
+                      {generatingLetter ? "Generating..." : "Generate AI Profile \u2192"}
+                    </Button>
+                  )}
+                </div>
+
+                {/* Brag Sheet */}
+                <GlowCard hover={false} style={{ marginBottom: 24 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                    <div>
+                      <h3 style={{ fontSize: 16, fontWeight: 400, marginBottom: 4 }}>
+                        Your Brag Sheet <span style={{ color: COLORS.textDim, fontSize: 12 }}>(optional)</span>
+                      </h3>
+                      <p style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim }}>Upload a PDF, Word doc, or text file. Or paste directly.</p>
+                    </div>
+                    {bragSheet && (
+                      <button onClick={() => { setBragSheet(""); setBragSheetFileName(""); }} style={{
+                        fontSize: 11, fontFamily: FONTS.body, color: COLORS.pink,
+                        background: "none", border: "none", cursor: "pointer",
+                      }}>Clear all</button>
+                    )}
+                  </div>
+
+                  <div
+                    onClick={() => bragFileRef.current?.click()}
+                    onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = COLORS.gold; }}
+                    onDragLeave={e => { e.currentTarget.style.borderColor = COLORS.border; }}
+                    onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = COLORS.border; const f = e.dataTransfer.files[0]; if(f) handleBragSheetUpload({target:{files:[f]}}); }}
+                    style={{
+                      border: `2px dashed ${COLORS.border}`, borderRadius: 12, padding: "24px 20px",
+                      textAlign: "center", cursor: "pointer", marginBottom: 14, transition: "border-color 0.2s",
+                      background: COLORS.bg,
+                    }}>
+                    <input ref={bragFileRef} type="file" accept=".pdf,.doc,.docx,.txt,.md,.rtf" onChange={handleBragSheetUpload} style={{ display: "none" }} />
+                    {bragSheetUploading ? (
+                      <div style={{ color: COLORS.gold, fontFamily: FONTS.body, fontSize: 13 }}>Reading file...</div>
+                    ) : bragSheetFileName ? (
+                      <div>
+                        <div style={{ fontSize: 20, marginBottom: 4, color: COLORS.teal }}>\u2713</div>
+                        <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.gold }}>{bragSheetFileName}</div>
+                        <div style={{ fontFamily: FONTS.body, fontSize: 11, color: COLORS.textDim, marginTop: 4 }}>Click or drop to replace</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ fontSize: 24, marginBottom: 6, color: COLORS.textDim }}>\u2191</div>
+                        <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textMuted }}>Drop your brag sheet here, or click to browse</div>
+                        <div style={{ fontFamily: FONTS.body, fontSize: 11, color: COLORS.textDim, marginTop: 4 }}>PDF, Word, or text files accepted</div>
+                      </div>
+                    )}
+                  </div>
+
+                  <textarea value={bragSheet} onChange={e => setBragSheet(e.target.value)}
+                    placeholder="Or paste your resume, brag sheet, or activity list here..."
+                    rows={5} style={{
+                      width: "100%", padding: "12px 16px", background: COLORS.bg,
+                      border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                      color: COLORS.text, fontSize: 14, fontFamily: FONTS.body,
+                      outline: "none", resize: "vertical", lineHeight: 1.6, boxSizing: "border-box",
+                    }}/>
+                  {bragSheet && (
+                    <div style={{ fontSize: 11, fontFamily: FONTS.body, color: COLORS.textDim, marginTop: 6 }}>
+                      {bragSheet.length.toLocaleString()} characters loaded
+                    </div>
+                  )}
+                </GlowCard>
+
+                <div style={{ display: "flex", gap: 12 }}>
+                  <Button onClick={generateCandidateProfile} disabled={generatingLetter}>
+                    {generatingLetter ? "Generating..." : "Generate AI Profile"}
+                  </Button>
+                  <Button variant="secondary" onClick={runMatching}>Find My Matches</Button>
                 </div>
               </div>
             )}
-          </div>
-        )}
 
-        {/* ====== STYLE TEMPLATES ====== */}
-        {view === "templates" && (
-          <div>
-            <h1 style={{fontSize:36,fontWeight:400,marginBottom:8}}>Style Templates</h1>
-            <p style={{fontFamily:"'DM Sans',sans-serif",fontSize:14,color:"#666",marginBottom:32}}>
-              Different writing styles for different scholarship personalities. Create your own or customize existing ones.
-            </p>
-            
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginBottom:32}}>
-              {templates.map(t => (
-                <div key={t.id} style={{background:"#111118",border:"1px solid #1e1e2e",borderRadius:12,padding:24}}>
-                  <div style={{fontSize:18,fontWeight:400,marginBottom:8,color:"#c9a227"}}>{t.name}</div>
-                  <div style={{fontSize:13,fontFamily:"'DM Sans',sans-serif",color:"#888",marginBottom:16,lineHeight:1.5}}>{t.description}</div>
-                  <div style={{fontSize:12,fontFamily:"'DM Sans',monospace",color:"#555",background:"#0a0a0f",padding:12,borderRadius:8,lineHeight:1.6}}>
-                    {t.rules}
-                  </div>
+            {/* ====== GENERATED PROFILE ====== */}
+            {view === "profileResult" && (
+              <div>
+                <button onClick={() => setView("profile")} style={{ background: "none", border: "none", color: COLORS.gold, cursor: "pointer", fontFamily: FONTS.body, fontSize: 13, marginBottom: 20 }}>\u2190 Back to Profile Builder</button>
+                <SectionHeader title="Your Candidate Profile" />
+                <GlowCard hover={false} style={{ maxWidth: 800, padding: 32 }}>
+                  <pre style={{ whiteSpace: "pre-wrap", fontFamily: FONTS.body, fontSize: 14, lineHeight: 1.8, color: "#d4d0c8" }}>{generatedProfile}</pre>
+                </GlowCard>
+                <div style={{ marginTop: 20, display: "flex", gap: 12 }}>
+                  <Button onClick={() => { navigator.clipboard.writeText(generatedProfile); notify("Copied!", "success"); }}>Copy Profile</Button>
+                  <Button variant="secondary" onClick={runMatching}>Find Matches \u2192</Button>
                 </div>
-              ))}
-            </div>
-            
-            {/* Add Custom Template */}
-            <div style={{background:"#111118",border:"1px dashed #1e1e2e",borderRadius:12,padding:24}}>
-              <h3 style={{fontSize:16,fontWeight:400,marginBottom:16}}>Create Custom Template</h3>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:16}}>
-                <input id="tpl-name" placeholder="Template name..." style={{padding:"10px 14px",background:"#0a0a0f",border:"1px solid #1e1e2e",borderRadius:8,color:"#e8e4dc",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/>
-                <input id="tpl-desc" placeholder="Short description..." style={{padding:"10px 14px",background:"#0a0a0f",border:"1px solid #1e1e2e",borderRadius:8,color:"#e8e4dc",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none"}}/>
               </div>
-              <textarea id="tpl-rules" placeholder="Writing rules (e.g., 1. Open with a question. 2. Keep sentences under 20 words...)" rows={4} style={{
-                width:"100%",padding:"10px 14px",background:"#0a0a0f",border:"1px solid #1e1e2e",borderRadius:8,
-                color:"#e8e4dc",fontSize:13,fontFamily:"'DM Sans',sans-serif",outline:"none",resize:"vertical",lineHeight:1.6,boxSizing:"border-box",marginBottom:12
-              }}/>
-              <button onClick={() => {
-                const name = document.getElementById("tpl-name").value;
-                const desc = document.getElementById("tpl-desc").value;
-                const rules = document.getElementById("tpl-rules").value;
-                if (!name || !rules) { notify("Name and rules are required."); return; }
-                const newTpl = {id:`custom-${Date.now()}`,name,description:desc,rules};
-                saveTemplates([...templates, newTpl]);
-                notify("Template created!");
-                document.getElementById("tpl-name").value = "";
-                document.getElementById("tpl-desc").value = "";
-                document.getElementById("tpl-rules").value = "";
-              }} style={{padding:"10px 24px",background:"#c9a227",border:"none",borderRadius:8,color:"#0a0a0f",fontSize:13,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer"}}>
-                Save Template
-              </button>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* ====== SAVED LETTERS ====== */}
-        {view === "saved" && (
-          <div>
-            <h1 style={{fontSize:36,fontWeight:400,marginBottom:24}}>Saved Letters</h1>
-            
-            {savedLetters.length === 0 ? (
-              <div style={{textAlign:"center",padding:60,color:"#555"}}>
-                <div style={{fontSize:48,marginBottom:16}}>◫</div>
-                <div style={{fontSize:16,marginBottom:20}}>No saved letters yet.</div>
-                <button onClick={() => setView("generate")} style={{padding:"12px 24px",background:"#c9a227",border:"none",borderRadius:8,color:"#0a0a0f",fontSize:14,fontWeight:600,fontFamily:"'DM Sans',sans-serif",cursor:"pointer"}}>
-                  Generate Your First Letter
-                </button>
+            {/* ====== BROWSE SCHOLARSHIPS (Card Layout) ====== */}
+            {view === "search" && (
+              <div>
+                <SectionHeader
+                  title="Browse Scholarships"
+                  subtitle={`${filteredScholarships.length} of ${scholarshipDB.length} scholarships shown`}
+                />
+
+                {/* Search + Filters */}
+                <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
+                  <div style={{ flex: 1, position: "relative" }}>
+                    <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: COLORS.textDim, fontSize: 16 }}>\u26B2</span>
+                    <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                      placeholder="Search by name, criteria, or amount..."
+                      style={{
+                        width: "100%", padding: "12px 16px 12px 38px", background: COLORS.surface,
+                        border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                        color: COLORS.text, fontSize: 14, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box",
+                      }}/>
+                  </div>
+                  <select value={filterNeedBased} onChange={e => setFilterNeedBased(e.target.value)}
+                    style={{
+                      padding: "12px 16px", background: COLORS.surface,
+                      border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                      color: COLORS.text, fontSize: 13, fontFamily: FONTS.body, outline: "none",
+                    }}>
+                    <option value="all">All Types</option>
+                    <option value="need">Need-Based</option>
+                    <option value="merit">Merit-Based</option>
+                  </select>
+                </div>
+
+                {/* Scholarship Cards */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {filteredScholarships.map(s => {
+                    const dl = getDeadlineStatus(s.deadline);
+                    return (
+                      <GlowCard key={s.id} style={{ padding: "18px 22px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20 }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 16, fontWeight: 400, marginBottom: 6, fontFamily: FONTS.heading }}>{s.name}</div>
+                          <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5, marginBottom: 10 }}>
+                            {s.criteria.slice(0, 160)}{s.criteria.length > 160 ? "..." : ""}
+                          </div>
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            {s.amount && <Badge color={COLORS.gold}>{s.amount}</Badge>}
+                            <Badge color={dl.color}>{dl.label}</Badge>
+                            {s.needBased === "Y" && <Badge color={COLORS.teal}>Need-Based</Badge>}
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
+                          <Button onClick={() => { setSelectedScholarship(s); setView("generate"); }} style={{ fontSize: 12, padding: "8px 16px" }}>
+                            Apply \u2192
+                          </Button>
+                          {s.link && <a href={s.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: COLORS.textDim, fontFamily: FONTS.body, textDecoration: "none", textAlign: "center" }}>View source \u2197</a>}
+                        </div>
+                      </GlowCard>
+                    );
+                  })}
+                </div>
               </div>
-            ) : (
-              <div style={{display:"flex",flexDirection:"column",gap:16}}>
-                {savedLetters.map((l,i) => (
-                  <div key={l.id} style={{background:"#111118",border:"1px solid #1e1e2e",borderRadius:10,padding:24}}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-                      <div>
-                        <div style={{fontSize:16,fontWeight:400}}>{l.scholarship || "Untitled"}</div>
-                        <div style={{fontSize:12,fontFamily:"'DM Sans',sans-serif",color:"#666"}}>{l.template} • {l.date}</div>
-                      </div>
-                      <div style={{display:"flex",gap:8}}>
-                        <button onClick={() => {navigator.clipboard.writeText(l.text); notify("Copied!")}} style={{
-                          padding:"6px 14px",background:"transparent",border:"1px solid #c9a227",borderRadius:6,
-                          color:"#c9a227",fontSize:11,fontFamily:"'DM Sans',sans-serif",cursor:"pointer"
-                        }}>Copy</button>
-                        <button onClick={async () => {
-                          const next = savedLetters.filter((_,j) => j !== i);
-                          setSavedLetters(next);
-                          try { store.set("scholarbot-letters", next); } catch(e) {}
-                          notify("Deleted.");
-                        }} style={{
-                          padding:"6px 14px",background:"transparent",border:"1px solid #333",borderRadius:6,
-                          color:"#555",fontSize:11,fontFamily:"'DM Sans',sans-serif",cursor:"pointer"
-                        }}>Delete</button>
-                      </div>
+            )}
+
+            {/* ====== MATCHES ====== */}
+            {view === "matches" && (
+              <div>
+                <SectionHeader
+                  title="Your Matches"
+                  subtitle="Scholarships ranked by how well they match your profile."
+                  action={<Button variant="secondary" onClick={runMatching} style={{ fontSize: 12, padding: "8px 16px" }}>Re-run Matching</Button>}
+                />
+                {matchResults.length === 0 ? (
+                  <EmptyState icon="\u25C7" title="No matches yet" desc="Complete your profile to find matching scholarships."
+                    action={() => setView("profile")} actionLabel="Complete Profile" />
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {matchResults.map(s => {
+                      const scoreColor = s.matchScore >= 70 ? COLORS.teal : s.matchScore >= 40 ? COLORS.gold : COLORS.pink;
+                      return (
+                        <GlowCard key={s.id} glow={scoreColor} style={{ padding: "18px 22px", display: "flex", alignItems: "center", gap: 18 }}>
+                          <div style={{ position: "relative", flexShrink: 0 }}>
+                            <ProgressRing value={s.matchScore} color={scoreColor} />
+                            <div style={{
+                              position: "absolute", top: "50%", left: "50%",
+                              transform: "translate(-50%, -50%)",
+                              fontSize: 14, fontWeight: 700, fontFamily: FONTS.body, color: scoreColor,
+                            }}>{s.matchScore}</div>
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 16, fontWeight: 400, marginBottom: 4 }}>{s.name}</div>
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                              {s.matchReasons.map((r, j) => (
+                                <span key={j} style={{
+                                  fontSize: 11, fontFamily: FONTS.body,
+                                  background: COLORS.surface, border: `1px solid ${COLORS.border}`,
+                                  color: COLORS.textMuted, padding: "3px 8px", borderRadius: 5,
+                                }}>{r}</span>
+                              ))}
+                            </div>
+                            {s.amount && <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.gold, marginTop: 6 }}>{s.amount}</div>}
+                          </div>
+                          <Button onClick={() => { setSelectedScholarship(s); setView("generate"); }} style={{ fontSize: 12, padding: "10px 18px", flexShrink: 0 }}>
+                            Generate Letter
+                          </Button>
+                        </GlowCard>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ====== APPLICATION PREP ====== */}
+            {view === "apply" && (
+              <div>
+                <SectionHeader title="Application Prep" subtitle="Answer common scholarship questions. Your responses enhance generated letters." />
+                {APP_QUESTIONS.map((q, i) => (
+                  <div key={i} style={{ marginBottom: 24 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                      <span style={{
+                        width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 12, fontFamily: FONTS.body, fontWeight: 600, flexShrink: 0,
+                        background: appAnswers[`q${i}`] ? COLORS.goldDim : COLORS.surface,
+                        color: appAnswers[`q${i}`] ? COLORS.gold : COLORS.textDim,
+                        border: `1px solid ${appAnswers[`q${i}`] ? COLORS.gold + "44" : COLORS.border}`,
+                      }}>
+                        {appAnswers[`q${i}`] ? "\u2713" : i + 1}
+                      </span>
+                      <label style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted }}>{q}</label>
                     </div>
-                    <div style={{fontSize:13,fontFamily:"'DM Sans',sans-serif",color:"#888",lineHeight:1.6,maxHeight:120,overflow:"hidden"}}>
-                      {l.text.slice(0,400)}...
-                    </div>
+                    <textarea value={appAnswers[`q${i}`] || ""} onChange={e => {
+                      const next = {...appAnswers, [`q${i}`]: e.target.value};
+                      setAppAnswers(next); store.set("scholarbot-answers", next);
+                    }} rows={5} style={{
+                      width: "100%", padding: "14px 18px", background: COLORS.surface,
+                      border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                      color: COLORS.text, fontSize: 14, fontFamily: FONTS.body,
+                      outline: "none", resize: "vertical", lineHeight: 1.7, boxSizing: "border-box",
+                    }}/>
                   </div>
                 ))}
+                <GlowCard hover={false} style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6 }}>
+                  These answers are saved automatically and feed into your letter generation. More detail = better letters.
+                </GlowCard>
+              </div>
+            )}
+
+            {/* ====== LETTER GENERATOR ====== */}
+            {view === "generate" && (
+              <div>
+                <SectionHeader title="Letter Generator" subtitle="Select a scholarship and writing style, then generate." />
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 28 }}>
+                  {/* Scholarship Input */}
+                  <div>
+                    <label style={{ fontSize: 11, fontFamily: FONTS.body, color: COLORS.textDim, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10, display: "block" }}>
+                      Scholarship Source
+                    </label>
+
+                    {/* Mode Tabs */}
+                    <div style={{ display: "flex", gap: 0, marginBottom: 14, borderRadius: 10, overflow: "hidden", border: `1px solid ${COLORS.border}` }}>
+                      {[
+                        {id:"database",label:"Database"},
+                        {id:"upload",label:"Upload"},
+                        {id:"url",label:"URL"},
+                        {id:"paste",label:"Paste"},
+                      ].map(tab => (
+                        <button key={tab.id} onClick={() => setScholarshipInputMode(tab.id)} style={{
+                          flex: 1, padding: "10px 8px", border: "none", fontSize: 12, fontFamily: FONTS.body,
+                          cursor: "pointer", fontWeight: scholarshipInputMode === tab.id ? 600 : 400,
+                          background: scholarshipInputMode === tab.id ? COLORS.goldDim : COLORS.surface,
+                          color: scholarshipInputMode === tab.id ? COLORS.gold : COLORS.textDim,
+                          borderBottom: scholarshipInputMode === tab.id ? `2px solid ${COLORS.gold}` : "2px solid transparent",
+                          transition: "all 0.2s",
+                        }}>{tab.label}</button>
+                      ))}
+                    </div>
+
+                    {scholarshipInputMode === "database" && (
+                      <div>
+                        <select value={selectedScholarship?.id || ""} onChange={e => {
+                          const s = scholarshipDB.find(x => x.id === e.target.value);
+                          setSelectedScholarship(s || null); setCustomScholarshipText(""); setCustomScholarshipName("");
+                        }} style={{
+                          width: "100%", padding: "12px 16px", background: COLORS.surface,
+                          border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                          color: COLORS.text, fontSize: 14, fontFamily: FONTS.body, outline: "none",
+                        }}>
+                          <option value="">Select from database...</option>
+                          {scholarshipDB.map(s => <option key={s.id} value={s.id}>{s.name} ({s.amount})</option>)}
+                        </select>
+                        {selectedScholarship && (
+                          <div style={{
+                            marginTop: 12, padding: 14, background: COLORS.bg,
+                            border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                            fontSize: 12, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6,
+                          }}>
+                            <strong style={{ color: COLORS.gold }}>Criteria:</strong> {selectedScholarship.criteria.slice(0, 300)}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {scholarshipInputMode === "upload" && (
+                      <div>
+                        <div
+                          onClick={() => scholarshipFileRef.current?.click()}
+                          onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = COLORS.gold; }}
+                          onDragLeave={e => { e.currentTarget.style.borderColor = COLORS.border; }}
+                          onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = COLORS.border; const f = e.dataTransfer.files[0]; if(f) handleScholarshipUpload({target:{files:[f]}}); }}
+                          style={{
+                            border: `2px dashed ${COLORS.border}`, borderRadius: 12, padding: "28px 20px",
+                            textAlign: "center", cursor: "pointer", transition: "border-color 0.2s",
+                            background: COLORS.bg, marginBottom: 12,
+                          }}>
+                          <input ref={scholarshipFileRef} type="file" accept=".pdf,.doc,.docx,.txt,.md,.html,.rtf" onChange={handleScholarshipUpload} style={{ display: "none" }} />
+                          {uploadedScholarshipName ? (
+                            <div>
+                              <div style={{ fontSize: 20, marginBottom: 4, color: COLORS.teal }}>\u2713</div>
+                              <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.gold }}>{uploadedScholarshipName}</div>
+                            </div>
+                          ) : (
+                            <div>
+                              <div style={{ fontSize: 28, marginBottom: 6, color: COLORS.textDim }}>\uD83D\uDCC4</div>
+                              <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textMuted }}>Drop scholarship application here</div>
+                            </div>
+                          )}
+                        </div>
+                        <input value={customScholarshipName} onChange={e => setCustomScholarshipName(e.target.value)}
+                          placeholder="Scholarship name" style={{
+                            width: "100%", padding: "10px 14px", background: COLORS.surface,
+                            border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                            color: COLORS.text, fontSize: 13, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box",
+                          }}/>
+                      </div>
+                    )}
+
+                    {scholarshipInputMode === "url" && (
+                      <div>
+                        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+                          <input value={scholarshipUrl} onChange={e => setScholarshipUrl(e.target.value)}
+                            placeholder="https://www.scholarship-site.com/apply"
+                            style={{
+                              flex: 1, padding: "12px 16px", background: COLORS.surface,
+                              border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                              color: COLORS.text, fontSize: 13, fontFamily: FONTS.body, outline: "none",
+                            }}/>
+                          <Button onClick={fetchScholarshipFromUrl} disabled={fetchingUrl} style={{ fontSize: 12, padding: "10px 18px" }}>
+                            {fetchingUrl ? "Fetching..." : "Fetch \u2192"}
+                          </Button>
+                        </div>
+                        <input value={customScholarshipName} onChange={e => setCustomScholarshipName(e.target.value)}
+                          placeholder="Scholarship name" style={{
+                            width: "100%", padding: "10px 14px", background: COLORS.surface,
+                            border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                            color: COLORS.text, fontSize: 13, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box", marginBottom: 10,
+                          }}/>
+                        {customScholarshipText && (
+                          <div style={{
+                            padding: 12, background: COLORS.bg, border: `1px solid ${COLORS.border}`,
+                            borderRadius: 10, fontSize: 11, fontFamily: FONTS.body, color: COLORS.textDim,
+                          }}>
+                            <span style={{ color: COLORS.teal }}>\u2713 Fetched</span> \u00B7 {customScholarshipText.length.toLocaleString()} chars
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {scholarshipInputMode === "paste" && (
+                      <div>
+                        <input value={customScholarshipName} onChange={e => setCustomScholarshipName(e.target.value)}
+                          placeholder="Scholarship name" style={{
+                            width: "100%", padding: "10px 14px", background: COLORS.surface,
+                            border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                            color: COLORS.text, fontSize: 14, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box", marginBottom: 10,
+                          }}/>
+                        <textarea value={customScholarshipText} onChange={e => setCustomScholarshipText(e.target.value)}
+                          placeholder="Paste the full scholarship description here..."
+                          rows={8} style={{
+                            width: "100%", padding: "12px 16px", background: COLORS.bg,
+                            border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                            color: COLORS.text, fontSize: 13, fontFamily: FONTS.body,
+                            outline: "none", resize: "vertical", lineHeight: 1.6, boxSizing: "border-box",
+                          }}/>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Template Selection */}
+                  <div>
+                    <label style={{ fontSize: 11, fontFamily: FONTS.body, color: COLORS.textDim, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10, display: "block" }}>
+                      Writing Style
+                    </label>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {templates.map(t => (
+                        <button key={t.id} onClick={() => setSelectedTemplate(t)} style={{
+                          padding: "14px 16px", textAlign: "left", border: "none", borderRadius: 10, cursor: "pointer",
+                          background: selectedTemplate?.id === t.id ? COLORS.goldDim : COLORS.surface,
+                          outline: selectedTemplate?.id === t.id ? `1px solid ${COLORS.gold}44` : `1px solid ${COLORS.border}`,
+                          color: COLORS.text, transition: "all 0.2s",
+                        }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                            <span style={{ fontSize: 16 }}>{t.icon || "\u270D"}</span>
+                            <span style={{ fontSize: 14, fontFamily: FONTS.body, fontWeight: 500 }}>{t.name}</span>
+                          </div>
+                          <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.4 }}>{t.description}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <Button onClick={generateLetter}
+                  disabled={generatingLetter || (scholarshipInputMode === "database" ? !selectedScholarship : !customScholarshipText.trim())}
+                  style={{ fontSize: 15, padding: "14px 40px", marginBottom: 28 }}>
+                  {generatingLetter ? "\u25C9 Generating..." : "Generate Scholarship Letter"}
+                </Button>
+
+                {generatedLetter && (
+                  <div>
+                    <GlowCard hover={false} style={{ padding: 32, marginBottom: 16 }}>
+                      <div style={{ whiteSpace: "pre-wrap", fontSize: 15, lineHeight: 1.8, color: "#d4d0c8", fontFamily: "Georgia, 'Times New Roman', serif" }}>
+                        {generatedLetter}
+                      </div>
+                    </GlowCard>
+                    <div style={{ display: "flex", gap: 12 }}>
+                      <Button onClick={() => {
+                        const label = scholarshipInputMode === "database" ? selectedScholarship?.name : (customScholarshipName || "Custom Scholarship");
+                        saveLetter({ text: generatedLetter, scholarship: label, template: selectedTemplate?.name });
+                      }}>Save Letter</Button>
+                      <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(generatedLetter); notify("Copied!", "success"); }}>Copy to Clipboard</Button>
+                      <Button variant="ghost" onClick={generateLetter}>Regenerate</Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ====== STYLE TEMPLATES ====== */}
+            {view === "templates" && (
+              <div>
+                <SectionHeader title="Style Templates" subtitle="Different writing styles for different scholarship personalities." />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 32 }}>
+                  {templates.map(t => (
+                    <GlowCard key={t.id}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                        <span style={{ fontSize: 22 }}>{t.icon || "\u270D"}</span>
+                        <div style={{ fontSize: 18, fontWeight: 400, color: COLORS.gold }}>{t.name}</div>
+                      </div>
+                      <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 14, lineHeight: 1.5 }}>{t.description}</div>
+                      <div style={{
+                        fontSize: 12, fontFamily: FONTS.mono, color: COLORS.textDim,
+                        background: COLORS.bg, padding: 14, borderRadius: 10, lineHeight: 1.6,
+                      }}>{t.rules}</div>
+                    </GlowCard>
+                  ))}
+                </div>
+
+                {/* Custom Template Creator */}
+                <GlowCard hover={false} style={{ border: `1px dashed ${COLORS.border}` }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 400, marginBottom: 16 }}>Create Custom Template</h3>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+                    <input id="tpl-name" placeholder="Template name..." style={{
+                      padding: "10px 14px", background: COLORS.bg, border: `1px solid ${COLORS.border}`,
+                      borderRadius: 10, color: COLORS.text, fontSize: 13, fontFamily: FONTS.body, outline: "none",
+                    }}/>
+                    <input id="tpl-desc" placeholder="Short description..." style={{
+                      padding: "10px 14px", background: COLORS.bg, border: `1px solid ${COLORS.border}`,
+                      borderRadius: 10, color: COLORS.text, fontSize: 13, fontFamily: FONTS.body, outline: "none",
+                    }}/>
+                  </div>
+                  <textarea id="tpl-rules" placeholder="Writing rules..." rows={4} style={{
+                    width: "100%", padding: "10px 14px", background: COLORS.bg, border: `1px solid ${COLORS.border}`,
+                    borderRadius: 10, color: COLORS.text, fontSize: 13, fontFamily: FONTS.body,
+                    outline: "none", resize: "vertical", lineHeight: 1.6, boxSizing: "border-box", marginBottom: 12,
+                  }}/>
+                  <Button onClick={() => {
+                    const name = document.getElementById("tpl-name").value;
+                    const desc = document.getElementById("tpl-desc").value;
+                    const rules = document.getElementById("tpl-rules").value;
+                    if (!name || !rules) { notify("Name and rules are required.", "error"); return; }
+                    saveTemplates([...templates, { id: `custom-${Date.now()}`, name, description: desc, rules, icon: "\u2728" }]);
+                    notify("Template created!", "success");
+                    document.getElementById("tpl-name").value = "";
+                    document.getElementById("tpl-desc").value = "";
+                    document.getElementById("tpl-rules").value = "";
+                  }}>Save Template</Button>
+                </GlowCard>
+              </div>
+            )}
+
+            {/* ====== SAVED LETTERS ====== */}
+            {view === "saved" && (
+              <div>
+                <SectionHeader title="Saved Letters" />
+                {savedLetters.length === 0 ? (
+                  <EmptyState icon="\u25AB" title="No saved letters yet" desc="Generate your first letter to see it here."
+                    action={() => setView("generate")} actionLabel="Generate a Letter" />
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {savedLetters.map((l, i) => (
+                      <GlowCard key={l.id} hover={false}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                          <div>
+                            <div style={{ fontSize: 16, fontWeight: 400 }}>{l.scholarship || "Untitled"}</div>
+                            <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim }}>{l.template} \u00B7 {l.date}</div>
+                          </div>
+                          <div style={{ display: "flex", gap: 8 }}>
+                            <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(l.text); notify("Copied!", "success"); }}
+                              style={{ fontSize: 11, padding: "6px 14px" }}>Copy</Button>
+                            <Button variant="danger" onClick={() => {
+                              const next = savedLetters.filter((_, j) => j !== i);
+                              setSavedLetters(next); store.set("scholarbot-letters", next);
+                              notify("Deleted.", "info");
+                            }} style={{ fontSize: 11, padding: "6px 14px" }}>Delete</Button>
+                          </div>
+                        </div>
+                        <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6, maxHeight: 120, overflow: "hidden" }}>
+                          {l.text.slice(0, 400)}...
+                        </div>
+                      </GlowCard>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
-      </div>
+        </>
+      )}
 
-      {/* Google Fonts */}
-      <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+      {/* GLOBAL STYLES */}
+      <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0a0a0f; }
-        ::-webkit-scrollbar-thumb { background: #1e1e2e; border-radius: 3px; }
-        ::placeholder { color: #444; }
-        select option { background: #111118; color: #e8e4dc; }
-        @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        input:focus, textarea:focus, select:focus { border-color: #c9a227 !important; }
-        a { color: #c9a227; }
+        ::-webkit-scrollbar-track { background: ${COLORS.bg}; }
+        ::-webkit-scrollbar-thumb { background: ${COLORS.border}; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: ${COLORS.borderHover}; }
+        ::placeholder { color: ${COLORS.textDim}; }
+        select option { background: ${COLORS.surface}; color: ${COLORS.text}; }
+        input:focus, textarea:focus, select:focus { border-color: ${COLORS.gold} !important; }
+        a { color: ${COLORS.gold}; }
+        @keyframes toastIn {
+          from { transform: translateX(100px) scale(0.95); opacity: 0; }
+          to { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        button:hover { opacity: 0.92; }
+        button:active { transform: scale(0.98); }
       `}</style>
     </div>
   );
