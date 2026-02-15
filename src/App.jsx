@@ -1080,6 +1080,19 @@ export default function ScholarBotPro() {
                   subtitle={`${filteredScholarships.length} of ${scholarshipDB.length} scholarships shown`}
                 />
 
+                {/* Disclaimer Banner */}
+                <div style={{
+                  display: "flex", alignItems: "flex-start", gap: 12,
+                  padding: "14px 18px", marginBottom: 24, borderRadius: 10,
+                  background: `${COLORS.orange}08`, border: `1px solid ${COLORS.orange}22`,
+                  fontSize: 12, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6,
+                }}>
+                  <span style={{ fontSize: 18, flexShrink: 0, marginTop: -1 }}>&#9432;</span>
+                  <span>
+                    <strong style={{ color: COLORS.orange }}>Disclaimer:</strong> ScholarBot Pro aggregates scholarship information from public sources for your convenience. While we work to keep this data accurate, we cannot independently verify every listing. Always confirm eligibility, deadlines, and legitimacy directly with the scholarship provider before applying. <strong>Never pay an application fee for a legitimate scholarship.</strong>
+                  </span>
+                </div>
+
                 {/* Search + Filters */}
                 <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
                   <div style={{ flex: 1, position: "relative" }}>
@@ -1142,6 +1155,20 @@ export default function ScholarBotPro() {
                   subtitle="Scholarships ranked by how well they match your profile."
                   action={<Button variant="secondary" onClick={runMatching} style={{ fontSize: 12, padding: "8px 16px" }}>Re-run Matching</Button>}
                 />
+
+                {/* Disclaimer Banner */}
+                <div style={{
+                  display: "flex", alignItems: "flex-start", gap: 10,
+                  padding: "12px 16px", marginBottom: 20, borderRadius: 10,
+                  background: `${COLORS.orange}08`, border: `1px solid ${COLORS.orange}22`,
+                  fontSize: 11, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5,
+                }}>
+                  <span style={{ fontSize: 14, flexShrink: 0 }}>&#9432;</span>
+                  <span>
+                    Scholarship data is aggregated from public sources. Always verify eligibility and deadlines directly with the provider. Never pay to apply.
+                  </span>
+                </div>
+
                 {matchResults.length === 0 ? (
                   <EmptyState icon="◇" title="No matches yet" desc="Complete your profile to find matching scholarships."
                     action={() => setView("profile")} actionLabel="Complete Profile" />
