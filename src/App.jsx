@@ -117,9 +117,9 @@ const PROFILE_QUESTIONS = [
   {id:"activities",q:"List your top 3-5 extracurricular activities / leadership roles:",type:"textarea",placeholder:"e.g., Captain of Debate Team, Volunteer at Food Bank, NSBE chapter co-founder...",step:2},
   {id:"awards",q:"Notable awards or honors?",type:"textarea",placeholder:"e.g., AP Scholar, Regional Science Fair Winner, Honor Roll...",step:2},
   {id:"communityService",q:"Describe your most impactful community service experience:",type:"textarea",placeholder:"What did you do? How many hours? What was the impact?",step:3},
-  {id:"personalStory",q:"What is your personal story? What challenges have you overcome?",type:"textarea",placeholder:"This is the heart of your application. Be authentic \u2014 what makes you, YOU?",step:3},
+  {id:"personalStory",q:"What is your personal story? What challenges have you overcome?",type:"textarea",placeholder:"This is the heart of your application. Be authentic — what makes you, YOU?",step:3},
   {id:"careerGoal",q:"What is your career goal and how does college fit into it?",type:"textarea",placeholder:"Where do you see yourself in 10 years? Why does this education matter?",step:3},
-  {id:"writingStyle",q:"How would you describe your writing voice?",type:"select",options:["Warm and narrative \u2014 I tell stories","Direct and evidence-based \u2014 I show data","Enthusiastic and energetic \u2014 I radiate passion","Reflective and thoughtful \u2014 I go deep","Professional and polished \u2014 I sound mature"],step:3},
+  {id:"writingStyle",q:"How would you describe your writing voice?",type:"select",options:["Warm and narrative — I tell stories","Direct and evidence-based — I show data","Enthusiastic and energetic — I radiate passion","Reflective and thoughtful — I go deep","Professional and polished — I sound mature"],step:3},
 ];
 
 const PROFILE_STEPS = [
@@ -133,10 +133,10 @@ const PROFILE_STEPS = [
 // STYLE TEMPLATES
 // ============================================================
 const DEFAULT_TEMPLATES = [
-  {id:"narrative",name:"The Storyteller",description:"Opens with a personal anecdote, weaves narrative throughout. Best for scholarships that value personal journey.",rules:"1. Open with a specific moment or memory. 2. Use I-statements. 3. Connect personal story to scholarship mission. 4. Close with forward-looking vision. 5. NO AI-isms: avoid 'delve','foster','landscape','cutting-edge'.",icon:"\u270D"},
-  {id:"evidence",name:"The Scientist",description:"Lead with evidence and accomplishments. Data-driven. Best for STEM and merit-based scholarships.",rules:"1. Open with a concrete achievement or metric. 2. Use specific numbers and outcomes. 3. Frame experiences as evidence of capability. 4. Connect technical skills to broader impact. 5. NO fluff: replace 'I am passionate about' with 'My work in X demonstrated...'",icon:"\uD83D\uDD2C"},
-  {id:"mission",name:"The Mission Matcher",description:"Deeply aligns candidate values with the scholarship\u2019s stated mission. Best for foundation and organization scholarships.",rules:"1. Reference the scholarship's mission statement directly. 2. Mirror their language naturally. 3. Show how your goals amplify their mission. 4. Provide specific examples of aligned work. 5. Keep tone collaborative, not sycophantic.",icon:"\uD83C\uDFAF"},
-  {id:"underdog",name:"The Overcomer",description:"Emphasizes resilience, challenges overcome, and growth. Best for need-based and adversity scholarships.",rules:"1. Be honest about challenges without being pitiful. 2. Show agency \u2014 what YOU did about it. 3. Frame hardship as fuel, not excuse. 4. Demonstrate growth trajectory. 5. End with strength and vision, not gratitude alone.",icon:"\uD83D\uDCAA"},
+  {id:"narrative",name:"The Storyteller",description:"Opens with a personal anecdote, weaves narrative throughout. Best for scholarships that value personal journey.",rules:"1. Open with a specific moment or memory. 2. Use I-statements. 3. Connect personal story to scholarship mission. 4. Close with forward-looking vision. 5. NO AI-isms: avoid 'delve','foster','landscape','cutting-edge'.",icon:"✍"},
+  {id:"evidence",name:"The Scientist",description:"Lead with evidence and accomplishments. Data-driven. Best for STEM and merit-based scholarships.",rules:"1. Open with a concrete achievement or metric. 2. Use specific numbers and outcomes. 3. Frame experiences as evidence of capability. 4. Connect technical skills to broader impact. 5. NO fluff: replace 'I am passionate about' with 'My work in X demonstrated...'",icon:"🔬"},
+  {id:"mission",name:"The Mission Matcher",description:"Deeply aligns candidate values with the scholarship’s stated mission. Best for foundation and organization scholarships.",rules:"1. Reference the scholarship's mission statement directly. 2. Mirror their language naturally. 3. Show how your goals amplify their mission. 4. Provide specific examples of aligned work. 5. Keep tone collaborative, not sycophantic.",icon:"🎯"},
+  {id:"underdog",name:"The Overcomer",description:"Emphasizes resilience, challenges overcome, and growth. Best for need-based and adversity scholarships.",rules:"1. Be honest about challenges without being pitiful. 2. Show agency — what YOU did about it. 3. Frame hardship as fuel, not excuse. 4. Demonstrate growth trajectory. 5. End with strength and vision, not gratitude alone.",icon:"💪"},
 ];
 
 // ============================================================
@@ -512,7 +512,7 @@ export default function ScholarBotPro() {
 
     const profileSummary = `CANDIDATE: ${profile.name}\nLOCATION: ${profile.location || "N/A"}\nCITIZENSHIP: ${profile.citizenship || "N/A"}\nHERITAGE: ${(profile.ethnicity || []).join(", ")}\nGPA: ${profile.gpa || "N/A"} | TEST SCORES: ${profile.satact || "N/A"}\nINTENDED MAJOR: ${profile.intendedMajor || "N/A"}\nGRADUATION: ${profile.gradYear || "N/A"}\nFINANCIAL NEED: ${profile.financialNeed || "N/A"}\nACTIVITIES: ${profile.activities || "N/A"}\nAWARDS: ${profile.awards || "N/A"}\nCOMMUNITY SERVICE: ${profile.communityService || "N/A"}\nPERSONAL STORY: ${profile.personalStory || "N/A"}\nCAREER GOAL: ${profile.careerGoal || "N/A"}\nWRITING VOICE: ${profile.writingStyle || "Warm and narrative"}\nBRAG SHEET: ${bragSheet || "None"}\nAPP ANSWERS: ${JSON.stringify(appAnswers)}`;
 
-    const systemPrompt = `You are a scholarship application letter writer. Write in the candidate's authentic voice \u2014 NOT like an AI.\n\nSTYLE TEMPLATE: "${selectedTemplate.name}"\nRULES: ${selectedTemplate.rules}\n\nCRITICAL ANTI-DETECTION RULES:\n1. NEVER use: "delve," "cutting-edge," "landscape," "foster," "tapestry," "game-changer," "testament," "unwavering," "thrilled," "elevate," "synergy"\n2. Vary sentence length. Mix short punchy sentences with longer ones.\n3. Use specific details \u2014 names, dates, numbers, places.\n4. Sound like a real ${profile.gradYear || "2026"} high school student.\n5. NO em-dashes. Use periods or commas.\n6. Don't start paragraphs with "Additionally," "Furthermore," or "Moreover."\n7. Open with something MEMORABLE.\n\nCANDIDATE PROFILE:\n${profileSummary}`;
+    const systemPrompt = `You are a scholarship application letter writer. Write in the candidate's authentic voice — NOT like an AI.\n\nSTYLE TEMPLATE: "${selectedTemplate.name}"\nRULES: ${selectedTemplate.rules}\n\nCRITICAL ANTI-DETECTION RULES:\n1. NEVER use: "delve," "cutting-edge," "landscape," "foster," "tapestry," "game-changer," "testament," "unwavering," "thrilled," "elevate," "synergy"\n2. Vary sentence length. Mix short punchy sentences with longer ones.\n3. Use specific details — names, dates, numbers, places.\n4. Sound like a real ${profile.gradYear || "2026"} high school student.\n5. NO em-dashes. Use periods or commas.\n6. Don't start paragraphs with "Additionally," "Furthermore," or "Moreover."\n7. Open with something MEMORABLE.\n\nCANDIDATE PROFILE:\n${profileSummary}`;
 
     try {
       const response = await fetch("/api/generate", {
@@ -578,14 +578,14 @@ export default function ScholarBotPro() {
   };
 
   const navItems = [
-    {id:"home",icon:"\u25C7",label:"Dashboard"},
-    {id:"profile",icon:"\u25C8",label:"Build Profile"},
-    {id:"search",icon:"\u2B21",label:"Scholarships"},
-    {id:"matches",icon:"\u25C6",label:"My Matches"},
-    {id:"apply",icon:"\u25A3",label:"App Prep"},
-    {id:"generate",icon:"\u25C9",label:"Letter Gen"},
-    {id:"templates",icon:"\u25A4",label:"Templates"},
-    {id:"saved",icon:"\u25AB",label:"Saved"},
+    {id:"home",icon:"◇",label:"Dashboard"},
+    {id:"profile",icon:"◈",label:"Build Profile"},
+    {id:"search",icon:"⬡",label:"Scholarships"},
+    {id:"matches",icon:"◆",label:"My Matches"},
+    {id:"apply",icon:"▣",label:"App Prep"},
+    {id:"generate",icon:"◉",label:"Letter Gen"},
+    {id:"templates",icon:"▤",label:"Templates"},
+    {id:"saved",icon:"▫",label:"Saved"},
   ];
 
   const isLanding = view === "landing";
@@ -694,9 +694,9 @@ export default function ScholarBotPro() {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
               {[
-                { icon: "\u25C8", title: "Build Your Profile", desc: "Answer guided questions or upload your brag sheet. ScholarBot learns your story, strengths, and goals.", color: COLORS.gold },
-                { icon: "\u25C6", title: "Get Matched", desc: "Our scoring engine analyzes eligibility, heritage, GPA, need, and field to rank your best-fit scholarships.", color: COLORS.teal },
-                { icon: "\u25C9", title: "Generate Letters", desc: "Choose a writing style. Get human-sounding, anti-AI-detection application letters tailored to each scholarship.", color: COLORS.pink },
+                { icon: "◈", title: "Build Your Profile", desc: "Answer guided questions or upload your brag sheet. ScholarBot learns your story, strengths, and goals.", color: COLORS.gold },
+                { icon: "◆", title: "Get Matched", desc: "Our scoring engine analyzes eligibility, heritage, GPA, need, and field to rank your best-fit scholarships.", color: COLORS.teal },
+                { icon: "◉", title: "Generate Letters", desc: "Choose a writing style. Get human-sounding, anti-AI-detection application letters tailored to each scholarship.", color: COLORS.pink },
               ].map((f, i) => (
                 <GlowCard key={i} glow={f.color} style={{ textAlign: "center", padding: "40px 28px" }}>
                   <div style={{ fontSize: 40, marginBottom: 16, color: f.color }}>{f.icon}</div>
@@ -748,7 +748,7 @@ export default function ScholarBotPro() {
             display: "flex", justifyContent: "space-between", alignItems: "center",
             fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim,
           }}>
-            <span>ScholarBot Pro \u00A9 2026</span>
+            <span>ScholarBot Pro © 2026</span>
             <span>{scholarshipDB.length} scholarships in database</span>
           </footer>
         </div>
@@ -804,7 +804,7 @@ export default function ScholarBotPro() {
               borderTop: `1px solid ${COLORS.border}`,
               width: "100%", textAlign: "left",
             }}>
-              \u2190 Back to Home
+              ← Back to Home
             </button>
 
             {/* User */}
@@ -836,10 +836,10 @@ export default function ScholarBotPro() {
                 {/* Stats */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
                   {[
-                    { label: "Scholarships", value: scholarshipDB.length, color: COLORS.gold, icon: "\u2B21" },
-                    { label: "Profile", value: profileCompletion + "%", color: COLORS.teal, icon: "\u25C8" },
-                    { label: "Matches", value: matchResults.length || "\u2014", color: COLORS.pink, icon: "\u25C6" },
-                    { label: "Letters Saved", value: savedLetters.length, color: COLORS.purple, icon: "\u25AB" },
+                    { label: "Scholarships", value: scholarshipDB.length, color: COLORS.gold, icon: "⬡" },
+                    { label: "Profile", value: profileCompletion + "%", color: COLORS.teal, icon: "◈" },
+                    { label: "Matches", value: matchResults.length || "—", color: COLORS.pink, icon: "◆" },
+                    { label: "Letters Saved", value: savedLetters.length, color: COLORS.purple, icon: "▫" },
                   ].map((stat, i) => (
                     <GlowCard key={i} glow={stat.color} style={{ padding: "22px 20px", position: "relative", overflow: "hidden" }}>
                       <div style={{ position: "absolute", top: 12, right: 14, fontSize: 28, opacity: 0.08, color: stat.color }}>{stat.icon}</div>
@@ -857,7 +857,7 @@ export default function ScholarBotPro() {
                 }}>
                   <span style={{ width: 7, height: 7, borderRadius: "50%", background: dbSource === "synced" ? COLORS.teal : COLORS.gold, flexShrink: 0 }} />
                   <span style={{ color: COLORS.textDim }}>
-                    {scholarshipDB.length} scholarships \u00B7 Updated {dbLastUpdated} \u00B7{" "}
+                    {scholarshipDB.length} scholarships · Updated {dbLastUpdated} ·{" "}
                     <span style={{ color: dbSource === "synced" ? COLORS.teal : COLORS.gold }}>
                       {dbSource === "synced" ? "Auto-synced" : "Built-in (verified)"}
                     </span>
@@ -868,9 +868,9 @@ export default function ScholarBotPro() {
                 <h2 style={{ fontSize: 18, fontWeight: 400, marginBottom: 16, color: COLORS.textMuted, fontFamily: FONTS.heading }}>Quick Actions</h2>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
                   {[
-                    { label: "Build Your Profile", desc: "Answer questions to create your scholarship persona.", action: () => setView("profile"), color: COLORS.gold, icon: "\u25C8" },
-                    { label: "Find Matches", desc: "AI matches you to best-fit scholarships.", action: () => { if (profile.name) runMatching(); else setView("profile"); }, color: COLORS.teal, icon: "\u25C6" },
-                    { label: "Generate a Letter", desc: "Create a human-sounding application letter.", action: () => setView("generate"), color: COLORS.pink, icon: "\u25C9" },
+                    { label: "Build Your Profile", desc: "Answer questions to create your scholarship persona.", action: () => setView("profile"), color: COLORS.gold, icon: "◈" },
+                    { label: "Find Matches", desc: "AI matches you to best-fit scholarships.", action: () => { if (profile.name) runMatching(); else setView("profile"); }, color: COLORS.teal, icon: "◆" },
+                    { label: "Generate a Letter", desc: "Create a human-sounding application letter.", action: () => setView("generate"), color: COLORS.pink, icon: "◉" },
                   ].map((a, i) => (
                     <GlowCard key={i} onClick={a.action} glow={a.color} style={{ padding: "28px 24px", cursor: "pointer" }}>
                       <div style={{ fontSize: 28, marginBottom: 12, color: a.color, opacity: 0.6 }}>{a.icon}</div>
@@ -966,7 +966,7 @@ export default function ScholarBotPro() {
                 {/* Step Navigation */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
                   <Button variant="ghost" onClick={() => setProfileStep(Math.max(0, profileStep - 1))} disabled={profileStep === 0}>
-                    \u2190 Previous
+                    ← Previous
                   </Button>
                   <div style={{ display: "flex", gap: 6 }}>
                     {PROFILE_STEPS.map((_, i) => (
@@ -979,11 +979,11 @@ export default function ScholarBotPro() {
                   </div>
                   {profileStep < PROFILE_STEPS.length - 1 ? (
                     <Button onClick={() => setProfileStep(profileStep + 1)}>
-                      Next \u2192
+                      Next →
                     </Button>
                   ) : (
                     <Button onClick={generateCandidateProfile} disabled={generatingLetter}>
-                      {generatingLetter ? "Generating..." : "Generate AI Profile \u2192"}
+                      {generatingLetter ? "Generating..." : "Generate AI Profile →"}
                     </Button>
                   )}
                 </div>
@@ -1020,13 +1020,13 @@ export default function ScholarBotPro() {
                       <div style={{ color: COLORS.gold, fontFamily: FONTS.body, fontSize: 13 }}>Reading file...</div>
                     ) : bragSheetFileName ? (
                       <div>
-                        <div style={{ fontSize: 20, marginBottom: 4, color: COLORS.teal }}>\u2713</div>
+                        <div style={{ fontSize: 20, marginBottom: 4, color: COLORS.teal }}>✓</div>
                         <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.gold }}>{bragSheetFileName}</div>
                         <div style={{ fontFamily: FONTS.body, fontSize: 11, color: COLORS.textDim, marginTop: 4 }}>Click or drop to replace</div>
                       </div>
                     ) : (
                       <div>
-                        <div style={{ fontSize: 24, marginBottom: 6, color: COLORS.textDim }}>\u2191</div>
+                        <div style={{ fontSize: 24, marginBottom: 6, color: COLORS.textDim }}>↑</div>
                         <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textMuted }}>Drop your brag sheet here, or click to browse</div>
                         <div style={{ fontFamily: FONTS.body, fontSize: 11, color: COLORS.textDim, marginTop: 4 }}>PDF, Word, or text files accepted</div>
                       </div>
@@ -1060,14 +1060,14 @@ export default function ScholarBotPro() {
             {/* ====== GENERATED PROFILE ====== */}
             {view === "profileResult" && (
               <div>
-                <button onClick={() => setView("profile")} style={{ background: "none", border: "none", color: COLORS.gold, cursor: "pointer", fontFamily: FONTS.body, fontSize: 13, marginBottom: 20 }}>\u2190 Back to Profile Builder</button>
+                <button onClick={() => setView("profile")} style={{ background: "none", border: "none", color: COLORS.gold, cursor: "pointer", fontFamily: FONTS.body, fontSize: 13, marginBottom: 20 }}>← Back to Profile Builder</button>
                 <SectionHeader title="Your Candidate Profile" />
                 <GlowCard hover={false} style={{ maxWidth: 800, padding: 32 }}>
                   <pre style={{ whiteSpace: "pre-wrap", fontFamily: FONTS.body, fontSize: 14, lineHeight: 1.8, color: "#d4d0c8" }}>{generatedProfile}</pre>
                 </GlowCard>
                 <div style={{ marginTop: 20, display: "flex", gap: 12 }}>
                   <Button onClick={() => { navigator.clipboard.writeText(generatedProfile); notify("Copied!", "success"); }}>Copy Profile</Button>
-                  <Button variant="secondary" onClick={runMatching}>Find Matches \u2192</Button>
+                  <Button variant="secondary" onClick={runMatching}>Find Matches →</Button>
                 </div>
               </div>
             )}
@@ -1083,7 +1083,7 @@ export default function ScholarBotPro() {
                 {/* Search + Filters */}
                 <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
                   <div style={{ flex: 1, position: "relative" }}>
-                    <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: COLORS.textDim, fontSize: 16 }}>\u26B2</span>
+                    <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: COLORS.textDim, fontSize: 16 }}>⚲</span>
                     <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                       placeholder="Search by name, criteria, or amount..."
                       style={{
@@ -1123,9 +1123,9 @@ export default function ScholarBotPro() {
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
                           <Button onClick={() => { setSelectedScholarship(s); setView("generate"); }} style={{ fontSize: 12, padding: "8px 16px" }}>
-                            Apply \u2192
+                            Apply →
                           </Button>
-                          {s.link && <a href={s.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: COLORS.textDim, fontFamily: FONTS.body, textDecoration: "none", textAlign: "center" }}>View source \u2197</a>}
+                          {s.link && <a href={s.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: COLORS.textDim, fontFamily: FONTS.body, textDecoration: "none", textAlign: "center" }}>View source ↗</a>}
                         </div>
                       </GlowCard>
                     );
@@ -1143,7 +1143,7 @@ export default function ScholarBotPro() {
                   action={<Button variant="secondary" onClick={runMatching} style={{ fontSize: 12, padding: "8px 16px" }}>Re-run Matching</Button>}
                 />
                 {matchResults.length === 0 ? (
-                  <EmptyState icon="\u25C7" title="No matches yet" desc="Complete your profile to find matching scholarships."
+                  <EmptyState icon="◇" title="No matches yet" desc="Complete your profile to find matching scholarships."
                     action={() => setView("profile")} actionLabel="Complete Profile" />
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -1197,7 +1197,7 @@ export default function ScholarBotPro() {
                         color: appAnswers[`q${i}`] ? COLORS.gold : COLORS.textDim,
                         border: `1px solid ${appAnswers[`q${i}`] ? COLORS.gold + "44" : COLORS.border}`,
                       }}>
-                        {appAnswers[`q${i}`] ? "\u2713" : i + 1}
+                        {appAnswers[`q${i}`] ? "✓" : i + 1}
                       </span>
                       <label style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted }}>{q}</label>
                     </div>
@@ -1289,12 +1289,12 @@ export default function ScholarBotPro() {
                           <input ref={scholarshipFileRef} type="file" accept=".pdf,.doc,.docx,.txt,.md,.html,.rtf" onChange={handleScholarshipUpload} style={{ display: "none" }} />
                           {uploadedScholarshipName ? (
                             <div>
-                              <div style={{ fontSize: 20, marginBottom: 4, color: COLORS.teal }}>\u2713</div>
+                              <div style={{ fontSize: 20, marginBottom: 4, color: COLORS.teal }}>✓</div>
                               <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.gold }}>{uploadedScholarshipName}</div>
                             </div>
                           ) : (
                             <div>
-                              <div style={{ fontSize: 28, marginBottom: 6, color: COLORS.textDim }}>\uD83D\uDCC4</div>
+                              <div style={{ fontSize: 28, marginBottom: 6, color: COLORS.textDim }}>📄</div>
                               <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textMuted }}>Drop scholarship application here</div>
                             </div>
                           )}
@@ -1319,7 +1319,7 @@ export default function ScholarBotPro() {
                               color: COLORS.text, fontSize: 13, fontFamily: FONTS.body, outline: "none",
                             }}/>
                           <Button onClick={fetchScholarshipFromUrl} disabled={fetchingUrl} style={{ fontSize: 12, padding: "10px 18px" }}>
-                            {fetchingUrl ? "Fetching..." : "Fetch \u2192"}
+                            {fetchingUrl ? "Fetching..." : "Fetch →"}
                           </Button>
                         </div>
                         <input value={customScholarshipName} onChange={e => setCustomScholarshipName(e.target.value)}
@@ -1333,7 +1333,7 @@ export default function ScholarBotPro() {
                             padding: 12, background: COLORS.bg, border: `1px solid ${COLORS.border}`,
                             borderRadius: 10, fontSize: 11, fontFamily: FONTS.body, color: COLORS.textDim,
                           }}>
-                            <span style={{ color: COLORS.teal }}>\u2713 Fetched</span> \u00B7 {customScholarshipText.length.toLocaleString()} chars
+                            <span style={{ color: COLORS.teal }}>✓ Fetched</span> · {customScholarshipText.length.toLocaleString()} chars
                           </div>
                         )}
                       </div>
@@ -1373,7 +1373,7 @@ export default function ScholarBotPro() {
                           color: COLORS.text, transition: "all 0.2s",
                         }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                            <span style={{ fontSize: 16 }}>{t.icon || "\u270D"}</span>
+                            <span style={{ fontSize: 16 }}>{t.icon || "✍"}</span>
                             <span style={{ fontSize: 14, fontFamily: FONTS.body, fontWeight: 500 }}>{t.name}</span>
                           </div>
                           <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.4 }}>{t.description}</div>
@@ -1386,7 +1386,7 @@ export default function ScholarBotPro() {
                 <Button onClick={generateLetter}
                   disabled={generatingLetter || (scholarshipInputMode === "database" ? !selectedScholarship : !customScholarshipText.trim())}
                   style={{ fontSize: 15, padding: "14px 40px", marginBottom: 28 }}>
-                  {generatingLetter ? "\u25C9 Generating..." : "Generate Scholarship Letter"}
+                  {generatingLetter ? "◉ Generating..." : "Generate Scholarship Letter"}
                 </Button>
 
                 {generatedLetter && (
@@ -1417,7 +1417,7 @@ export default function ScholarBotPro() {
                   {templates.map(t => (
                     <GlowCard key={t.id}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                        <span style={{ fontSize: 22 }}>{t.icon || "\u270D"}</span>
+                        <span style={{ fontSize: 22 }}>{t.icon || "✍"}</span>
                         <div style={{ fontSize: 18, fontWeight: 400, color: COLORS.gold }}>{t.name}</div>
                       </div>
                       <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 14, lineHeight: 1.5 }}>{t.description}</div>
@@ -1452,7 +1452,7 @@ export default function ScholarBotPro() {
                     const desc = document.getElementById("tpl-desc").value;
                     const rules = document.getElementById("tpl-rules").value;
                     if (!name || !rules) { notify("Name and rules are required.", "error"); return; }
-                    saveTemplates([...templates, { id: `custom-${Date.now()}`, name, description: desc, rules, icon: "\u2728" }]);
+                    saveTemplates([...templates, { id: `custom-${Date.now()}`, name, description: desc, rules, icon: "✨" }]);
                     notify("Template created!", "success");
                     document.getElementById("tpl-name").value = "";
                     document.getElementById("tpl-desc").value = "";
@@ -1467,7 +1467,7 @@ export default function ScholarBotPro() {
               <div>
                 <SectionHeader title="Saved Letters" />
                 {savedLetters.length === 0 ? (
-                  <EmptyState icon="\u25AB" title="No saved letters yet" desc="Generate your first letter to see it here."
+                  <EmptyState icon="▫" title="No saved letters yet" desc="Generate your first letter to see it here."
                     action={() => setView("generate")} actionLabel="Generate a Letter" />
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -1476,7 +1476,7 @@ export default function ScholarBotPro() {
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                           <div>
                             <div style={{ fontSize: 16, fontWeight: 400 }}>{l.scholarship || "Untitled"}</div>
-                            <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim }}>{l.template} \u00B7 {l.date}</div>
+                            <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim }}>{l.template} · {l.date}</div>
                           </div>
                           <div style={{ display: "flex", gap: 8 }}>
                             <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(l.text); notify("Copied!", "success"); }}
