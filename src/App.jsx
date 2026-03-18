@@ -1039,6 +1039,78 @@ export default function ScholarBotPro() {
             </div>
           </div>
 
+          {/* Pricing */}
+          <div style={{ padding: "80px 40px", textAlign: "center" }}>
+            <h2 style={{ fontSize: 30, fontWeight: 400, marginBottom: 8 }}>Simple, Transparent Pricing</h2>
+            <p style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 40 }}>Start free. Upgrade when you're ready to go all-in on scholarship season.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, maxWidth: 900, margin: "0 auto" }}>
+              {/* Free Tier */}
+              <GlowCard hover={false} style={{ padding: "32px 24px", textAlign: "left" }}>
+                <div style={{ fontSize: 13, fontFamily: FONTS.body, fontWeight: 600, color: COLORS.textMuted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Free</div>
+                <div style={{ fontSize: 36, fontWeight: 400, marginBottom: 4 }}>$0<span style={{ fontSize: 14, color: COLORS.textDim }}>/month</span></div>
+                <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textDim, marginBottom: 24 }}>Get started and explore</div>
+                <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 2.2 }}>
+                  <div>&#10003; Build your full profile</div>
+                  <div>&#10003; Browse all {scholarshipDB.length} scholarships</div>
+                  <div>&#10003; 3 AI matches per month</div>
+                  <div>&#10003; 1 AI letter per month</div>
+                  <div style={{ color: COLORS.textDim }}>&#10005; Advanced templates</div>
+                  <div style={{ color: COLORS.textDim }}>&#10005; Deadline alerts</div>
+                </div>
+                <Button variant="secondary" onClick={() => { setAuthMode("signup"); setShowAuthModal(true); }} style={{ width: "100%", justifyContent: "center", marginTop: 24 }}>
+                  Start Free
+                </Button>
+              </GlowCard>
+
+              {/* Premium Tier */}
+              <GlowCard hover={false} glow={COLORS.gold} style={{
+                padding: "32px 24px", textAlign: "left",
+                border: `2px solid ${COLORS.gold}44`,
+                boxShadow: `0 0 40px ${COLORS.goldGlow}`,
+                position: "relative",
+              }}>
+                <div style={{
+                  position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)",
+                  background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
+                  color: COLORS.bg, fontSize: 10, fontWeight: 700, fontFamily: FONTS.body,
+                  padding: "4px 16px", borderRadius: 20, textTransform: "uppercase", letterSpacing: 2,
+                }}>Most Popular</div>
+                <div style={{ fontSize: 13, fontFamily: FONTS.body, fontWeight: 600, color: COLORS.gold, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Premium</div>
+                <div style={{ fontSize: 36, fontWeight: 400, marginBottom: 4 }}>$9<span style={{ fontSize: 18 }}>.99</span><span style={{ fontSize: 14, color: COLORS.textDim }}>/month</span></div>
+                <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textDim, marginBottom: 24 }}>Everything you need to win</div>
+                <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 2.2 }}>
+                  <div style={{ color: COLORS.gold }}>&#10003; Everything in Free, plus:</div>
+                  <div>&#10003; Unlimited AI matches</div>
+                  <div>&#10003; Unlimited AI letters</div>
+                  <div>&#10003; All 4 writing templates</div>
+                  <div>&#10003; Deadline alert emails</div>
+                  <div>&#10003; Scholarship URL import</div>
+                </div>
+                <Button onClick={() => { setAuthMode("signup"); setShowAuthModal(true); }} style={{ width: "100%", justifyContent: "center", marginTop: 24 }}>
+                  Go Premium
+                </Button>
+              </GlowCard>
+
+              {/* Seasonal Pass */}
+              <GlowCard hover={false} style={{ padding: "32px 24px", textAlign: "left" }}>
+                <div style={{ fontSize: 13, fontFamily: FONTS.body, fontWeight: 600, color: COLORS.teal, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Seasonal</div>
+                <div style={{ fontSize: 36, fontWeight: 400, marginBottom: 4 }}>$29<span style={{ fontSize: 18 }}>.99</span><span style={{ fontSize: 14, color: COLORS.textDim }}>/4 months</span></div>
+                <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textDim, marginBottom: 24 }}>Save 25% for scholarship season</div>
+                <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 2.2 }}>
+                  <div style={{ color: COLORS.teal }}>&#10003; Same as Premium, plus:</div>
+                  <div>&#10003; 4 months of full access</div>
+                  <div>&#10003; Batch letter generation</div>
+                  <div>&#10003; Application tracker</div>
+                  <div>&#10003; Priority support</div>
+                  <div>&#10003; One-time payment</div>
+                </div>
+                <Button variant="secondary" onClick={() => { setAuthMode("signup"); setShowAuthModal(true); }} style={{ width: "100%", justifyContent: "center", marginTop: 24, borderColor: COLORS.teal + "44", color: COLORS.teal }}>
+                  Get Season Pass
+                </Button>
+              </GlowCard>
+            </div>
+          </div>
+
           {/* CTA */}
           <div style={{
             padding: "80px 40px", textAlign: "center",
@@ -1048,7 +1120,7 @@ export default function ScholarBotPro() {
             <p style={{ fontSize: 16, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 32 }}>
               Your story is the application. Build your profile in under 10 minutes and start today.
             </p>
-            <Button onClick={() => setView("profile")} style={{ fontSize: 16, padding: "16px 40px" }}>
+            <Button onClick={() => { setAuthMode("signup"); setShowAuthModal(true); }} style={{ fontSize: 16, padding: "16px 40px" }}>
               Get Started Free
             </Button>
           </div>
@@ -1059,8 +1131,8 @@ export default function ScholarBotPro() {
             display: "flex", justifyContent: "space-between", alignItems: "center",
             fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim,
           }}>
-            <span>ScholarBot Pro © 2026</span>
-            <span>{scholarshipDB.length} scholarships in database</span>
+            <span>ScholarBot Pro © 2026 — Not to replace the student. To give them back their time.</span>
+            <span>{scholarshipDB.length} scholarships | $2.3M+ in opportunities</span>
           </footer>
         </div>
       )}
