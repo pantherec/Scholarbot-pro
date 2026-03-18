@@ -410,8 +410,12 @@ export default function ScholarBotPro() {
   const [generatingLetter, setGeneratingLetter] = useState(false);
   const [generatedProfile, setGeneratedProfile] = useState("");
   const [savedLetters, setSavedLetters] = useState([]);
+  const [trackedApps, setTrackedApps] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("scholarbot-tracked-apps")) || []; } catch { return []; }
+  });
   const [appAnswers, setAppAnswers] = useState({});
   const [notification, setNotification] = useState(null);
+  const [deadlineAlerts, setDeadlineAlerts] = useState([]);
   const [bragSheetFileName, setBragSheetFileName] = useState("");
   const [bragSheetUploading, setBragSheetUploading] = useState(false);
   const [profileStep, setProfileStep] = useState(0);
@@ -447,6 +451,20 @@ export default function ScholarBotPro() {
   const remainingMatches = isPremium ? "Unlimited" : Math.max(0, FREE_LIMITS.matchesPerMonth - monthlyMatchesUsed);
   const remainingLetters = isPremium ? "Unlimited" : Math.max(0, FREE_LIMITS.lettersPerMonth - monthlyLettersUsed);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Sync usage counters to Supabase
+  const syncUsageToSupabase = useCallback(async (field) => {
+    if (!authUser || !supabase) return;
+    try {
+      const updates = { updated_at: new Date().toISOString() };
+      if (field === "matches") {
+        updates.matches_used_this_month = monthlyMatchesUsed + 1;
+      } else if (field === "letters") {
+        updates.letters_used_this_month = monthlyLettersUsed + 1;
+      }
+      await supabase.from("user_profiles").update(updates).eq("user_id", authUser.id);
+    } catch (e) { console.error("Usage sync failed:", e); }
+  }, [authUser, monthlyMatchesUsed, monthlyLettersUsed]);
 
   // Stripe checkout handler
   const handleCheckout = useCallback(async (plan) => {
@@ -665,16 +683,40 @@ export default function ScholarBotPro() {
         setAuthUser(user);
         // Load subscription status from Supabase
         if (user && supabase) {
-          const { data: profile } = await supabase
+          const { data: prof } = await supabase
             .from("user_profiles")
-            .select("subscription_status, letters_used_this_month, matches_used_this_month")
+            .select("subscription_status, letters_used_this_month, matches_used_this_month, usage_reset_at")
             .eq("user_id", user.id)
             .single();
-          if (profile) {
-            setUserSubscription(profile.subscription_status || "free");
-            setMonthlyLettersUsed(profile.letters_used_this_month || 0);
-            setMonthlyMatchesUsed(profile.matches_used_this_month || 0);
+          if (prof) {
+            setUserSubscription(prof.subscription_status || "free");
+            // Check if usage needs monthly reset
+            const resetAt = prof.usage_reset_at ? new Date(prof.usage_reset_at) : new Date(0);
+            const now = new Date();
+            const monthsSinceReset = (now.getFullYear() - resetAt.getFullYear()) * 12 + now.getMonth() - resetAt.getMonth();
+            if (monthsSinceReset >= 1) {
+              // Reset counters for new month
+              setMonthlyLettersUsed(0);
+              setMonthlyMatchesUsed(0);
+              supabase.from("user_profiles").update({
+                letters_used_this_month: 0,
+                matches_used_this_month: 0,
+                usage_reset_at: now.toISOString(),
+              }).eq("user_id", user.id);
+            } else {
+              setMonthlyLettersUsed(prof.letters_used_this_month || 0);
+              setMonthlyMatchesUsed(prof.matches_used_this_month || 0);
+            }
           }
+          // Fetch deadline alerts
+          const { data: alerts } = await supabase
+            .from("notifications")
+            .select("*")
+            .eq("user_id", user.id)
+            .eq("read", false)
+            .order("created_at", { ascending: false })
+            .limit(10);
+          if (alerts) setDeadlineAlerts(alerts);
         }
       });
 
@@ -704,6 +746,63 @@ export default function ScholarBotPro() {
   };
   const saveTemplates = (t) => { setTemplates(t); store.set("scholarbot-templates", t); };
 
+  // Application tracker helpers
+  const trackApplication = (scholarship, status = "interested") => {
+    const existing = trackedApps.find(a => a.scholarshipId === scholarship.id);
+    if (existing) {
+      notify("Already tracking this scholarship.", "info");
+      return;
+    }
+    const app = {
+      id: Date.now(),
+      scholarshipId: scholarship.id,
+      name: scholarship.name,
+      amount: scholarship.amount,
+      deadline: scholarship.deadline,
+      link: scholarship.link,
+      status, // interested | in_progress | submitted | accepted | rejected
+      addedAt: new Date().toISOString(),
+      notes: "",
+    };
+    const updated = [...trackedApps, app];
+    setTrackedApps(updated);
+    localStorage.setItem("scholarbot-tracked-apps", JSON.stringify(updated));
+    // Sync to Supabase if logged in
+    if (authUser && supabase) {
+      supabase.from("applications").insert({
+        user_id: authUser.id,
+        scholarship_id: scholarship.id,
+        scholarship_name: scholarship.name,
+        status,
+        notes: "",
+      }).then(() => {});
+    }
+    notify(`Tracking "${scholarship.name}"`, "success");
+  };
+
+  const updateAppStatus = (appId, newStatus) => {
+    const updated = trackedApps.map(a => a.id === appId ? { ...a, status: newStatus } : a);
+    setTrackedApps(updated);
+    localStorage.setItem("scholarbot-tracked-apps", JSON.stringify(updated));
+    // Sync to Supabase
+    const app = trackedApps.find(a => a.id === appId);
+    if (authUser && supabase && app) {
+      supabase.from("applications").update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq("user_id", authUser.id).eq("scholarship_id", app.scholarshipId).then(() => {});
+    }
+  };
+
+  const removeTrackedApp = (appId) => {
+    const app = trackedApps.find(a => a.id === appId);
+    const updated = trackedApps.filter(a => a.id !== appId);
+    setTrackedApps(updated);
+    localStorage.setItem("scholarbot-tracked-apps", JSON.stringify(updated));
+    if (authUser && supabase && app) {
+      supabase.from("applications").delete().eq("user_id", authUser.id).eq("scholarship_id", app.scholarshipId).then(() => {});
+    }
+    notify("Removed from tracker.", "info");
+  };
+
   const profileCompletion = Math.round(
     Object.keys(profile).filter(k => profile[k] && (Array.isArray(profile[k]) ? profile[k].length > 0 : true)).length / PROFILE_QUESTIONS.length * 100
   );
@@ -718,6 +817,7 @@ export default function ScholarBotPro() {
     }).filter(s => s.matchScore > 0).sort((a,b) => b.matchScore - a.matchScore);
     setMatchResults(results);
     setMonthlyMatchesUsed(prev => prev + 1);
+    syncUsageToSupabase("matches");
     setView("matches");
     notify(`Found ${results.length} matches!`, "success");
   }, [profile, scholarshipDB, canMatch]);
@@ -736,6 +836,7 @@ export default function ScholarBotPro() {
     setGeneratingLetter(true);
     setGeneratedLetter("");
     setMonthlyLettersUsed(prev => prev + 1);
+    syncUsageToSupabase("letters");
 
     let scholarshipDetails, scholarshipLabel;
     if (hasDbSelection) {
@@ -856,6 +957,7 @@ export default function ScholarBotPro() {
     {id:"generate",icon:"◉",label:"Letter Gen"},
     {id:"templates",icon:"▤",label:"Templates"},
     {id:"saved",icon:"▫",label:"Saved"},
+    {id:"tracker",icon:"▦",label:"Tracker"},
   ];
 
   const isLanding = view === "landing";
@@ -1409,13 +1511,38 @@ export default function ScholarBotPro() {
                   </span>
                 </div>
 
+                {/* Deadline Alerts */}
+                {deadlineAlerts.length > 0 && (
+                  <div style={{ marginBottom: 24 }}>
+                    <h2 style={{ fontSize: 16, fontWeight: 400, marginBottom: 10, color: COLORS.pink, fontFamily: FONTS.heading }}>⚠ Upcoming Deadlines</h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {deadlineAlerts.slice(0, 5).map(alert => (
+                        <div key={alert.id} style={{
+                          display: "flex", justifyContent: "space-between", alignItems: "center",
+                          padding: "10px 16px", background: COLORS.pink + "0A", border: `1px solid ${COLORS.pink}33`,
+                          borderRadius: 10, fontFamily: FONTS.body, fontSize: 13,
+                        }}>
+                          <span style={{ color: COLORS.text }}>{alert.title}</span>
+                          <button onClick={async () => {
+                            if (supabase) await supabase.from("notifications").update({ read: true }).eq("id", alert.id);
+                            setDeadlineAlerts(prev => prev.filter(a => a.id !== alert.id));
+                          }} style={{
+                            background: "none", border: "none", color: COLORS.textDim, cursor: "pointer", fontSize: 12,
+                          }}>Dismiss</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Quick Actions */}
                 <h2 style={{ fontSize: 18, fontWeight: 400, marginBottom: 16, color: COLORS.textMuted, fontFamily: FONTS.heading }}>Quick Actions</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
                   {[
                     { label: "Build Your Profile", desc: "Answer questions to create your scholarship persona.", action: () => setView("profile"), color: COLORS.gold, icon: "◈" },
                     { label: "Find Matches", desc: "AI matches you to best-fit scholarships.", action: () => { if (profile.name) runMatching(); else setView("profile"); }, color: COLORS.teal, icon: "◆" },
                     { label: "Generate a Letter", desc: "Create a human-sounding application letter.", action: () => setView("generate"), color: COLORS.pink, icon: "◉" },
+                    { label: "Track Applications", desc: `${trackedApps.length} scholarships in your pipeline.`, action: () => setView("tracker"), color: "#8B5CF6", icon: "▦" },
                   ].map((a, i) => (
                     <GlowCard key={i} onClick={a.action} glow={a.color} style={{ padding: "28px 24px", cursor: "pointer" }}>
                       <div style={{ fontSize: 28, marginBottom: 12, color: a.color, opacity: 0.6 }}>{a.icon}</div>
@@ -1683,6 +1810,9 @@ export default function ScholarBotPro() {
                           <Button onClick={() => { setSelectedScholarship(s); setView("generate"); }} style={{ fontSize: 12, padding: "8px 16px" }}>
                             Apply →
                           </Button>
+                          <Button variant="secondary" onClick={() => trackApplication(s)} style={{ fontSize: 11, padding: "6px 14px" }}>
+                            {trackedApps.some(a => a.scholarshipId === s.id) ? "✓ Tracked" : "Track"}
+                          </Button>
                           {s.link && <a href={s.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: COLORS.textDim, fontFamily: FONTS.body, textDecoration: "none", textAlign: "center" }}>View source ↗</a>}
                         </div>
                       </GlowCard>
@@ -1744,9 +1874,14 @@ export default function ScholarBotPro() {
                             </div>
                             {s.amount && <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.gold, marginTop: 6 }}>{s.amount}</div>}
                           </div>
-                          <Button onClick={() => { setSelectedScholarship(s); setView("generate"); }} style={{ fontSize: 12, padding: "10px 18px", flexShrink: 0 }}>
-                            Generate Letter
-                          </Button>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
+                            <Button onClick={() => { setSelectedScholarship(s); setView("generate"); }} style={{ fontSize: 12, padding: "10px 18px" }}>
+                              Generate Letter
+                            </Button>
+                            <Button variant="secondary" onClick={() => trackApplication(s)} style={{ fontSize: 11, padding: "6px 14px" }}>
+                              {trackedApps.some(a => a.scholarshipId === s.id) ? "✓ Tracked" : "Track"}
+                            </Button>
+                          </div>
                         </GlowCard>
                       );
                     })}
@@ -2095,6 +2230,91 @@ export default function ScholarBotPro() {
                         </div>
                       </GlowCard>
                     ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ====== APPLICATION TRACKER ====== */}
+            {view === "tracker" && (
+              <div>
+                <SectionHeader title="Application Tracker" />
+                {trackedApps.length === 0 ? (
+                  <EmptyState icon="▦" title="No applications tracked yet" desc="Find scholarships, then click 'Track' to add them to your pipeline."
+                    action={() => setView("matches")} actionLabel="Find Matches" />
+                ) : (
+                  <div>
+                    {/* Status summary */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 24 }}>
+                      {[
+                        { status: "interested", label: "Interested", color: COLORS.textMuted, icon: "○" },
+                        { status: "in_progress", label: "In Progress", color: COLORS.gold, icon: "◐" },
+                        { status: "submitted", label: "Submitted", color: COLORS.teal, icon: "●" },
+                        { status: "accepted", label: "Accepted", color: "#4CAF50", icon: "✓" },
+                        { status: "rejected", label: "Rejected", color: COLORS.pink, icon: "✗" },
+                      ].map(s => (
+                        <div key={s.status} style={{
+                          textAlign: "center", padding: "12px 8px", borderRadius: 10,
+                          background: COLORS.surface, border: `1px solid ${COLORS.border}`,
+                        }}>
+                          <div style={{ fontSize: 22, color: s.color }}>{trackedApps.filter(a => a.status === s.status).length}</div>
+                          <div style={{ fontSize: 11, fontFamily: FONTS.body, color: COLORS.textDim, marginTop: 2 }}>{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Application list */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {trackedApps.sort((a, b) => {
+                        // Sort by deadline urgency
+                        const da = new Date(a.deadline), db = new Date(b.deadline);
+                        if (isNaN(da)) return 1; if (isNaN(db)) return -1;
+                        return da - db;
+                      }).map(app => {
+                        const deadlineInfo = parseDeadline(app.deadline);
+                        const statusColors = {
+                          interested: COLORS.textMuted, in_progress: COLORS.gold,
+                          submitted: COLORS.teal, accepted: "#4CAF50", rejected: COLORS.pink,
+                        };
+                        return (
+                          <GlowCard key={app.id} hover={false}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                                  <div style={{ fontSize: 16, fontWeight: 400 }}>{app.name}</div>
+                                  {deadlineInfo && (
+                                    <span style={{
+                                      fontSize: 10, fontFamily: FONTS.body, padding: "2px 8px",
+                                      borderRadius: 10, background: deadlineInfo.color + "22", color: deadlineInfo.color,
+                                    }}>{deadlineInfo.label}</span>
+                                  )}
+                                </div>
+                                <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textDim, marginBottom: 8 }}>
+                                  {app.amount} {app.link && <> · <a href={app.link} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.gold, textDecoration: "none" }}>Apply →</a></>}
+                                </div>
+                                {/* Status selector */}
+                                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                                  {["interested", "in_progress", "submitted", "accepted", "rejected"].map(s => (
+                                    <button key={s} onClick={() => updateAppStatus(app.id, s)} style={{
+                                      padding: "4px 10px", fontSize: 11, fontFamily: FONTS.body, borderRadius: 6,
+                                      border: `1px solid ${app.status === s ? statusColors[s] : COLORS.border}`,
+                                      background: app.status === s ? statusColors[s] + "22" : "transparent",
+                                      color: app.status === s ? statusColors[s] : COLORS.textDim,
+                                      cursor: "pointer", transition: "all 0.2s",
+                                    }}>
+                                      {s.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase())}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              <Button variant="ghost" onClick={() => removeTrackedApp(app.id)} style={{ fontSize: 11, padding: "4px 10px", color: COLORS.textDim }}>
+                                ✕
+                              </Button>
+                            </div>
+                          </GlowCard>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
