@@ -631,40 +631,61 @@ export default function ScholarBotPro() {
             </div>
           </nav>
 
-          {/* Hero */}
+          {/* Hero with Video Background */}
           <div style={{
+            position: "relative", overflow: "hidden",
             padding: "160px 40px 80px", textAlign: "center",
-            background: `radial-gradient(ellipse 80% 50% at 50% -10%, ${COLORS.goldDim}, transparent)`,
+            minHeight: "85vh", display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
           }}>
+            {/* Background Video */}
+            <video
+              autoPlay muted loop playsInline
+              poster="/hero-poster.jpg"
+              style={{
+                position: "absolute", top: 0, left: 0, width: "100%", height: "100%",
+                objectFit: "cover", zIndex: 0, opacity: 0.35,
+              }}
+            >
+              <source src="/hero-bg-compressed.mp4" type="video/mp4" />
+            </video>
+            {/* Dark gradient overlay for text readability */}
             <div style={{
-              fontSize: 11, fontFamily: FONTS.body, letterSpacing: 4, color: COLORS.gold,
-              textTransform: "uppercase", marginBottom: 20,
-            }}>
-              AI-Powered Scholarship Matching
-            </div>
-            <h1 style={{
-              fontSize: 64, fontWeight: 400, lineHeight: 1.08, marginBottom: 20,
-              maxWidth: 720, margin: "0 auto 20px",
-            }}>
-              <span style={{ color: COLORS.text }}>Fund Your Future.</span><br/>
-              <span style={{
-                background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
-                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-              }}>Sound Like Yourself.</span>
-            </h1>
-            <p style={{
-              fontSize: 18, fontFamily: FONTS.body, color: COLORS.textMuted,
-              maxWidth: 560, margin: "0 auto 40px", lineHeight: 1.6,
-            }}>
-              Match with scholarships you actually qualify for. Generate application letters that sound human, not robotic. Built by students, for students.
-            </p>
-            <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-              <Button onClick={() => setView("profile")} style={{ fontSize: 16, padding: "16px 36px" }}>
-                Start Your Profile
-              </Button>
-              <Button variant="secondary" onClick={() => setView("search")} style={{ fontSize: 16, padding: "16px 36px" }}>
-                Browse {scholarshipDB.length} Scholarships
-              </Button>
+              position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1,
+              background: `linear-gradient(180deg, rgba(8,8,13,0.7) 0%, rgba(8,8,13,0.4) 40%, rgba(8,8,13,0.8) 100%), radial-gradient(ellipse 80% 50% at 50% -10%, ${COLORS.goldDim}, transparent)`,
+            }} />
+            {/* Hero Content */}
+            <div style={{ position: "relative", zIndex: 2 }}>
+              <div style={{
+                fontSize: 11, fontFamily: FONTS.body, letterSpacing: 4, color: COLORS.gold,
+                textTransform: "uppercase", marginBottom: 20,
+              }}>
+                AI-Powered Scholarship Matching
+              </div>
+              <h1 style={{
+                fontSize: 64, fontWeight: 400, lineHeight: 1.08, marginBottom: 20,
+                maxWidth: 720, margin: "0 auto 20px",
+              }}>
+                <span style={{ color: COLORS.text }}>Your Story Is the Application.</span><br/>
+                <span style={{
+                  background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
+                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                }}>We Just Help You Tell It.</span>
+              </h1>
+              <p style={{
+                fontSize: 18, fontFamily: FONTS.body, color: COLORS.textMuted,
+                maxWidth: 560, margin: "0 auto 40px", lineHeight: 1.6,
+              }}>
+                AI-powered scholarship matching and application letters that sound like you. Not like a robot. Built by a parent who's been where you are.
+              </p>
+              <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+                <Button onClick={() => setView("profile")} style={{ fontSize: 16, padding: "16px 36px" }}>
+                  Start Free
+                </Button>
+                <Button variant="secondary" onClick={() => setView("search")} style={{ fontSize: 16, padding: "16px 36px" }}>
+                  Browse {scholarshipDB.length} Scholarships
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -675,9 +696,9 @@ export default function ScholarBotPro() {
           }}>
             {[
               { val: `${scholarshipDB.length}+`, label: "Scholarships" },
-              { val: "$2M+", label: "Award Value Tracked" },
-              { val: "4", label: "Letter Styles" },
-              { val: "Free", label: "To Start" },
+              { val: "$2.3M+", label: "In Opportunities" },
+              { val: "4", label: "Writing Styles" },
+              { val: "Built by a Parent", label: "Who Gets It" },
             ].map((s, i) => (
               <div key={i} style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 28, fontWeight: 400, color: COLORS.gold, fontFamily: FONTS.heading }}>{s.val}</div>
@@ -708,23 +729,39 @@ export default function ScholarBotPro() {
             </div>
           </div>
 
-          {/* Testimonials */}
-          <div style={{ padding: "60px 40px 80px", background: COLORS.surface }}>
-            <h2 style={{ fontSize: 30, fontWeight: 400, textAlign: "center", marginBottom: 40 }}>What Students Say</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, maxWidth: 1000, margin: "0 auto" }}>
-              {[
-                { quote: "I applied to 12 scholarships in the time it used to take me to do one. The letters actually sounded like me.", name: "Jordan M.", detail: "Class of 2026" },
-                { quote: "The matching saved me hours of Googling. It found scholarships I never knew existed for my background.", name: "Priya K.", detail: "Received $15,000" },
-                { quote: "My counselor couldn't tell the letters were AI-assisted. That's the whole point.", name: "Marcus T.", detail: "First-gen student" },
-              ].map((t, i) => (
-                <GlowCard key={i} hover={false} style={{ padding: "28px 24px" }}>
-                  <div style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.7, marginBottom: 16, fontStyle: "italic" }}>
-                    "{t.quote}"
+          {/* Origin Story — Real Testimonial */}
+          <div style={{ padding: "80px 40px", background: COLORS.surface }}>
+            <div style={{ maxWidth: 800, margin: "0 auto" }}>
+              <h2 style={{ fontSize: 30, fontWeight: 400, textAlign: "center", marginBottom: 12 }}>We've Been Where You Are</h2>
+              <p style={{ textAlign: "center", fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim, marginBottom: 40 }}>A real story from the parent who built this tool</p>
+              <GlowCard hover={false} glow={COLORS.gold} style={{ padding: "40px 36px", borderLeft: `3px solid ${COLORS.gold}` }}>
+                <div style={{ fontSize: 15, fontFamily: "Georgia, 'Times New Roman', serif", color: COLORS.textMuted, lineHeight: 1.85, fontStyle: "italic" }}>
+                  <p style={{ marginBottom: 16 }}>
+                    "It was the fall of their senior year, and my kids were running on fumes. They were carrying full loads of advanced coursework. Multiple AP classes, college-level engineering. Just about honors everything."
+                  </p>
+                  <p style={{ marginBottom: 16 }}>
+                    "Then scholarship season hit. Suddenly we weren't just a family getting through the school year. We were a small, overwhelmed operation. The kitchen table disappeared under stacks of printed applications. We tracked deadlines on a spreadsheet while I proofread essays at midnight."
+                  </p>
+                  <p style={{ marginBottom: 16 }}>
+                    "We found dozens of scholarships they qualified for. But each one needed a tailored application. Unique essays. Specific formatting. Different portals. It was like applying to college 40 more times."
+                  </p>
+                  <p style={{ marginBottom: 16 }}>
+                    "My children did it. They finished strong in their coursework AND submitted every application. I'm proud of that. But I watched the cost. The late nights. The stress of choosing between studying for an exam and polishing a scholarship letter."
+                  </p>
+                  <p style={{ marginBottom: 0 }}>
+                    "I kept thinking: what if they could have focused on what mattered most — their ideas, their story, their voice — and let a tool handle the rest? That's why ScholarBot Pro exists. Not to replace the student. To give them back their time."
+                  </p>
+                </div>
+                <div style={{ marginTop: 24, display: "flex", alignItems: "center", gap: 16 }}>
+                  <div style={{ width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: COLORS.bg, fontWeight: 700 }}>
+                    CS
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 600, fontFamily: FONTS.body, color: COLORS.gold }}>{t.name}</div>
-                  <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim }}>{t.detail}</div>
-                </GlowCard>
-              ))}
+                  <div>
+                    <div style={{ fontSize: 16, fontWeight: 600, fontFamily: FONTS.body, color: COLORS.gold }}>Corey S.</div>
+                    <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textDim }}>Parent, Educator & Creator of ScholarBot Pro</div>
+                  </div>
+                </div>
+              </GlowCard>
             </div>
           </div>
 
@@ -735,7 +772,7 @@ export default function ScholarBotPro() {
           }}>
             <h2 style={{ fontSize: 40, fontWeight: 400, marginBottom: 12 }}>Ready to Fund Your Future?</h2>
             <p style={{ fontSize: 16, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 32 }}>
-              Build your profile in under 10 minutes. Start generating letters today.
+              Your story is the application. Build your profile in under 10 minutes and start today.
             </p>
             <Button onClick={() => setView("profile")} style={{ fontSize: 16, padding: "16px 40px" }}>
               Get Started Free

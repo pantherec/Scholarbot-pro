@@ -1,0 +1,48 @@
+# Environment / Secrets
+.env
+.env.*
+*.env
+
+# Logs
+logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+
+# Build output
+dist/
+
+# Large source video files (keep compressed versions only)
+Opening video/
+public/hero-bg.mp4
+public/hero-bg-new.mp4
+
+# Skill packages
+*.skill
+
+# Vite temp files
+*.mjs.timestamp-*
+vite.config.js.timestamp-*
