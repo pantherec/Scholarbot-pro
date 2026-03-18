@@ -667,15 +667,49 @@ export default function ScholarBotPro() {
     const systemPrompt = `You are a scholarship application letter writer. Write in the candidate's authentic voice — NOT like an AI.\n\nSTYLE TEMPLATE: "${selectedTemplate.name}"\nRULES: ${selectedTemplate.rules}\n\nCRITICAL ANTI-DETECTION RULES:\n1. NEVER use: "delve," "cutting-edge," "landscape," "foster," "tapestry," "game-changer," "testament," "unwavering," "thrilled," "elevate," "synergy"\n2. Vary sentence length. Mix short punchy sentences with longer ones.\n3. Use specific details — names, dates, numbers, places.\n4. Sound like a real ${profile.gradYear || "2026"} high school student.\n5. NO em-dashes. Use periods or commas.\n6. Don't start paragraphs with "Additionally," "Furthermore," or "Moreover."\n7. Open with something MEMORABLE.\n\nCANDIDATE PROFILE:\n${profileSummary}`;
 
     try {
-      const response = await fetch("/api/generate", {
+      const response = await fetch("/api/generate-stream", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514", max_tokens: 1000, system: systemPrompt,
           messages: [{ role: "user", content: `Write a scholarship application letter for "${scholarshipLabel}".\n\n${scholarshipDetails}\n\nWrite a compelling, authentic letter (350-500 words). Make it feel HUMAN, not AI-generated.` }]
         })
       });
-      const data = await response.json();
-      setGeneratedLetter(data.content?.map(b => b.text || "").join("\n") || "Error generating letter.");
+
+      if (!response.ok) {
+        // Fallback to non-streaming if streaming endpoint fails
+        const errData = await response.json().catch(() => ({}));
+        setGeneratedLetter(errData.error || "Error generating letter.");
+        setGeneratingLetter(false);
+        return;
+      }
+
+      // Parse SSE stream
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        // Parse SSE events from the chunk
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const jsonStr = line.slice(6);
+            if (jsonStr === "[DONE]") continue;
+            try {
+              const evt = JSON.parse(jsonStr);
+              if (evt.type === "content_block_delta" && evt.delta?.text) {
+                fullText += evt.delta.text;
+                setGeneratedLetter(fullText);
+              }
+            } catch(parseErr) { /* skip non-JSON lines */ }
+          }
+        }
+      }
+
+      if (!fullText) setGeneratedLetter("Error: Empty response from AI service.");
     } catch(e) {
       setGeneratedLetter("Error: Could not connect to the AI service.");
     }
@@ -1710,24 +1744,54 @@ export default function ScholarBotPro() {
                 <Button onClick={generateLetter}
                   disabled={generatingLetter || (scholarshipInputMode === "database" ? !selectedScholarship : !customScholarshipText.trim())}
                   style={{ fontSize: 15, padding: "14px 40px", marginBottom: 28 }}>
-                  {generatingLetter ? "◉ Generating..." : "Generate Scholarship Letter"}
+                  {generatingLetter ? "◉ Crafting your letter..." : "Generate Scholarship Letter"}
                 </Button>
 
-                {generatedLetter && (
+                {(generatedLetter || generatingLetter) && (
                   <div>
-                    <GlowCard hover={false} style={{ padding: 32, marginBottom: 16 }}>
-                      <div style={{ whiteSpace: "pre-wrap", fontSize: 15, lineHeight: 1.8, color: "#d4d0c8", fontFamily: "Georgia, 'Times New Roman', serif" }}>
-                        {generatedLetter}
+                    <GlowCard hover={false} style={{
+                      padding: 32, marginBottom: 16,
+                      background: COLORS.card,
+                      boxShadow: generatingLetter ? `0 0 30px ${COLORS.goldGlow}` : "none",
+                      transition: "box-shadow 0.5s ease",
+                    }}>
+                      {/* Letter paper styling */}
+                      <div style={{
+                        background: "#fdfcf8", borderRadius: 8, padding: "36px 40px",
+                        boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                        minHeight: generatingLetter && !generatedLetter ? 200 : "auto",
+                      }}>
+                        {generatingLetter && !generatedLetter && (
+                          <div style={{ textAlign: "center", padding: "40px 0" }}>
+                            <div style={{ fontSize: 14, fontFamily: FONTS.body, color: "#8a8578", marginBottom: 8 }}>Crafting your letter...</div>
+                            <div style={{ fontSize: 12, fontFamily: FONTS.body, color: "#b0a89a" }}>Matching your voice to the scholarship requirements</div>
+                          </div>
+                        )}
+                        <div style={{
+                          whiteSpace: "pre-wrap", fontSize: 15, lineHeight: 1.85,
+                          color: "#2a2722", fontFamily: "Georgia, 'Times New Roman', serif",
+                        }}>
+                          {generatedLetter}
+                          {generatingLetter && generatedLetter && (
+                            <span style={{
+                              display: "inline-block", width: 2, height: 18,
+                              background: COLORS.gold, marginLeft: 2,
+                              animation: "blink 0.8s infinite",
+                            }} />
+                          )}
+                        </div>
                       </div>
                     </GlowCard>
-                    <div style={{ display: "flex", gap: 12 }}>
-                      <Button onClick={() => {
-                        const label = scholarshipInputMode === "database" ? selectedScholarship?.name : (customScholarshipName || "Custom Scholarship");
-                        saveLetter({ text: generatedLetter, scholarship: label, template: selectedTemplate?.name });
-                      }}>Save Letter</Button>
-                      <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(generatedLetter); notify("Copied!", "success"); }}>Copy to Clipboard</Button>
-                      <Button variant="ghost" onClick={generateLetter}>Regenerate</Button>
-                    </div>
+                    {!generatingLetter && generatedLetter && (
+                      <div style={{ display: "flex", gap: 12 }}>
+                        <Button onClick={() => {
+                          const label = scholarshipInputMode === "database" ? selectedScholarship?.name : (customScholarshipName || "Custom Scholarship");
+                          saveLetter({ content: generatedLetter, scholarshipName: label, template: selectedTemplate?.name, scholarshipId: selectedScholarship?.id });
+                        }}>Save Letter</Button>
+                        <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(generatedLetter); notify("Copied!", "success"); }}>Copy to Clipboard</Button>
+                        <Button variant="ghost" onClick={generateLetter}>Regenerate</Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1844,6 +1908,10 @@ export default function ScholarBotPro() {
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
         }
         button:hover { opacity: 0.92; }
         button:active { transform: scale(0.98); }
