@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { createClient } from "@supabase/supabase-js";
 
 // ============================================================
 // DESIGN SYSTEM — Phase A: Brand Voice & Visual Identity
@@ -34,25 +35,87 @@ const FONTS = {
 };
 
 // ============================================================
-// SUPABASE CONFIG
+// SUPABASE CONFIG & AUTH
 // ============================================================
 const SUPABASE_URL = "https://zudczsepvkjbjgomgilz.supabase.co";
 const SUPABASE_KEY = typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_KEY
   ? import.meta.env.VITE_SUPABASE_KEY
   : null;
 
+const supabase = SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
 async function fetchScholarshipsFromSupabase() {
-  if (!SUPABASE_KEY) return null;
+  if (!supabase) return null;
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/scholarships?select=*`, {
-      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
-    });
-    if (!res.ok) return null;
-    const rows = await res.json();
-    return rows.map(r => ({
+    const { data, error } = await supabase.from("scholarships").select("*");
+    if (error || !data) return null;
+    return data.map(r => ({
       id: r.id, name: r.name, criteria: r.criteria || "",
       link: r.link || "", deadline: r.deadline || "Varies",
       amount: r.amount || "Varies", needBased: r.need_based || "",
+    }));
+  } catch(e) { return null; }
+}
+
+// Save user profile to Supabase
+async function saveProfileToSupabase(userId, profileData) {
+  if (!supabase || !userId) return false;
+  try {
+    const { error } = await supabase.from("user_profiles").upsert({
+      id: userId,
+      name: profileData.name || null,
+      gpa: profileData.gpa || null,
+      grade_level: profileData.gradeLevel || null,
+      intended_major: profileData.intendedMajor || null,
+      heritage: Array.isArray(profileData.heritage) ? profileData.heritage.join(", ") : profileData.heritage || null,
+      citizenship: profileData.citizenship || null,
+      financial_need: profileData.financialNeed || null,
+      activities: profileData.activities || null,
+      leadership: profileData.leadership || null,
+      profile_data: profileData,
+      updated_at: new Date().toISOString(),
+    });
+    return !error;
+  } catch(e) { return false; }
+}
+
+// Load user profile from Supabase
+async function loadProfileFromSupabase(userId) {
+  if (!supabase || !userId) return null;
+  try {
+    const { data, error } = await supabase.from("user_profiles").select("profile_data").eq("id", userId).single();
+    if (error || !data?.profile_data) return null;
+    return data.profile_data;
+  } catch(e) { return null; }
+}
+
+// Save letter to Supabase
+async function saveLetterToSupabase(userId, letter) {
+  if (!supabase || !userId) return false;
+  try {
+    const { error } = await supabase.from("saved_letters").insert({
+      user_id: userId,
+      scholarship_id: letter.scholarshipId || null,
+      scholarship_name: letter.scholarshipName || "Unknown",
+      template_name: letter.template || null,
+      letter_content: letter.content,
+    });
+    return !error;
+  } catch(e) { return false; }
+}
+
+// Load saved letters from Supabase
+async function loadLettersFromSupabase(userId) {
+  if (!supabase || !userId) return null;
+  try {
+    const { data, error } = await supabase.from("saved_letters").select("*").eq("user_id", userId).order("created_at", { ascending: false });
+    if (error || !data) return null;
+    return data.map(l => ({
+      id: l.id,
+      scholarshipName: l.scholarship_name,
+      template: l.template_name,
+      content: l.letter_content,
+      date: new Date(l.created_at).toLocaleDateString(),
     }));
   } catch(e) { return null; }
 }
@@ -354,6 +417,16 @@ export default function ScholarBotPro() {
   const [uploadedScholarshipName, setUploadedScholarshipName] = useState("");
   const scholarshipFileRef = useRef(null);
 
+  // Auth state
+  const [authUser, setAuthUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState("signin"); // signin | signup | forgot
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [authSubmitting, setAuthSubmitting] = useState(false);
+
   // File reader helper
   const readFileAsText = (file) => {
     return new Promise((resolve, reject) => {
@@ -444,12 +517,54 @@ export default function ScholarBotPro() {
     setFetchingUrl(false);
   };
 
-  // Load data on mount
+  // Auth handlers
+  const handleSignUp = async () => {
+    setAuthError(""); setAuthSubmitting(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({ email: authEmail, password: authPassword });
+      if (error) { setAuthError(error.message); }
+      else { setAuthError(""); notify("Check your email for a confirmation link!", "success"); setAuthMode("signin"); }
+    } catch(e) { setAuthError("Something went wrong. Please try again."); }
+    setAuthSubmitting(false);
+  };
+
+  const handleSignIn = async () => {
+    setAuthError(""); setAuthSubmitting(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email: authEmail, password: authPassword });
+      if (error) { setAuthError(error.message); }
+      else { setShowAuthModal(false); setAuthEmail(""); setAuthPassword(""); notify("Welcome back!", "success"); }
+    } catch(e) { setAuthError("Something went wrong. Please try again."); }
+    setAuthSubmitting(false);
+  };
+
+  const handleForgotPassword = async () => {
+    setAuthError(""); setAuthSubmitting(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(authEmail, {
+        redirectTo: window.location.origin,
+      });
+      if (error) { setAuthError(error.message); }
+      else { notify("Password reset email sent!", "success"); setAuthMode("signin"); }
+    } catch(e) { setAuthError("Something went wrong."); }
+    setAuthSubmitting(false);
+  };
+
+  const handleSignOut = async () => {
+    await supabase?.auth.signOut();
+    setAuthUser(null);
+    notify("Signed out.", "info");
+  };
+
+  // Load data on mount + auth listener
   useEffect(() => {
+    // Load local data first (fast)
     const p = store.get("scholarbot-profile"); if (p) setProfile(p);
     const l = store.get("scholarbot-letters"); if (l) setSavedLetters(l);
     const t = store.get("scholarbot-templates"); if (t) setTemplates(t);
     const a = store.get("scholarbot-answers"); if (a) setAppAnswers(a);
+
+    // Fetch scholarships from Supabase
     fetchScholarshipsFromSupabase().then(rows => {
       if (rows && rows.length > 0) {
         setScholarshipDB(rows);
@@ -457,6 +572,36 @@ export default function ScholarBotPro() {
         setDbSource("synced");
       }
     });
+
+    // Auth listener
+    if (supabase) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setAuthUser(session?.user ?? null);
+        setAuthLoading(false);
+        // If logged in, try to load cloud profile
+        if (session?.user) {
+          loadProfileFromSupabase(session.user.id).then(cloudProfile => {
+            if (cloudProfile && Object.keys(cloudProfile).length > 0) {
+              setProfile(cloudProfile);
+              store.set("scholarbot-profile", cloudProfile);
+            }
+          });
+          loadLettersFromSupabase(session.user.id).then(cloudLetters => {
+            if (cloudLetters && cloudLetters.length > 0) {
+              setSavedLetters(cloudLetters);
+            }
+          });
+        }
+      });
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setAuthUser(session?.user ?? null);
+      });
+
+      return () => subscription?.unsubscribe();
+    } else {
+      setAuthLoading(false);
+    }
   }, []);
 
   const notify = (msg, type = "info") => {
@@ -464,10 +609,17 @@ export default function ScholarBotPro() {
     setTimeout(() => setNotification(null), 3500);
   };
 
-  const saveProfile = (p) => { setProfile(p); store.set("scholarbot-profile", p); };
+  const saveProfile = (p) => {
+    setProfile(p);
+    store.set("scholarbot-profile", p);
+    // Sync to cloud if logged in
+    if (authUser) saveProfileToSupabase(authUser.id, p);
+  };
   const saveLetter = (letter) => {
     const updated = [...savedLetters, { ...letter, id: Date.now(), date: new Date().toLocaleDateString() }];
     setSavedLetters(updated); store.set("scholarbot-letters", updated);
+    // Sync to cloud if logged in
+    if (authUser) saveLetterToSupabase(authUser.id, letter);
     notify("Letter saved!", "success");
   };
   const saveTemplates = (t) => { setTemplates(t); store.set("scholarbot-templates", t); };
@@ -611,6 +763,85 @@ export default function ScholarBotPro() {
         </div>
       )}
 
+      {/* AUTH MODAL */}
+      {showAuthModal && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 10000,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)",
+        }} onClick={() => setShowAuthModal(false)}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background: COLORS.card, border: `1px solid ${COLORS.border}`,
+            borderRadius: 16, padding: 36, width: 380, maxWidth: "90vw",
+            boxShadow: `0 24px 80px rgba(0,0,0,0.5)`,
+          }}>
+            <div style={{ textAlign: "center", marginBottom: 28 }}>
+              <div style={{ fontSize: 11, fontFamily: FONTS.body, letterSpacing: 3, color: COLORS.gold, textTransform: "uppercase", marginBottom: 4 }}>ScholarBot Pro</div>
+              <h2 style={{ fontSize: 24, fontWeight: 400, marginBottom: 6 }}>
+                {authMode === "signup" ? "Create Account" : authMode === "forgot" ? "Reset Password" : "Welcome Back"}
+              </h2>
+              <p style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted }}>
+                {authMode === "signup" ? "Start finding scholarships in minutes" : authMode === "forgot" ? "We'll send you a reset link" : "Sign in to your account"}
+              </p>
+            </div>
+
+            {authError && (
+              <div style={{ padding: "10px 14px", borderRadius: 8, marginBottom: 16, fontSize: 13, fontFamily: FONTS.body, background: COLORS.pinkDim, color: COLORS.pink, border: `1px solid ${COLORS.pink}33` }}>
+                {authError}
+              </div>
+            )}
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <input
+                type="email" placeholder="Email address" value={authEmail}
+                onChange={e => setAuthEmail(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && (authMode === "forgot" ? handleForgotPassword() : authMode === "signup" ? handleSignUp() : handleSignIn())}
+                style={{
+                  padding: "12px 16px", borderRadius: 10, fontSize: 14, fontFamily: FONTS.body,
+                  background: COLORS.surface, border: `1px solid ${COLORS.border}`, color: COLORS.text,
+                  outline: "none",
+                }}
+              />
+              {authMode !== "forgot" && (
+                <input
+                  type="password" placeholder="Password (min 6 characters)" value={authPassword}
+                  onChange={e => setAuthPassword(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && (authMode === "signup" ? handleSignUp() : handleSignIn())}
+                  style={{
+                    padding: "12px 16px", borderRadius: 10, fontSize: 14, fontFamily: FONTS.body,
+                    background: COLORS.surface, border: `1px solid ${COLORS.border}`, color: COLORS.text,
+                    outline: "none",
+                  }}
+                />
+              )}
+              <Button
+                onClick={authMode === "forgot" ? handleForgotPassword : authMode === "signup" ? handleSignUp : handleSignIn}
+                disabled={authSubmitting || !authEmail}
+                style={{ width: "100%", justifyContent: "center", fontSize: 15, padding: "14px 24px", marginTop: 4 }}
+              >
+                {authSubmitting ? "Please wait..." : authMode === "signup" ? "Create Account" : authMode === "forgot" ? "Send Reset Link" : "Sign In"}
+              </Button>
+            </div>
+
+            <div style={{ marginTop: 20, textAlign: "center", fontFamily: FONTS.body, fontSize: 13, color: COLORS.textMuted }}>
+              {authMode === "signin" && (
+                <>
+                  <span style={{ cursor: "pointer", color: COLORS.gold }} onClick={() => { setAuthMode("forgot"); setAuthError(""); }}>Forgot password?</span>
+                  <span style={{ margin: "0 8px" }}>|</span>
+                  <span>No account? <span style={{ cursor: "pointer", color: COLORS.gold }} onClick={() => { setAuthMode("signup"); setAuthError(""); }}>Sign up</span></span>
+                </>
+              )}
+              {authMode === "signup" && (
+                <span>Already have an account? <span style={{ cursor: "pointer", color: COLORS.gold }} onClick={() => { setAuthMode("signin"); setAuthError(""); }}>Sign in</span></span>
+              )}
+              {authMode === "forgot" && (
+                <span style={{ cursor: "pointer", color: COLORS.gold }} onClick={() => { setAuthMode("signin"); setAuthError(""); }}>Back to sign in</span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ====== LANDING PAGE (Phase C) ====== */}
       {isLanding && (
         <div style={{ minHeight: "100vh" }}>
@@ -626,8 +857,17 @@ export default function ScholarBotPro() {
               <span style={{ fontSize: 20, fontWeight: 400, color: COLORS.text }}>PRO</span>
             </div>
             <div style={{ display: "flex", gap: 12 }}>
-              <Button variant="ghost" onClick={() => setView("home")} style={{ fontSize: 13, padding: "8px 16px" }}>Log In</Button>
-              <Button onClick={() => setView("profile")} style={{ fontSize: 13, padding: "8px 20px" }}>Get Started Free</Button>
+              {authUser ? (
+                <>
+                  <Button variant="ghost" onClick={handleSignOut} style={{ fontSize: 13, padding: "8px 16px" }}>Sign Out</Button>
+                  <Button onClick={() => setView("home")} style={{ fontSize: 13, padding: "8px 20px" }}>Dashboard</Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" onClick={() => { setAuthMode("signin"); setShowAuthModal(true); }} style={{ fontSize: 13, padding: "8px 16px" }}>Sign In</Button>
+                  <Button onClick={() => { setAuthMode("signup"); setShowAuthModal(true); }} style={{ fontSize: 13, padding: "8px 20px" }}>Get Started Free</Button>
+                </>
+              )}
             </div>
           </nav>
 
@@ -844,19 +1084,39 @@ export default function ScholarBotPro() {
               ← Back to Home
             </button>
 
-            {/* User */}
-            {profile.name && (
-              <div style={{ padding: "14px 20px", borderTop: `1px solid ${COLORS.border}`, fontSize: 12, fontFamily: FONTS.body }}>
-                <div style={{ color: COLORS.textDim, marginBottom: 2 }}>Logged in as</div>
-                <div style={{ color: COLORS.gold, fontWeight: 600 }}>{profile.name}</div>
-                <div style={{ marginTop: 6 }}>
-                  <div style={{ background: COLORS.border, borderRadius: 3, height: 4, overflow: "hidden" }}>
-                    <div style={{ background: COLORS.gold, height: "100%", width: `${profileCompletion}%`, transition: "width 0.4s", borderRadius: 3 }} />
+            {/* User & Auth */}
+            <div style={{ padding: "14px 20px", borderTop: `1px solid ${COLORS.border}`, fontSize: 12, fontFamily: FONTS.body }}>
+              {authUser ? (
+                <>
+                  <div style={{ color: COLORS.textDim, marginBottom: 2 }}>Signed in as</div>
+                  <div style={{ color: COLORS.gold, fontWeight: 600, marginBottom: 4 }}>{profile.name || authUser.email}</div>
+                  {profile.name && (
+                    <div style={{ marginBottom: 8 }}>
+                      <div style={{ background: COLORS.border, borderRadius: 3, height: 4, overflow: "hidden" }}>
+                        <div style={{ background: COLORS.gold, height: "100%", width: `${profileCompletion}%`, transition: "width 0.4s", borderRadius: 3 }} />
+                      </div>
+                      <div style={{ fontSize: 10, color: COLORS.textDim, marginTop: 3 }}>{profileCompletion}% profile complete</div>
+                    </div>
+                  )}
+                  <button onClick={handleSignOut} style={{
+                    background: "transparent", border: `1px solid ${COLORS.border}`, color: COLORS.textDim,
+                    padding: "6px 12px", borderRadius: 6, fontSize: 11, fontFamily: FONTS.body,
+                    cursor: "pointer", width: "100%",
+                  }}>Sign Out</button>
+                </>
+              ) : (
+                <>
+                  <div style={{ color: COLORS.textDim, marginBottom: 6 }}>
+                    {profile.name ? `Welcome, ${profile.name}` : "Sign in to save your work"}
                   </div>
-                  <div style={{ fontSize: 10, color: COLORS.textDim, marginTop: 3 }}>{profileCompletion}% profile complete</div>
-                </div>
-              </div>
-            )}
+                  <button onClick={() => { setAuthMode("signin"); setShowAuthModal(true); }} style={{
+                    background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
+                    border: "none", color: COLORS.bg, padding: "8px 12px", borderRadius: 6,
+                    fontSize: 12, fontWeight: 700, fontFamily: FONTS.body, cursor: "pointer", width: "100%",
+                  }}>Sign In / Sign Up</button>
+                </>
+              )}
+            </div>
           </div>
 
           {/* MAIN CONTENT */}
