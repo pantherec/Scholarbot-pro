@@ -38,9 +38,9 @@ const FONTS = {
 // SUPABASE CONFIG & AUTH
 // ============================================================
 const SUPABASE_URL = "https://zudczsepvkjbjgomgilz.supabase.co";
-const SUPABASE_KEY = typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_KEY
+const SUPABASE_KEY = (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_KEY)
   ? import.meta.env.VITE_SUPABASE_KEY
-  : null;
+  : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZGN6c2VwdmtqYmpnb21naWx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwMjcyMjUsImV4cCI6MjA4NjYwMzIyNX0.cyslrHtWjzvvmZfdQHWdP5xIMfP2xkYltdwMKCpNG2w";
 
 const supabase = SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
