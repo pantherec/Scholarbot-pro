@@ -426,6 +426,18 @@ export default function ScholarBotPro() {
   const [authPassword, setAuthPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [authSubmitting, setAuthSubmitting] = useState(false);
+  const [userSubscription, setUserSubscription] = useState("free"); // free | premium | seasonal
+  const [monthlyLettersUsed, setMonthlyLettersUsed] = useState(0);
+  const [monthlyMatchesUsed, setMonthlyMatchesUsed] = useState(0);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  // Feature gating
+  const FREE_LIMITS = { matchesPerMonth: 5, lettersPerMonth: 2 };
+  const isPremium = userSubscription === "premium" || userSubscription === "seasonal";
+  const canMatch = isPremium || monthlyMatchesUsed < FREE_LIMITS.matchesPerMonth;
+  const canGenerateLetter = isPremium || monthlyLettersUsed < FREE_LIMITS.lettersPerMonth;
+  const remainingMatches = isPremium ? "Unlimited" : Math.max(0, FREE_LIMITS.matchesPerMonth - monthlyMatchesUsed);
+  const remainingLetters = isPremium ? "Unlimited" : Math.max(0, FREE_LIMITS.lettersPerMonth - monthlyLettersUsed);
 
   // File reader helper
   const readFileAsText = (file) => {
@@ -631,14 +643,16 @@ export default function ScholarBotPro() {
   // Matching
   const runMatching = useCallback(() => {
     if (!profile.name) { notify("Please complete your profile first.", "error"); return; }
+    if (!canMatch) { setShowUpgradeModal(true); return; }
     const results = scholarshipDB.map(s => {
       const { score, reasons } = scoreMatch(profile, s);
       return { ...s, matchScore: score, matchReasons: reasons };
     }).filter(s => s.matchScore > 0).sort((a,b) => b.matchScore - a.matchScore);
     setMatchResults(results);
+    setMonthlyMatchesUsed(prev => prev + 1);
     setView("matches");
     notify(`Found ${results.length} matches!`, "success");
-  }, [profile, scholarshipDB]);
+  }, [profile, scholarshipDB, canMatch]);
 
   // Letter generation
   const generateLetter = async () => {
@@ -649,9 +663,11 @@ export default function ScholarBotPro() {
       return;
     }
     if (!profile.name) { notify("Complete your profile first.", "error"); return; }
+    if (!canGenerateLetter) { setShowUpgradeModal(true); return; }
 
     setGeneratingLetter(true);
     setGeneratedLetter("");
+    setMonthlyLettersUsed(prev => prev + 1);
 
     let scholarshipDetails, scholarshipLabel;
     if (hasDbSelection) {
@@ -876,11 +892,54 @@ export default function ScholarBotPro() {
         </div>
       )}
 
+      {/* UPGRADE MODAL */}
+      {showUpgradeModal && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 10000,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)",
+        }} onClick={() => setShowUpgradeModal(false)}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background: COLORS.card, border: `1px solid ${COLORS.gold}44`,
+            borderRadius: 16, padding: 36, width: 420, maxWidth: "90vw",
+            boxShadow: `0 24px 80px rgba(0,0,0,0.5), 0 0 40px ${COLORS.goldGlow}`,
+            textAlign: "center",
+          }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>&#9733;</div>
+            <h2 style={{ fontSize: 24, fontWeight: 400, marginBottom: 8 }}>You've hit your free limit</h2>
+            <p style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6, marginBottom: 8 }}>
+              Free accounts get {FREE_LIMITS.matchesPerMonth} matches and {FREE_LIMITS.lettersPerMonth} letters per month.
+            </p>
+            <p style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6, marginBottom: 24 }}>
+              Upgrade to Premium for unlimited matches, unlimited letters, all 4 writing templates, and deadline alerts.
+            </p>
+            <div style={{
+              background: COLORS.surface, borderRadius: 12, padding: "20px 24px", marginBottom: 24,
+              border: `1px solid ${COLORS.gold}33`,
+            }}>
+              <div style={{ fontSize: 32, fontWeight: 400, marginBottom: 4 }}>
+                $9<span style={{ fontSize: 16 }}>.99</span><span style={{ fontSize: 13, color: COLORS.textDim }}>/month</span>
+              </div>
+              <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim }}>Cancel anytime. No commitment.</div>
+            </div>
+            <p style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim, marginBottom: 20 }}>
+              Payment integration coming soon. For now, enjoy extended free access while we set things up!
+            </p>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              <Button variant="ghost" onClick={() => setShowUpgradeModal(false)}>Maybe Later</Button>
+              <Button onClick={() => { setShowUpgradeModal(false); notify("Thanks for your interest! Premium is coming soon.", "success"); }}>
+                Notify Me When Ready
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ====== LANDING PAGE (Phase C) ====== */}
       {isLanding && (
         <div style={{ minHeight: "100vh" }}>
           {/* Landing Nav */}
-          <nav style={{
+          <nav className="landing-nav" style={{
             position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
             padding: "16px 40px", display: "flex", justifyContent: "space-between", alignItems: "center",
             background: "rgba(8,8,13,0.85)", backdropFilter: "blur(20px)",
@@ -890,7 +949,7 @@ export default function ScholarBotPro() {
               <span style={{ fontSize: 11, fontFamily: FONTS.body, letterSpacing: 3, color: COLORS.gold, textTransform: "uppercase" }}>ScholarBot</span>
               <span style={{ fontSize: 20, fontWeight: 400, color: COLORS.text }}>PRO</span>
             </div>
-            <div style={{ display: "flex", gap: 12 }}>
+            <div className="landing-nav-buttons" style={{ display: "flex", gap: 12 }}>
               {authUser ? (
                 <>
                   <Button variant="ghost" onClick={handleSignOut} style={{ fontSize: 13, padding: "8px 16px" }}>Sign Out</Button>
@@ -936,7 +995,7 @@ export default function ScholarBotPro() {
               }}>
                 AI-Powered Scholarship Matching
               </div>
-              <h1 style={{
+              <h1 className="landing-hero-title" style={{
                 fontSize: 64, fontWeight: 400, lineHeight: 1.08, marginBottom: 20,
                 maxWidth: 720, margin: "0 auto 20px",
               }}>
@@ -946,7 +1005,7 @@ export default function ScholarBotPro() {
                   WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                 }}>We Just Help You Tell It.</span>
               </h1>
-              <p style={{
+              <p className="landing-hero-subtitle" style={{
                 fontSize: 18, fontFamily: FONTS.body, color: COLORS.textMuted,
                 maxWidth: 560, margin: "0 auto 40px", lineHeight: 1.6,
               }}>
@@ -964,9 +1023,10 @@ export default function ScholarBotPro() {
           </div>
 
           {/* Social proof strip */}
-          <div style={{
+          <div className="landing-stats-grid" style={{
             display: "flex", justifyContent: "center", gap: 48, padding: "32px 20px",
             borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`,
+            flexWrap: "wrap",
           }}>
             {[
               { val: `${scholarshipDB.length}+`, label: "Scholarships" },
@@ -987,7 +1047,7 @@ export default function ScholarBotPro() {
               <h2 style={{ fontSize: 36, fontWeight: 400, marginBottom: 10 }}>How ScholarBot Pro Works</h2>
               <p style={{ fontSize: 15, fontFamily: FONTS.body, color: COLORS.textMuted }}>Three steps to scholarship-ready applications</p>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+            <div className="landing-steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
               {[
                 { icon: "◈", title: "Build Your Profile", desc: "Answer guided questions or upload your brag sheet. ScholarBot learns your story, strengths, and goals.", color: COLORS.gold },
                 { icon: "◆", title: "Get Matched", desc: "Our scoring engine analyzes eligibility, heritage, GPA, need, and field to rank your best-fit scholarships.", color: COLORS.teal },
@@ -1043,7 +1103,7 @@ export default function ScholarBotPro() {
           <div style={{ padding: "80px 40px", textAlign: "center" }}>
             <h2 style={{ fontSize: 30, fontWeight: 400, marginBottom: 8 }}>Simple, Transparent Pricing</h2>
             <p style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 40 }}>Start free. Upgrade when you're ready to go all-in on scholarship season.</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, maxWidth: 900, margin: "0 auto" }}>
+            <div className="landing-pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, maxWidth: 900, margin: "0 auto" }}>
               {/* Free Tier */}
               <GlowCard hover={false} style={{ padding: "32px 24px", textAlign: "left" }}>
                 <div style={{ fontSize: 13, fontFamily: FONTS.body, fontWeight: 600, color: COLORS.textMuted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Free</div>
@@ -1204,6 +1264,17 @@ export default function ScholarBotPro() {
                       <div style={{ fontSize: 10, color: COLORS.textDim, marginTop: 3 }}>{profileCompletion}% profile complete</div>
                     </div>
                   )}
+                  {/* Usage stats */}
+                  <div style={{ marginBottom: 8, padding: "8px 0", borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}` }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: COLORS.textDim, marginBottom: 4 }}>
+                      <span>Matches: {remainingMatches} left</span>
+                      <span style={{ color: isPremium ? COLORS.teal : COLORS.textDim }}>{isPremium ? "PRO" : "Free"}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: COLORS.textDim }}>
+                      <span>Letters: {remainingLetters} left</span>
+                      {!isPremium && <span style={{ cursor: "pointer", color: COLORS.gold }} onClick={() => setShowUpgradeModal(true)}>Upgrade</span>}
+                    </div>
+                  </div>
                   <button onClick={handleSignOut} style={{
                     background: "transparent", border: `1px solid ${COLORS.border}`, color: COLORS.textDim,
                     padding: "6px 12px", borderRadius: 6, fontSize: 11, fontFamily: FONTS.body,
@@ -1987,6 +2058,18 @@ export default function ScholarBotPro() {
         }
         button:hover { opacity: 0.92; }
         button:active { transform: scale(0.98); }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+          .landing-hero-title { font-size: 36px !important; }
+          .landing-hero-subtitle { font-size: 15px !important; }
+          .landing-stats-grid { gap: 20px !important; }
+          .landing-steps-grid { grid-template-columns: 1fr !important; }
+          .landing-pricing-grid { grid-template-columns: 1fr !important; max-width: 380px !important; }
+          .landing-nav { padding: 12px 16px !important; }
+          .landing-nav-buttons { gap: 6px !important; }
+          .landing-nav-buttons button { font-size: 11px !important; padding: 6px 12px !important; }
+        }
       `}</style>
     </div>
   );
