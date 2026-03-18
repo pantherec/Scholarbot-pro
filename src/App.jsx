@@ -401,6 +401,8 @@ export default function ScholarBotPro() {
   const [dbLastUpdated, setDbLastUpdated] = useState("2026-02-11");
   const [dbSource, setDbSource] = useState("built-in");
   const [searchQuery, setSearchQuery] = useState("");
+  const [importUrl, setImportUrl] = useState("");
+  const [importLoading, setImportLoading] = useState(false);
   const [filterNeedBased, setFilterNeedBased] = useState("all");
   const [matchResults, setMatchResults] = useState([]);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
@@ -717,6 +719,29 @@ export default function ScholarBotPro() {
             .order("created_at", { ascending: false })
             .limit(10);
           if (alerts) setDeadlineAlerts(alerts);
+
+          // Load tracked applications from cloud
+          const { data: cloudApps } = await supabase
+            .from("applications")
+            .select("*")
+            .eq("user_id", user.id);
+          if (cloudApps && cloudApps.length > 0) {
+            const merged = cloudApps.map(a => ({
+              id: a.id,
+              scholarshipId: a.scholarship_id,
+              name: a.scholarship_name || a.scholarship_id,
+              amount: "", deadline: "", link: "",
+              status: a.status || "interested",
+              addedAt: a.created_at,
+              notes: a.notes || "",
+            }));
+            // Merge with local, preferring cloud data
+            const localIds = new Set(merged.map(a => a.scholarshipId));
+            const localOnly = trackedApps.filter(a => !localIds.has(a.scholarshipId));
+            const combined = [...merged, ...localOnly];
+            setTrackedApps(combined);
+            localStorage.setItem("scholarbot-tracked-apps", JSON.stringify(combined));
+          }
         }
       });
 
@@ -1373,8 +1398,15 @@ export default function ScholarBotPro() {
       {/* ====== APP SHELL (non-landing) ====== */}
       {!isLanding && (
         <>
+          {/* Mobile hamburger */}
+          <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{
+            display: "none", position: "fixed", top: 12, left: 12, zIndex: 200,
+            background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 8,
+            padding: "8px 12px", color: COLORS.text, fontSize: 18, cursor: "pointer",
+          }}>{mobileMenuOpen ? "✕" : "☰"}</button>
+
           {/* SIDEBAR */}
-          <div style={{
+          <div className={`app-sidebar${mobileMenuOpen ? " open" : ""}`} style={{
             position: "fixed", left: 0, top: 0, bottom: 0, width: 240,
             background: COLORS.surface, borderRight: `1px solid ${COLORS.border}`,
             display: "flex", flexDirection: "column", zIndex: 100,
@@ -1448,6 +1480,25 @@ export default function ScholarBotPro() {
                       {!isPremium && <span style={{ cursor: "pointer", color: COLORS.gold }} onClick={() => setShowUpgradeModal(true)}>Upgrade</span>}
                     </div>
                   </div>
+                  {isPremium && (
+                    <button onClick={async () => {
+                      try {
+                        const { data: prof } = await supabase.from("user_profiles").select("stripe_customer_id").eq("user_id", authUser.id).single();
+                        if (prof?.stripe_customer_id) {
+                          const resp = await fetch("/api/customer-portal", {
+                            method: "POST", headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ customerId: prof.stripe_customer_id }),
+                          });
+                          const data = await resp.json();
+                          if (data.url) window.location.href = data.url;
+                        } else { notify("No billing account found.", "error"); }
+                      } catch { notify("Could not open billing portal.", "error"); }
+                    }} style={{
+                      background: "transparent", border: `1px solid ${COLORS.gold}44`, color: COLORS.gold,
+                      padding: "6px 12px", borderRadius: 6, fontSize: 10, fontFamily: FONTS.body,
+                      cursor: "pointer", width: "100%", marginBottom: 8,
+                    }}>Manage Subscription</button>
+                  )}
                   <button onClick={handleSignOut} style={{
                     background: "transparent", border: `1px solid ${COLORS.border}`, color: COLORS.textDim,
                     padding: "6px 12px", borderRadius: 6, fontSize: 11, fontFamily: FONTS.body,
@@ -1470,7 +1521,12 @@ export default function ScholarBotPro() {
           </div>
 
           {/* MAIN CONTENT */}
-          <div style={{ marginLeft: 240, minHeight: "100vh", padding: "36px 44px" }}>
+          {/* Mobile overlay */}
+          {mobileMenuOpen && <div className="mobile-overlay" onClick={() => setMobileMenuOpen(false)} style={{
+            display: "none", position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 99,
+          }} />}
+
+          <div className="app-main" style={{ marginLeft: 240, minHeight: "100vh", padding: "36px 44px" }}>
 
             {/* ====== DASHBOARD ====== */}
             {view === "home" && (
@@ -1764,6 +1820,48 @@ export default function ScholarBotPro() {
                     <strong style={{ color: COLORS.orange }}>Disclaimer:</strong> ScholarBot Pro aggregates scholarship information from public sources for your convenience. While we work to keep this data accurate, we cannot independently verify every listing. Always confirm eligibility, deadlines, and legitimacy directly with the scholarship provider before applying. <strong>Never pay an application fee for a legitimate scholarship.</strong>
                   </span>
                 </div>
+
+                {/* URL Import (Premium) */}
+                {isPremium && (
+                  <GlowCard hover={false} glow={COLORS.teal} style={{ padding: "16px 20px", marginBottom: 20 }}>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.teal, marginBottom: 6, fontWeight: 500 }}>
+                          ★ Import from URL
+                        </div>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <input value={importUrl} onChange={e => setImportUrl(e.target.value)}
+                            placeholder="Paste a scholarship page URL..."
+                            style={{
+                              flex: 1, padding: "8px 14px", background: COLORS.surface,
+                              border: `1px solid ${COLORS.border}`, borderRadius: 8,
+                              color: COLORS.text, fontSize: 13, fontFamily: FONTS.body, outline: "none",
+                            }}/>
+                          <Button disabled={importLoading || !importUrl.trim()} onClick={async () => {
+                            setImportLoading(true);
+                            try {
+                              const resp = await fetch("/api/import-scholarship", {
+                                method: "POST", headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ url: importUrl.trim() }),
+                              });
+                              const data = await resp.json();
+                              if (resp.ok && data.name) {
+                                setScholarshipDB(prev => [data, ...prev]);
+                                setImportUrl("");
+                                notify(`Imported "${data.name}" — ${data.amount}`, "success");
+                              } else {
+                                notify(data.error || "Could not extract scholarship info.", "error");
+                              }
+                            } catch { notify("Import failed. Check the URL and try again.", "error"); }
+                            finally { setImportLoading(false); }
+                          }} style={{ fontSize: 12, padding: "8px 16px" }}>
+                            {importLoading ? "Importing..." : "Import"}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </GlowCard>
+                )}
 
                 {/* Search + Filters */}
                 <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
@@ -2352,6 +2450,7 @@ export default function ScholarBotPro() {
 
         /* Mobile responsiveness */
         @media (max-width: 768px) {
+          /* Landing page */
           .landing-hero-title { font-size: 36px !important; }
           .landing-hero-subtitle { font-size: 15px !important; }
           .landing-stats-grid { gap: 20px !important; }
@@ -2360,6 +2459,13 @@ export default function ScholarBotPro() {
           .landing-nav { padding: 12px 16px !important; }
           .landing-nav-buttons { gap: 6px !important; }
           .landing-nav-buttons button { font-size: 11px !important; padding: 6px 12px !important; }
+
+          /* App shell */
+          .mobile-menu-btn { display: block !important; }
+          .mobile-overlay { display: block !important; }
+          .app-sidebar { transform: translateX(-100%); }
+          .app-sidebar.open { transform: translateX(0); }
+          .app-main { margin-left: 0 !important; padding: 20px 16px !important; padding-top: 56px !important; }
         }
       `}</style>
     </div>
