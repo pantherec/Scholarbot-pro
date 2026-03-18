@@ -44,6 +44,14 @@ const SUPABASE_KEY = typeof import.meta !== "undefined" && import.meta.env?.VITE
 
 const supabase = SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
+// ============================================================
+// STRIPE CONFIG
+// ============================================================
+const STRIPE_PRICES = {
+  premium: "price_1TCNywCKmFEw0ke8GFSBvuVc",
+  seasonal: "price_1TCNzyCKmFEw0ke8Ej82CRAM",
+};
+
 async function fetchScholarshipsFromSupabase() {
   if (!supabase) return null;
   try {
@@ -438,6 +446,52 @@ export default function ScholarBotPro() {
   const canGenerateLetter = isPremium || monthlyLettersUsed < FREE_LIMITS.lettersPerMonth;
   const remainingMatches = isPremium ? "Unlimited" : Math.max(0, FREE_LIMITS.matchesPerMonth - monthlyMatchesUsed);
   const remainingLetters = isPremium ? "Unlimited" : Math.max(0, FREE_LIMITS.lettersPerMonth - monthlyLettersUsed);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Stripe checkout handler
+  const handleCheckout = useCallback(async (plan) => {
+    if (!authUser) {
+      setShowAuthModal(true);
+      return;
+    }
+    setCheckoutLoading(true);
+    try {
+      const isSubscription = plan === "premium";
+      const resp = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          priceId: STRIPE_PRICES[plan],
+          userId: authUser.id,
+          userEmail: authUser.email,
+          mode: isSubscription ? "subscription" : "payment",
+        }),
+      });
+      const data = await resp.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        notify("Checkout failed: " + (data.error || "Unknown error"), "error");
+      }
+    } catch (err) {
+      notify("Could not start checkout. Please try again.", "error");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  }, [authUser]);
+
+  // Check for checkout success/cancel on page load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "success") {
+      notify("Payment successful! Your account has been upgraded.", "success");
+      setUserSubscription("premium"); // Optimistic — webhook will confirm
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (params.get("checkout") === "cancelled") {
+      notify("Checkout cancelled. No charges were made.", "error");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
 
   // File reader helper
   const readFileAsText = (file) => {
@@ -606,8 +660,22 @@ export default function ScholarBotPro() {
         }
       });
 
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        setAuthUser(session?.user ?? null);
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        const user = session?.user ?? null;
+        setAuthUser(user);
+        // Load subscription status from Supabase
+        if (user && supabase) {
+          const { data: profile } = await supabase
+            .from("user_profiles")
+            .select("subscription_status, letters_used_this_month, matches_used_this_month")
+            .eq("user_id", user.id)
+            .single();
+          if (profile) {
+            setUserSubscription(profile.subscription_status || "free");
+            setMonthlyLettersUsed(profile.letters_used_this_month || 0);
+            setMonthlyMatchesUsed(profile.matches_used_this_month || 0);
+          }
+        }
       });
 
       return () => subscription?.unsubscribe();
@@ -922,15 +990,18 @@ export default function ScholarBotPro() {
               </div>
               <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim }}>Cancel anytime. No commitment.</div>
             </div>
-            <p style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim, marginBottom: 20 }}>
-              Payment integration coming soon. For now, enjoy extended free access while we set things up!
-            </p>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 12 }}>
               <Button variant="ghost" onClick={() => setShowUpgradeModal(false)}>Maybe Later</Button>
-              <Button onClick={() => { setShowUpgradeModal(false); notify("Thanks for your interest! Premium is coming soon.", "success"); }}>
-                Notify Me When Ready
+              <Button disabled={checkoutLoading} onClick={() => { setShowUpgradeModal(false); handleCheckout("premium"); }}>
+                {checkoutLoading ? "Loading..." : "Upgrade to Premium"}
               </Button>
             </div>
+            <button onClick={() => { setShowUpgradeModal(false); handleCheckout("seasonal"); }} style={{
+              background: "none", border: "none", color: COLORS.teal, cursor: "pointer",
+              fontFamily: FONTS.body, fontSize: 13, textDecoration: "underline",
+            }}>
+              Or get the Seasonal Pass for $29.99 (one-time)
+            </button>
           </div>
         </div>
       )}
@@ -1146,8 +1217,8 @@ export default function ScholarBotPro() {
                   <div>&#10003; Deadline alert emails</div>
                   <div>&#10003; Scholarship URL import</div>
                 </div>
-                <Button onClick={() => { setAuthMode("signup"); setShowAuthModal(true); }} style={{ width: "100%", justifyContent: "center", marginTop: 24 }}>
-                  Go Premium
+                <Button disabled={checkoutLoading} onClick={() => authUser ? handleCheckout("premium") : (setAuthMode("signup"), setShowAuthModal(true))} style={{ width: "100%", justifyContent: "center", marginTop: 24 }}>
+                  {checkoutLoading ? "Loading..." : "Go Premium"}
                 </Button>
               </GlowCard>
 
@@ -1164,8 +1235,8 @@ export default function ScholarBotPro() {
                   <div>&#10003; Priority support</div>
                   <div>&#10003; One-time payment</div>
                 </div>
-                <Button variant="secondary" onClick={() => { setAuthMode("signup"); setShowAuthModal(true); }} style={{ width: "100%", justifyContent: "center", marginTop: 24, borderColor: COLORS.teal + "44", color: COLORS.teal }}>
-                  Get Season Pass
+                <Button variant="secondary" disabled={checkoutLoading} onClick={() => authUser ? handleCheckout("seasonal") : (setAuthMode("signup"), setShowAuthModal(true))} style={{ width: "100%", justifyContent: "center", marginTop: 24, borderColor: COLORS.teal + "44", color: COLORS.teal }}>
+                  {checkoutLoading ? "Loading..." : "Get Season Pass"}
                 </Button>
               </GlowCard>
             </div>
