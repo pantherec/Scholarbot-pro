@@ -704,6 +704,28 @@ export default function ScholarBotPro() {
         }
       });
 
+      // Check URL for recovery flow on initial load
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const urlType = hashParams.get("type");
+      if (urlType === "recovery") {
+        // Supabase v2: recovery token is in the URL hash — wait for session, then show reset modal
+        const checkRecovery = setInterval(async () => {
+          const { data: { session: recoverySess } } = await supabase.auth.getSession();
+          if (recoverySess) {
+            clearInterval(checkRecovery);
+            setAuthUser(recoverySess.user);
+            setAuthMode("reset");
+            setShowAuthModal(true);
+            setNewPassword("");
+            setConfirmPassword("");
+            setAuthError("");
+            // Clean up the URL hash so refresh doesn't re-trigger
+            window.history.replaceState(null, "", window.location.pathname);
+          }
+        }, 300);
+        setTimeout(() => clearInterval(checkRecovery), 10000); // safety timeout
+      }
+
       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
         const user = session?.user ?? null;
         setAuthUser(user);
