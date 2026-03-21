@@ -8,7 +8,8 @@
       "deadline": "2026-09-15",
       "amount": "Full Tuition",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "4d132b00",
@@ -18,7 +19,8 @@
       "deadline": "2026-09-30",
       "amount": "$20,000",
       "need_based": "",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "a5085f17",
@@ -28,7 +30,8 @@
       "deadline": "2026-12-01",
       "amount": "$20,000",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "13f1adf0",
@@ -38,7 +41,8 @@
       "deadline": "2026-12-01",
       "amount": "$40,000",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "9525030c",
@@ -48,7 +52,8 @@
       "deadline": "2026-10-25",
       "amount": "$25,000",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "07b9902b",
@@ -58,7 +63,8 @@
       "deadline": "2026-11-18",
       "amount": "Up to $55,000/yr",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "cbfdee38",
@@ -68,7 +74,8 @@
       "deadline": "2026-09-14",
       "amount": "Full Tuition",
       "need_based": "",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "3de150da",
@@ -78,7 +85,8 @@
       "deadline": "2026-09-26",
       "amount": "Full Ride",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "b49963b7",
@@ -88,7 +96,8 @@
       "deadline": "Nomination Only",
       "amount": "Full Tuition",
       "need_based": "",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "65833827",
@@ -98,7 +107,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "e6661a2d",
@@ -108,7 +118,8 @@
       "deadline": "2026-02-28",
       "amount": "Up to $33,000",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "15abaa8f",
@@ -118,7 +129,8 @@
       "deadline": "2026-12-15",
       "amount": "$1,000-$60,000",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "BOTH"
     },
     {
       "id": "fa0bda4e",
@@ -128,7 +140,8 @@
       "deadline": "2026-11-15",
       "amount": "Full Tuition",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "4f3f26b7",
@@ -138,7 +151,8 @@
       "deadline": "2026-10-01",
       "amount": "$2,500+",
       "need_based": "",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "1a6cbdcd",
@@ -148,7 +162,8 @@
       "deadline": "2026-02-28",
       "amount": "$25,000",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "8ab158f4",
@@ -158,7 +173,8 @@
       "deadline": "2026-11-05",
       "amount": "$12,500",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "97d0cb6f",
@@ -168,7 +184,8 @@
       "deadline": "2026-05-01",
       "amount": "$5,000",
       "need_based": "Y",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "963a11fb",
@@ -178,7 +195,8 @@
       "deadline": "2026-12-18",
       "amount": "$5,000/yr renewable",
       "need_based": "",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "9465a1d6",
@@ -188,7 +206,8 @@
       "deadline": "2026-11-12",
       "amount": "Up to $250,000",
       "need_based": "",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "ddfbe387",
@@ -198,7 +217,8 @@
       "deadline": "2026-11-01",
       "amount": "Up to $15,000",
       "need_based": "",
-      "source": "built-in-verified"
+      "source": "built-in-verified",
+      "country": "US"
     },
     {
       "id": "8ac87a70",
@@ -208,7 +228,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "Renewable $10,000 annually up to 4 years",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "6b247e7d",
@@ -218,7 +239,8 @@
       "deadline": "204-01-31",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main",
+      "country": "US"
     },
     {
       "id": "878f4011",
@@ -228,7 +250,8 @@
       "deadline": "2023-12-01 00:00:00",
       "amount": "The scholarship provides up to $7.500 each semester for up to eight consecutive semesters.",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "9e95ed9e",
@@ -238,7 +261,8 @@
       "deadline": "Varies",
       "amount": "1. Club Level \u2013 Medallion\n2. Zone Level \u2013 Plaque\n3. District Regional Level \u2013 Plaque 4. District \u2013 Plaque and Scholarship\nEach winner of the District level contest will receive a scholarship for use at a college, university or trade school only. Three winners awarded scholarships of $2,500, $1,500 and $1,000 respectively for 1st, 2nd and 3rd place.",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "d9fe082f",
@@ -248,7 +272,8 @@
       "deadline": "2023-12-05 00:00:00",
       "amount": "10000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "23a96e72",
@@ -258,7 +283,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "551f6182",
@@ -268,7 +294,8 @@
       "deadline": "2023-02-25 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "257dba43",
@@ -278,7 +305,8 @@
       "deadline": "2023-03-15 00:00:00",
       "amount": "(10) $2,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "d5f3717c",
@@ -288,7 +316,8 @@
       "deadline": "2024-07-08 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main",
+      "country": "US"
     },
     {
       "id": "125daa34",
@@ -298,7 +327,8 @@
       "deadline": "2023-02-28 00:00:00",
       "amount": "1. Club level \u2013 medallion\n2. District level \u2013 plaque and a $2,500 college\nscholarship for the first-place winner",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "e03014ff",
@@ -308,7 +338,8 @@
       "deadline": "2023-04-15 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "6be70f30",
@@ -318,7 +349,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "c1a221a0",
@@ -328,7 +360,8 @@
       "deadline": "2023-03-15 00:00:00",
       "amount": "annual award of $5,000 for up to four (4) consecutive years for a potential total $20,000 scholars",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "7cd19c62",
@@ -338,7 +371,8 @@
       "deadline": "2023-11-30 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "b43ce3c6",
@@ -348,7 +382,8 @@
       "deadline": "2023-02-01 00:00:00",
       "amount": "(25) $5,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "76c31651",
@@ -358,7 +393,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "Potential of $5,000 worth of scholarships to be awarded",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "4b98ce59",
@@ -368,7 +404,8 @@
       "deadline": "2023-04-15 00:00:00",
       "amount": "1250.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "3ce919c5",
@@ -378,7 +415,8 @@
       "deadline": "03/10 each year",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "5c331c87",
@@ -388,7 +426,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "0fafefe2",
@@ -398,7 +437,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "Up to $5,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "c06b8b91",
@@ -408,7 +448,8 @@
       "deadline": "Check college",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main",
+      "country": "US"
     },
     {
       "id": "55d18124",
@@ -418,7 +459,8 @@
       "deadline": "2023-03-06 00:00:00",
       "amount": "up to $5,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "d9c07650",
@@ -428,7 +470,8 @@
       "deadline": "05/31 each year",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "BOTH"
     },
     {
       "id": "3f123ad5",
@@ -438,7 +481,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "Minimum of (6) individuals will each be awarded a $500 scholarship",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "969674ee",
@@ -448,7 +492,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "5000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "5ef4f4df",
@@ -458,7 +503,8 @@
       "deadline": "2023-02-10 00:00:00",
       "amount": "(10) $2,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "2c582cc8",
@@ -468,7 +514,8 @@
       "deadline": "Varies",
       "amount": "25000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "4bb748ba",
@@ -478,7 +525,8 @@
       "deadline": "2023-03-15 00:00:00",
       "amount": "The scholarship amount will be determined by calculating the student\u2019s remaining financial need, and may not exceed the tuition and generally applicable fees for 30 credit hours at a public South Dakota postsecondary institution",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "c2e31b74",
@@ -488,7 +536,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "cecf5186",
@@ -498,7 +547,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "(17) $500",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "fb468164",
@@ -508,7 +558,8 @@
       "deadline": "2023-04-13 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "afecb39b",
@@ -518,7 +569,8 @@
       "deadline": "2023-10-16 00:00:00",
       "amount": "One award of $10,000 & two awards of $5,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "23fee739",
@@ -528,7 +580,8 @@
       "deadline": "2023-11-15 00:00:00",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "e3340eb5",
@@ -538,7 +591,8 @@
       "deadline": "2023-09-08 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "c6ebec8c",
@@ -548,7 +602,8 @@
       "deadline": "2023-07-15 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "36c624d1",
@@ -558,7 +613,8 @@
       "deadline": "2023-03-11 00:00:00",
       "amount": "88 awards of $2500",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "2ec6b78f",
@@ -568,7 +624,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "$2500 Scholarship and $3000 worth of training.",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "38ab4533",
@@ -578,7 +635,8 @@
       "deadline": "2023-06-16 00:00:00",
       "amount": "1865.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "537eb2d9",
@@ -588,7 +646,8 @@
       "deadline": "2023-01-13 00:00:00",
       "amount": "Not a scholarship",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "d55e49b5",
@@ -598,7 +657,8 @@
       "deadline": "2023-03-15 00:00:00",
       "amount": "1 senior boy and 1 senior girl - $250 each",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "ef77b605",
@@ -608,7 +668,8 @@
       "deadline": "2024-01-09 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "229d6631",
@@ -618,7 +679,8 @@
       "deadline": "Februrary 28, 2023",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "266f4d2d",
@@ -628,7 +690,8 @@
       "deadline": "2023-06-03 00:00:00",
       "amount": "(1) $250 for a graduating high school senior student",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "af33903c",
@@ -638,7 +701,8 @@
       "deadline": "2023-03-15 00:00:00",
       "amount": "(2) $1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "a1b0b0a2",
@@ -648,7 +712,8 @@
       "deadline": "2023-11-01 00:00:00",
       "amount": "5000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "386e173d",
@@ -658,7 +723,8 @@
       "deadline": "2023-03-06 00:00:00",
       "amount": "Over 2,000 Full Tuition Scholarships",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "79efafa3",
@@ -668,7 +734,8 @@
       "deadline": "2023-02-28 00:00:00",
       "amount": "(5) $5,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "f732b0d1",
@@ -678,7 +745,8 @@
       "deadline": "03/01 each year",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "0c2a9a4c",
@@ -688,7 +756,8 @@
       "deadline": "2023-03-27 00:00:00",
       "amount": "10000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "ae2bfd8b",
@@ -698,7 +767,8 @@
       "deadline": "2024-01-11 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "d865acd0",
@@ -708,7 +778,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "(1) $1,000 (1) $500",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "db89eb3d",
@@ -718,7 +789,8 @@
       "deadline": "2023-12-01 00:00:00",
       "amount": "2500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "96ab5f27",
@@ -728,7 +800,8 @@
       "deadline": "2023-04-07 00:00:00",
       "amount": "(5) $1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "43863280",
@@ -738,7 +811,8 @@
       "deadline": "OPTIONAL DEADLINES IN THE FALL TO HELP WITH PROJECT. See website for details. FINAL SUBMISSION DUE: 05/28/2022",
       "amount": "(5) $10,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "0e34c622",
@@ -748,7 +822,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "192df01c",
@@ -758,7 +833,8 @@
       "deadline": "2023-11-13 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "49b8af96",
@@ -768,7 +844,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "7411c676",
@@ -778,7 +855,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "BOTH"
     },
     {
       "id": "6927f1c2",
@@ -788,7 +866,8 @@
       "deadline": "2023-07-31 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "cd14785a",
@@ -798,7 +877,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "4000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "2375f5bf",
@@ -808,7 +888,8 @@
       "deadline": "September",
       "amount": "up tp $25,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "11b33645",
@@ -818,7 +899,8 @@
       "deadline": "2023-05-31 00:00:00",
       "amount": "(2) $500",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "f0640f47",
@@ -828,7 +910,8 @@
       "deadline": "2022-01-21 00:00:00",
       "amount": "(multiple) $5,000 awards",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "29a709b4",
@@ -838,7 +921,8 @@
       "deadline": "2023-02-15 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "d2c5958a",
@@ -848,7 +932,8 @@
       "deadline": "Janurary 31, 2023",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "c6d79fbf",
@@ -858,7 +943,8 @@
       "deadline": "2023-08-31 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "9c8489aa",
@@ -868,7 +954,8 @@
       "deadline": "2023-03-24 00:00:00",
       "amount": "(3) $2,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "044810ea",
@@ -878,7 +965,8 @@
       "deadline": "2023-08-21 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "5921e550",
@@ -888,7 +976,8 @@
       "deadline": "2024-04-08 00:00:00",
       "amount": "(5) $10,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "e5f1f8f4",
@@ -898,7 +987,8 @@
       "deadline": "2023-12-01 00:00:00",
       "amount": "(6) $3,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "0afe39ed",
@@ -908,7 +998,8 @@
       "deadline": "2023-12-01 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "63ad3a9c",
@@ -918,7 +1009,8 @@
       "deadline": "2023-04-30 00:00:00",
       "amount": "$25, 000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "079195a9",
@@ -928,7 +1020,8 @@
       "deadline": "2023-04-14 00:00:00",
       "amount": "(5) $2,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "35983f1a",
@@ -938,7 +1031,8 @@
       "deadline": "Monthly",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "a2fc416a",
@@ -948,7 +1042,8 @@
       "deadline": "2023-10-17 00:00:00",
       "amount": "$1,000-$10,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "4694ebc9",
@@ -958,7 +1053,8 @@
       "deadline": "2023-05-22 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "9fac1a30",
@@ -968,7 +1064,8 @@
       "deadline": "2023-01-30 00:00:00",
       "amount": "(20) $20,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "539a77fa",
@@ -978,7 +1075,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "9c53e3f4",
@@ -988,7 +1086,8 @@
       "deadline": "2023-04-15 00:00:00",
       "amount": "(2) $500",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "b941f3e9",
@@ -998,7 +1097,8 @@
       "deadline": "2023-06-03 00:00:00",
       "amount": "(1) $250 for a graduating high school senior student",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "387c9da0",
@@ -1008,7 +1108,8 @@
       "deadline": "2023-06-15 00:00:00",
       "amount": "(2) $2,000 and (1) $1,500",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "1569c0b9",
@@ -1018,7 +1119,8 @@
       "deadline": "2023-02-24 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "fabec745",
@@ -1028,7 +1130,8 @@
       "deadline": "2023-05-13 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "4312ee31",
@@ -1038,7 +1141,8 @@
       "deadline": "Prefered Deadline: 01/15 With Rolling Program Admission",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "6bcd421e",
@@ -1048,7 +1152,8 @@
       "deadline": "2024-01-12 00:00:00",
       "amount": "10000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "f119b0b4",
@@ -1058,7 +1163,8 @@
       "deadline": "2024-01-15 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "acf4f411",
@@ -1068,7 +1174,8 @@
       "deadline": "2023-02-10 00:00:00",
       "amount": "(4) $2,500",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "b9909a9d",
@@ -1078,7 +1185,8 @@
       "deadline": "2023-02-28 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "e71b6910",
@@ -1088,7 +1196,8 @@
       "deadline": "2023-10-08 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "833366e2",
@@ -1098,7 +1207,8 @@
       "deadline": "2024-01-12 00:00:00",
       "amount": "Varies (20,000 in higer education scholarships)",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "1a15efba",
@@ -1108,7 +1218,8 @@
       "deadline": "Janurary 31, 2023",
       "amount": "up to $40,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "5cb6be88",
@@ -1118,7 +1229,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "48946588",
@@ -1128,7 +1240,8 @@
       "deadline": "2023-11-15 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "BOTH"
     },
     {
       "id": "fb7cbdc6",
@@ -1138,7 +1251,8 @@
       "deadline": "2023-03-29 00:00:00",
       "amount": "5000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "f9cc4b0e",
@@ -1148,7 +1262,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "472c0697",
@@ -1158,7 +1273,8 @@
       "deadline": "2023-02-08 00:00:00",
       "amount": "$500-$7,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "a0a0e64a",
@@ -1168,7 +1284,8 @@
       "deadline": "2021-04-02 00:00:00",
       "amount": "Minimum of $500 or more",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "e27b9522",
@@ -1178,7 +1295,8 @@
       "deadline": "2023-02-18 00:00:00",
       "amount": "student will receive a $2,500 award for full-time study or a $1,250 award for half-time study",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "f737924d",
@@ -1188,7 +1306,8 @@
       "deadline": "2023-04-03 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "2ade3cdb",
@@ -1198,7 +1317,8 @@
       "deadline": "2024-03-01 00:00:00",
       "amount": "multiple $1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "eed0b7ce",
@@ -1208,7 +1328,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "$1,000-$4,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "e9781a13",
@@ -1218,7 +1339,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "4000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "f07606d1",
@@ -1228,7 +1350,8 @@
       "deadline": "2024-04-01 00:00:00",
       "amount": "2000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "14259dde",
@@ -1238,7 +1361,8 @@
       "deadline": "2023-05-31 00:00:00",
       "amount": "Up to $1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "4b7f15d1",
@@ -1248,7 +1372,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "(several) $2,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "8c7c78ec",
@@ -1258,7 +1383,8 @@
       "deadline": "2023-05-15 00:00:00",
       "amount": "10000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "BOTH"
     },
     {
       "id": "c5a0c7dc",
@@ -1268,7 +1394,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "$1,000 for a senior boy & $1,000 for a senior girl",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "1d1f3891",
@@ -1278,7 +1405,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "5e5d04ec",
@@ -1288,7 +1416,8 @@
       "deadline": "2023-03-10 00:00:00",
       "amount": "(1) $10,000 and (29) $2,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "4b4f4c03",
@@ -1298,7 +1427,8 @@
       "deadline": "2023-10-02 00:00:00",
       "amount": "20000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "fc431ae2",
@@ -1308,7 +1438,8 @@
       "deadline": "2023-03-03 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "32b15ca3",
@@ -1318,7 +1449,8 @@
       "deadline": "2023-05-13 00:00:00",
       "amount": "2500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "4f9a3190",
@@ -1328,7 +1460,8 @@
       "deadline": "2023-04-03 00:00:00",
       "amount": "multiple $500-$1,000 scholarships",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "5d0d2be0",
@@ -1338,7 +1471,8 @@
       "deadline": "By 5pm on: 03/15/23",
       "amount": "(3) $1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "dd50eea4",
@@ -1348,7 +1482,8 @@
       "deadline": "2023-05-08 00:00:00",
       "amount": "4000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "BOTH"
     },
     {
       "id": "fbfe6c4a",
@@ -1358,7 +1493,8 @@
       "deadline": "2023-11-27 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "7f6a4bd2",
@@ -1368,7 +1504,8 @@
       "deadline": "2021-03-31 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "0ae05537",
@@ -1378,7 +1515,8 @@
       "deadline": "2023-09-30 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "cfe6354d",
@@ -1388,7 +1526,8 @@
       "deadline": "2023-04-21 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "344e8926",
@@ -1398,7 +1537,8 @@
       "deadline": "02/15 each year",
       "amount": "up to (3) $750",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "a1492329",
@@ -1408,7 +1548,8 @@
       "deadline": "12/1 each year",
       "amount": "(1) Full Ride Scholarship to Nebraska Wesleyan University",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "b40360bb",
@@ -1418,7 +1559,8 @@
       "deadline": "Februrary 28, 2023",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "835258ef",
@@ -1428,7 +1570,8 @@
       "deadline": "2023-04-15 00:00:00",
       "amount": "(multiple) $1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "2980509a",
@@ -1438,7 +1581,8 @@
       "deadline": "2023-09-10 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "91805612",
@@ -1448,7 +1592,8 @@
       "deadline": "2023-09-30 00:00:00",
       "amount": "40000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "a71bd87d",
@@ -1458,7 +1603,8 @@
       "deadline": "2023-04-15 00:00:00",
       "amount": "2500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "df99bdbd",
@@ -1468,7 +1614,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "9631f209",
@@ -1478,7 +1625,8 @@
       "deadline": "2022-06-01 00:00:00",
       "amount": "Several",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "1730d2ef",
@@ -1488,7 +1636,8 @@
       "deadline": "2022-05-02 00:00:00",
       "amount": "Multiple Scholarships Available",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "70d5b22e",
@@ -1498,7 +1647,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "861f425f",
@@ -1508,7 +1658,8 @@
       "deadline": "2023-02-06 00:00:00",
       "amount": "4000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "c819f52b",
@@ -1518,7 +1669,8 @@
       "deadline": "2023-11-08 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "0a461833",
@@ -1528,7 +1680,8 @@
       "deadline": "2023-11-01 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "6474dd22",
@@ -1538,7 +1691,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "(5) $1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "be4a78f1",
@@ -1548,7 +1702,8 @@
       "deadline": "2023-10-31 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "687cd441",
@@ -1558,7 +1713,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "(5) $4,000 over the course of 4 years",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "f6a57f96",
@@ -1568,7 +1724,8 @@
       "deadline": "2024-06-19 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "be8cd901",
@@ -1578,7 +1735,8 @@
       "deadline": "4/21/23 Deadline extended to: 4/26",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "246981a8",
@@ -1588,7 +1746,8 @@
       "deadline": "2023-12-15 00:00:00",
       "amount": "10000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "696294cb",
@@ -1598,7 +1757,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "$500 - $2,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "080e280b",
@@ -1608,7 +1768,8 @@
       "deadline": "2022-11-13 00:00:00",
       "amount": "4000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "bfbd8f58",
@@ -1618,7 +1779,8 @@
       "deadline": "2023-10-28 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "a98bb4d0",
@@ -1628,7 +1790,8 @@
       "deadline": "Opens November 1st",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main",
+      "country": "BOTH"
     },
     {
       "id": "58029dab",
@@ -1638,7 +1801,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "cba5f105",
@@ -1648,7 +1812,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "64fa912b",
@@ -1658,7 +1823,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "up to $100,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "BOTH"
     },
     {
       "id": "7261aa65",
@@ -1668,7 +1834,8 @@
       "deadline": "Opens in January",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "e567919a",
@@ -1678,7 +1845,8 @@
       "deadline": "2023-04-30 00:00:00",
       "amount": "$1,000 to an undergraduate student in South Dakota and $1,000 scholarship to an undergraduate student in North Dakota",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "9580867e",
@@ -1688,7 +1856,8 @@
       "deadline": "2023-11-29 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "2e2e1510",
@@ -1698,7 +1867,8 @@
       "deadline": "04/30 each year",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "a57b8892",
@@ -1708,7 +1878,8 @@
       "deadline": "2023-01-05 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "daf92e70",
@@ -1718,7 +1889,8 @@
       "deadline": "2023-09-30 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "c6704951",
@@ -1728,7 +1900,8 @@
       "deadline": "Monthly",
       "amount": "2222.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "BOTH"
     },
     {
       "id": "0d37e342",
@@ -1738,7 +1911,8 @@
       "deadline": "2023-02-01 00:00:00",
       "amount": "$10,000 annual scholarship for 4 years",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "9a3aef29",
@@ -1748,7 +1922,8 @@
       "deadline": "2023-04-30 00:00:00",
       "amount": "(10) $500",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "1db3d8df",
@@ -1758,7 +1933,8 @@
       "deadline": "04/15 each year",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "cd23ccf9",
@@ -1768,7 +1944,8 @@
       "deadline": "2023-10-31 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "cfc5d13b",
@@ -1778,7 +1955,8 @@
       "deadline": "2023-04-15 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "98eb56e5",
@@ -1788,7 +1966,8 @@
       "deadline": "2023-08-31 00:00:00",
       "amount": "2 awards of $1000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "922e93f5",
@@ -1798,7 +1977,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "2500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "c22f1511",
@@ -1808,7 +1988,8 @@
       "deadline": "2023-10-31 00:00:00",
       "amount": "35000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "99663614",
@@ -1818,7 +1999,8 @@
       "deadline": "2023-07-15 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "b39debd0",
@@ -1828,7 +2010,8 @@
       "deadline": "Februrary 28, 2023",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "90e586bd",
@@ -1838,7 +2021,8 @@
       "deadline": "Varies",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "81905b32",
@@ -1848,7 +2032,8 @@
       "deadline": "2023-01-15 00:00:00",
       "amount": "4000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "bfef87fe",
@@ -1858,7 +2043,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "Varies up to $33,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "60b2ba40",
@@ -1868,7 +2054,8 @@
       "deadline": "2024-01-20 00:00:00",
       "amount": "2000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "d44f296d",
@@ -1878,7 +2065,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "9 awards up to $1000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1b79b6b3",
@@ -1888,7 +2076,8 @@
       "deadline": "11/30/23 by 5pm",
       "amount": "Awards vary",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "093e9654",
@@ -1898,7 +2087,8 @@
       "deadline": "2023-03-15 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "42d455e2",
@@ -1908,7 +2098,8 @@
       "deadline": "2023-02-25 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "b531f481",
@@ -1918,7 +2109,8 @@
       "deadline": "2024-01-31 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "dc051f35",
@@ -1928,7 +2120,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "a684f0c3",
@@ -1938,7 +2131,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "b23e79d2",
@@ -1948,7 +2142,8 @@
       "deadline": "Feburary 15, 2023",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "b36f5060",
@@ -1958,7 +2153,8 @@
       "deadline": "2023-10-17 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "ee62d905",
@@ -1968,7 +2164,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "(1-2) $1,000-$2,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "2cdae95c",
@@ -1978,7 +2175,8 @@
       "deadline": "2023-10-31 00:00:00",
       "amount": "$1,000-$30,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "85830350",
@@ -1988,7 +2186,8 @@
       "deadline": "2021-03-01 00:00:00",
       "amount": "(25) $1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "af15c411",
@@ -1998,7 +2197,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "2500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "632d5b22",
@@ -2008,7 +2208,8 @@
       "deadline": "2023-02-28 00:00:00",
       "amount": "up to $2500 and can go towards tuition, books, tutoring or assistive technology",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "effb4e61",
@@ -2018,7 +2219,8 @@
       "deadline": "Monthly",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "BOTH"
     },
     {
       "id": "2033985c",
@@ -2028,7 +2230,8 @@
       "deadline": "2023-01-15 00:00:00",
       "amount": "39 awards of up to $5000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "86b2814e",
@@ -2038,7 +2241,8 @@
       "deadline": "2023-02-28 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "108a73ac",
@@ -2048,7 +2252,8 @@
       "deadline": "2023-04-30 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "4d5c69a1",
@@ -2058,7 +2263,8 @@
       "deadline": "2023-04-12 00:00:00",
       "amount": "$1,000,000 in scholarships",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "ab35efe6",
@@ -2068,7 +2274,8 @@
       "deadline": "2023-08-31 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "e1c205f9",
@@ -2078,7 +2285,8 @@
       "deadline": "2023-05-31 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "d67cf218",
@@ -2088,7 +2296,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "2764bc89",
@@ -2098,7 +2307,8 @@
       "deadline": "2023-02-03 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "500833ad",
@@ -2108,7 +2318,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "2e9fb3cf",
@@ -2118,7 +2329,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1678bbaa",
@@ -2128,7 +2340,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "4d8e6704",
@@ -2138,7 +2351,8 @@
       "deadline": "2023-02-25 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "d7824312",
@@ -2148,7 +2362,8 @@
       "deadline": "03/15 each year",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "483114a7",
@@ -2158,7 +2373,8 @@
       "deadline": "Monthly",
       "amount": "15000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "17a26d23",
@@ -2168,7 +2384,8 @@
       "deadline": "2023-03-20 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "7587df3d",
@@ -2178,7 +2395,8 @@
       "deadline": "2023-12-15 00:00:00",
       "amount": "50000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "8823a839",
@@ -2188,7 +2406,8 @@
       "deadline": "2023-12-13 00:00:00",
       "amount": "Undergraduate tuition expenses paid for up to 4 years",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "fa9a84cc",
@@ -2198,7 +2417,8 @@
       "deadline": "2023-12-15 00:00:00",
       "amount": "100000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "9268adad",
@@ -2208,7 +2428,8 @@
       "deadline": "Monthly",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "7be77317",
@@ -2218,7 +2439,8 @@
       "deadline": "2024-01-12 00:00:00",
       "amount": "(20) $1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "fde314c6",
@@ -2228,7 +2450,8 @@
       "deadline": "2023-11-30 00:00:00",
       "amount": "1 award of $1000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "fe998210",
@@ -2238,7 +2461,8 @@
       "deadline": "04/01 each year",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "f1765ca1",
@@ -2248,7 +2472,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "$1,000-2,500",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "e987d5d8",
@@ -2258,7 +2483,8 @@
       "deadline": "2023-02-13 00:00:00",
       "amount": "Up to $5,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "adc66bdb",
@@ -2268,7 +2494,8 @@
       "deadline": "Varies",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "BOTH"
     },
     {
       "id": "21ed9a66",
@@ -2278,7 +2505,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "8bb3370c",
@@ -2288,7 +2516,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "$100 - $2500",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "28584ff9",
@@ -2298,7 +2527,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "$250 - $1,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "5b98254d",
@@ -2308,7 +2538,8 @@
       "deadline": "2024-02-29 00:00:00",
       "amount": "(3) $2,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "dbb49b33",
@@ -2318,7 +2549,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "Award amount varies per Utah Institution. Tuition, books, fees, room and board for full undergraduate degree.",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "214f8860",
@@ -2328,7 +2560,8 @@
       "deadline": "2023-04-30 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "ca11c044",
@@ -2338,7 +2571,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "2 awards of $1500",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "57e60126",
@@ -2348,7 +2582,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "5000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "7b4f522e",
@@ -2358,7 +2593,8 @@
       "deadline": "2023-04-03 00:00:00",
       "amount": "multiple $1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "9ee98d58",
@@ -2368,7 +2604,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "ac265130",
@@ -2378,7 +2615,8 @@
       "deadline": "2024-02-01 00:00:00",
       "amount": "6000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "cc1d18f6",
@@ -2388,7 +2626,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "10000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "6d7b4303",
@@ -2398,7 +2637,8 @@
       "deadline": "2023-09-15 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "7c39acce",
@@ -2408,7 +2648,8 @@
       "deadline": "2023-03-17 00:00:00",
       "amount": "(2) $2,500",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "65b6c526",
@@ -2418,7 +2659,8 @@
       "deadline": "2023-12-01 00:00:00",
       "amount": "(4) $1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "39e7f190",
@@ -2428,7 +2670,8 @@
       "deadline": "2023-03-15 00:00:00",
       "amount": "(4) $5,000 renewable scholarship for a max of four years",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "177343aa",
@@ -2438,7 +2681,8 @@
       "deadline": "2023-05-31 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1b3520b4",
@@ -2448,7 +2692,8 @@
       "deadline": "2023-11-06 00:00:00",
       "amount": "Up to $10,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "45ac1736",
@@ -2458,7 +2703,8 @@
       "deadline": "2023-04-30 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "0daf65bb",
@@ -2468,7 +2714,8 @@
       "deadline": "2023-11-30 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "3c9badbe",
@@ -2478,7 +2725,8 @@
       "deadline": "2023-09-30 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "f877e350",
@@ -2488,7 +2736,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "2500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "2330504e",
@@ -2498,7 +2747,8 @@
       "deadline": "2023-04-21 00:00:00",
       "amount": "$500-$1000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "8b7da57b",
@@ -2508,7 +2758,8 @@
       "deadline": "2024-06-07 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "0e1bb327",
@@ -2518,7 +2769,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "350.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "d76bdd6d",
@@ -2528,7 +2780,8 @@
       "deadline": "2023-10-15 00:00:00",
       "amount": "2 awards for $2,500",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "45f760f1",
@@ -2538,7 +2791,8 @@
       "deadline": "2023-04-14 00:00:00",
       "amount": "4000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "649a309b",
@@ -2548,7 +2802,8 @@
       "deadline": "Februrary 22, 2023",
       "amount": "Varies: See website for more details",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "5a677c34",
@@ -2558,7 +2813,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "3 awards of $500",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "176c9017",
@@ -2568,7 +2824,8 @@
       "deadline": "2023-02-15 00:00:00",
       "amount": "(3) $1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "52d861f4",
@@ -2578,7 +2835,8 @@
       "deadline": "2023-04-19 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "ab498b85",
@@ -2588,7 +2846,8 @@
       "deadline": "03/31 each year",
       "amount": "(3) $500",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "56c0b660",
@@ -2598,7 +2857,8 @@
       "deadline": "2023-12-01 00:00:00",
       "amount": "20000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "44b0fc25",
@@ -2608,7 +2868,8 @@
       "deadline": "Original deadline 3/12/23 Deadline extended to: 03/31/23",
       "amount": "1500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "02eff4c2",
@@ -2618,7 +2879,8 @@
       "deadline": "2023-11-30 00:00:00",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1da2dba0",
@@ -2628,7 +2890,8 @@
       "deadline": "2023-02-15 00:00:00",
       "amount": "Four $1,000 scholarship will be awarded each year, one in each of the four VFW Auziliary Conferences",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "a7737665",
@@ -2638,7 +2901,8 @@
       "deadline": "Monthly on the 30th",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "dba80c43",
@@ -2648,7 +2912,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "4000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1bde0b0f",
@@ -2658,7 +2923,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "111b73d4",
@@ -2668,7 +2934,8 @@
       "deadline": "2023-04-30 00:00:00",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "a489168e",
@@ -2678,7 +2945,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "(2) $500",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "c2890056",
@@ -2688,7 +2956,8 @@
       "deadline": "2023-04-30 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "d7e0a69e",
@@ -2698,7 +2967,8 @@
       "deadline": "2023-09-30 00:00:00",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "bfabe326",
@@ -2708,7 +2978,8 @@
       "deadline": "2023-06-30 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "db2a2213",
@@ -2718,7 +2989,8 @@
       "deadline": "2023-07-31 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "5a809b30",
@@ -2728,7 +3000,8 @@
       "deadline": "2023-03-15 00:00:00",
       "amount": "2 awards of $20,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "b5b8e824",
@@ -2738,7 +3011,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "ef685930",
@@ -2748,7 +3022,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "38a4547b",
@@ -2758,7 +3033,8 @@
       "deadline": "12/32/23",
       "amount": "(1) $500 (1) $1000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "2af4b5ce",
@@ -2768,7 +3044,8 @@
       "deadline": "2024-05-21 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "57c926a8",
@@ -2778,7 +3055,8 @@
       "deadline": "2023-05-02 00:00:00",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "0c71e205",
@@ -2788,7 +3066,8 @@
       "deadline": "2023-02-28 00:00:00",
       "amount": "500 per division",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1c73f578",
@@ -2798,7 +3077,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "0c1d4574",
@@ -2808,7 +3088,8 @@
       "deadline": "03/01 each year",
       "amount": "500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "fa512f2a",
@@ -2818,7 +3099,8 @@
       "deadline": "2023-10-31 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "6c9d3661",
@@ -2828,7 +3110,8 @@
       "deadline": "2023-04-15 00:00:00",
       "amount": "(1) $10,000 (4) $2,500",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "f8f458ca",
@@ -2838,7 +3121,8 @@
       "deadline": "2023-12-01 00:00:00",
       "amount": "1 award of $1500",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "33d56ea8",
@@ -2848,7 +3132,8 @@
       "deadline": "2023-10-31 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "986f64cd",
@@ -2858,7 +3143,8 @@
       "deadline": "2023-01-31 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "41488e74",
@@ -2868,7 +3154,8 @@
       "deadline": "2023-03-04 00:00:00",
       "amount": "20 awards of $!0,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "9fd6e7c3",
@@ -2878,7 +3165,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "58 awards of $3500",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "a8384698",
@@ -2888,7 +3176,8 @@
       "deadline": "2023-06-01 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "5706f470",
@@ -2898,7 +3187,8 @@
       "deadline": "Contact: Chellee.Nemec@southeasttech.edu with questions",
       "amount": "$500-$1,000",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "188f819d",
@@ -2908,7 +3198,8 @@
       "deadline": "2023-10-15 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1a797874",
@@ -2918,7 +3209,8 @@
       "deadline": "2023-06-30 00:00:00",
       "amount": "$2,000 in scholarships",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "a1045305",
@@ -2928,7 +3220,8 @@
       "deadline": "2023-11-30 00:00:00",
       "amount": "1 award of $5000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "456e2164",
@@ -2938,7 +3231,8 @@
       "deadline": "2023-10-02 00:00:00",
       "amount": "$1000 per age group",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "ebb16262",
@@ -2948,7 +3242,8 @@
       "deadline": "2023-10-31 00:00:00",
       "amount": "$250 to $1000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "21c8cc58",
@@ -2958,7 +3253,8 @@
       "deadline": "2023-01-31 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "a1a9871d",
@@ -2968,7 +3264,8 @@
       "deadline": "Check back in october",
       "amount": "5000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main",
+      "country": "BOTH"
     },
     {
       "id": "9adf6ea9",
@@ -2978,7 +3275,8 @@
       "deadline": "2023-04-30 00:00:00",
       "amount": "3000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "27485b7b",
@@ -2988,7 +3286,8 @@
       "deadline": "2023-01-01 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "99b38ac4",
@@ -2998,7 +3297,8 @@
       "deadline": "2023-04-23 00:00:00",
       "amount": "1-$5000 award, 3-$1000 awards, 10-$500 awards",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "33640be6",
@@ -3008,7 +3308,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "1 award of $10,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "e5428a10",
@@ -3018,7 +3319,8 @@
       "deadline": "2023-10-01 00:00:00",
       "amount": "4 awards of $1000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "473bbee7",
@@ -3028,7 +3330,8 @@
       "deadline": "2023-01-15 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "557aa51c",
@@ -3038,7 +3341,8 @@
       "deadline": "2023-03-03 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "e1acb463",
@@ -3048,7 +3352,8 @@
       "deadline": "Varies",
       "amount": "4000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "f0eeedc9",
@@ -3058,7 +3363,8 @@
       "deadline": "12/1 each year",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "fcc5ef31",
@@ -3068,7 +3374,8 @@
       "deadline": "2023-10-31 00:00:00",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "4abf2a59",
@@ -3078,7 +3385,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "5 awards of $2000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1a75fbd3",
@@ -3088,7 +3396,8 @@
       "deadline": "2023-04-30 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "9193d508",
@@ -3098,7 +3407,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "2500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "0b9dee21",
@@ -3108,7 +3418,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "90d4ce46",
@@ -3118,7 +3429,8 @@
       "deadline": "2023-04-23 00:00:00",
       "amount": "(1) $5,000 (3) $1,000 (10) $500",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "322f90c7",
@@ -3128,7 +3440,8 @@
       "deadline": "2023-10-20 00:00:00",
       "amount": "$1000 - %5000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "ba197f33",
@@ -3138,7 +3451,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "200 awards of $20,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "3ce7c032",
@@ -3148,7 +3462,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "BOTH"
     },
     {
       "id": "03c07e97",
@@ -3158,7 +3473,8 @@
       "deadline": "2023-02-27 00:00:00",
       "amount": "up to $1500",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "5b186ee4",
@@ -3168,7 +3484,8 @@
       "deadline": "2023-03-15 00:00:00",
       "amount": "7 awards of $5000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "e845530d",
@@ -3178,7 +3495,8 @@
       "deadline": "2023-09-21 00:00:00",
       "amount": "12 up to $10,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "cbad5e03",
@@ -3188,7 +3506,8 @@
       "deadline": "2023-10-16 00:00:00",
       "amount": "2500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "9a304e24",
@@ -3198,7 +3517,8 @@
       "deadline": "2023-06-02 00:00:00",
       "amount": "$250 to $1000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "5cc5669a",
@@ -3208,7 +3528,8 @@
       "deadline": "2023-03-14 00:00:00",
       "amount": "up to $6500",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "43d7751f",
@@ -3218,7 +3539,8 @@
       "deadline": "2023-05-24 00:00:00",
       "amount": "3 awards of $2500",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "95a3e9c0",
@@ -3228,7 +3550,8 @@
       "deadline": "2023-10-31 00:00:00",
       "amount": "35000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "2d23f341",
@@ -3238,7 +3561,8 @@
       "deadline": "2023-04-15 00:00:00",
       "amount": "10000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "7c38bffa",
@@ -3248,7 +3572,8 @@
       "deadline": "Feburary 12, 2023",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "99f89b0e",
@@ -3258,7 +3583,8 @@
       "deadline": "04/15 each year",
       "amount": "1000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "56f20de0",
@@ -3268,7 +3594,8 @@
       "deadline": "2023-09-30 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "c7da0b78",
@@ -3278,7 +3605,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "10000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "97b91cbb",
@@ -3288,7 +3616,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "varies by scholarship",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "ed20a04e",
@@ -3298,7 +3627,8 @@
       "deadline": "2023-02-01 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "34441c5a",
@@ -3308,7 +3638,8 @@
       "deadline": "Varies",
       "amount": "2500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "9e05efcc",
@@ -3318,7 +3649,8 @@
       "deadline": "TBA",
       "amount": "20 awards of $20,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "2fd45ff4",
@@ -3328,7 +3660,8 @@
       "deadline": "Monthly",
       "amount": "1 award of $2000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "BOTH"
     },
     {
       "id": "56dc78f8",
@@ -3338,7 +3671,8 @@
       "deadline": "2023-04-15 00:00:00",
       "amount": "multiple $500 Scholarships",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "229e4d1b",
@@ -3348,7 +3682,8 @@
       "deadline": "2023-03-20 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1575f4f5",
@@ -3358,7 +3693,8 @@
       "deadline": "2023-07-01 00:00:00",
       "amount": "25000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "fe256e0e",
@@ -3368,7 +3704,8 @@
       "deadline": "Monthly",
       "amount": "10 awards of $10,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "c00a3880",
@@ -3378,7 +3715,8 @@
       "deadline": "12/1 each year",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "6e00c701",
@@ -3388,7 +3726,8 @@
       "deadline": "2023-08-06 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "aa2386cb",
@@ -3398,7 +3737,8 @@
       "deadline": "2023-05-15 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "80cddf99",
@@ -3408,7 +3748,8 @@
       "deadline": "2024-03-01 00:00:00",
       "amount": "1 award of $10,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "a017b2c8",
@@ -3418,7 +3759,8 @@
       "deadline": "Quartarly",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "7ac81d2c",
@@ -3428,7 +3770,8 @@
       "deadline": "2023-10-15 00:00:00",
       "amount": "Last Dollar",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "794cbe51",
@@ -3438,7 +3781,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "up to $5,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "aa87a221",
@@ -3448,7 +3792,8 @@
       "deadline": "2023-04-23 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "3f8f456f",
@@ -3458,7 +3803,8 @@
       "deadline": "2023-05-20 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "57b93588",
@@ -3468,7 +3814,8 @@
       "deadline": "2023-08-01 00:00:00",
       "amount": "3000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "25c29a6a",
@@ -3478,7 +3825,8 @@
       "deadline": "2023-01-29 00:00:00",
       "amount": "Varies per institution",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "0a5ed293",
@@ -3488,7 +3836,8 @@
       "deadline": "2023-05-14 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "7f4336c0",
@@ -3498,7 +3847,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "$1000 - $5000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "54505dec",
@@ -3508,7 +3858,8 @@
       "deadline": "2024-06-05 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main",
+      "country": "US"
     },
     {
       "id": "fbe75da0",
@@ -3518,7 +3869,8 @@
       "deadline": "2023-12-01 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "e79f7e4c",
@@ -3528,7 +3880,8 @@
       "deadline": "Monthly",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "2e002854",
@@ -3538,7 +3891,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "Awards vary by Scholarship",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "41022b59",
@@ -3548,7 +3902,8 @@
       "deadline": "2023-10-14 00:00:00",
       "amount": "4 awards for $2000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "b453d506",
@@ -3558,7 +3913,8 @@
       "deadline": "2024-01-12 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "67824de5",
@@ -3568,7 +3924,8 @@
       "deadline": "2023-12-31 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "7f0d0e17",
@@ -3578,7 +3935,8 @@
       "deadline": "2023-05-01 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "734aac86",
@@ -3588,7 +3946,8 @@
       "deadline": "Year-Round",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "66337d80",
@@ -3598,7 +3957,8 @@
       "deadline": "2023-02-23 00:00:00",
       "amount": "Full-ride scholarship for 4 years",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "003e0aea",
@@ -3608,7 +3968,8 @@
       "deadline": "2023-03-04 00:00:00",
       "amount": "30000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "d0ac415b",
@@ -3618,7 +3979,8 @@
       "deadline": "2023-02-21 00:00:00",
       "amount": "10000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "6c46fbc9",
@@ -3628,7 +3990,8 @@
       "deadline": "2023-07-01 00:00:00",
       "amount": "6000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "4522e9f7",
@@ -3638,7 +4001,8 @@
       "deadline": "2023-01-15 00:00:00",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "5e306b91",
@@ -3648,7 +4012,8 @@
       "deadline": "Monthly",
       "amount": "10000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "bd3a90ec",
@@ -3658,7 +4023,8 @@
       "deadline": "2023-10-31 00:00:00",
       "amount": "10000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "9a4d7ba2",
@@ -3668,7 +4034,8 @@
       "deadline": "2023-03-31 00:00:00",
       "amount": "3000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "f7bd2b7e",
@@ -3678,7 +4045,8 @@
       "deadline": "2023-09-15 00:00:00",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "af751b8b",
@@ -3688,7 +4056,8 @@
       "deadline": "2024-04-27 00:00:00",
       "amount": "$1000 a year for up to 5 years",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "85a2fed7",
@@ -3698,7 +4067,8 @@
       "deadline": "2023-12-15 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "a952fbc0",
@@ -3708,7 +4078,8 @@
       "deadline": "2023-10-15 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "45bf3c79",
@@ -3718,7 +4089,8 @@
       "deadline": "2023-11-15 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "d214384e",
@@ -3728,7 +4100,8 @@
       "deadline": "2023-02-06 00:00:00",
       "amount": "300 awards of $4000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "908e49ab",
@@ -3738,7 +4111,8 @@
       "deadline": "2023-04-30 00:00:00",
       "amount": "up to $5000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "5f1050ad",
@@ -3748,7 +4122,8 @@
       "deadline": "2023-04-01 00:00:00",
       "amount": "1500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "3e9fcff4",
@@ -3758,7 +4133,8 @@
       "deadline": "2023-05-09 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "0e377201",
@@ -3768,7 +4144,8 @@
       "deadline": "2023-02-03 00:00:00",
       "amount": "30 awards of $100,000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "8f168c50",
@@ -3778,7 +4155,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main",
+      "country": "BOTH"
     },
     {
       "id": "1e7f8115",
@@ -3788,7 +4166,8 @@
       "deadline": "TBA",
       "amount": "Full tuition for up to 4 years at the University of Utah",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1eabe1f4",
@@ -3798,7 +4177,8 @@
       "deadline": "2023-10-03 00:00:00",
       "amount": "1000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "18b65ab9",
@@ -3808,7 +4188,8 @@
       "deadline": "2023-05-10 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "46f96731",
@@ -3818,7 +4199,8 @@
       "deadline": "2023-05-10 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "42b3c9c4",
@@ -3828,7 +4210,8 @@
       "deadline": "2024-06-01 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main",
+      "country": "US"
     },
     {
       "id": "4c6e2283",
@@ -3838,7 +4221,8 @@
       "deadline": "2023-10-13 00:00:00",
       "amount": "$250 - $1000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "29dfb90d",
@@ -3848,7 +4232,8 @@
       "deadline": "2023-04-05 00:00:00",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1e88f986",
@@ -3858,7 +4243,8 @@
       "deadline": "2023-03-01 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1e905ba9",
@@ -3868,7 +4254,8 @@
       "deadline": "2023-02-01 00:00:00",
       "amount": "Awards vary by Scholarship",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "1d620cad",
@@ -3878,7 +4265,8 @@
       "deadline": "2023-06-30 00:00:00",
       "amount": "2500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "a78bfb66",
@@ -3888,7 +4276,8 @@
       "deadline": "Varies",
       "amount": "2500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "32d54745",
@@ -3898,7 +4287,8 @@
       "deadline": "2022-02-01 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "d415a917",
@@ -3908,7 +4298,8 @@
       "deadline": "2024-01-19 00:00:00",
       "amount": "$500 - Subject to available funding",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "ab235095",
@@ -3918,7 +4309,8 @@
       "deadline": "2023-12-01 00:00:00",
       "amount": "45000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "b1a6d041",
@@ -3928,7 +4320,8 @@
       "deadline": "2023-06-04 00:00:00",
       "amount": "Vaires",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "4f848f19",
@@ -3938,7 +4331,8 @@
       "deadline": "Did not reopen check January",
       "amount": "12500.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "09d1c554",
@@ -3948,7 +4342,8 @@
       "deadline": "Did not reopen check January",
       "amount": "$15,000 total",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "59082222",
@@ -3958,7 +4353,8 @@
       "deadline": "2023-06-30 00:00:00",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "53aa5b6f",
@@ -3968,7 +4364,8 @@
       "deadline": "Janurary 31, 2023",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "bbd5f82d",
@@ -3978,7 +4375,8 @@
       "deadline": "Now Open",
       "amount": "500.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "cf5dfb29",
@@ -3988,7 +4386,8 @@
       "deadline": "Last day of each month",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "8d3abf55",
@@ -3998,7 +4397,8 @@
       "deadline": "Janurary, 1,2023",
       "amount": "Summer Program",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "60436578",
@@ -4008,7 +4408,8 @@
       "deadline": "Monthly",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "18751a32",
@@ -4018,7 +4419,8 @@
       "deadline": "2023-12-10 00:00:00",
       "amount": "4000.0",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "eba02706",
@@ -4028,7 +4430,8 @@
       "deadline": "2023-03-28 00:00:00",
       "amount": "5000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "7ba99800",
@@ -4038,7 +4441,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "093e2b82",
@@ -4048,7 +4452,8 @@
       "deadline": "2023-02-20 00:00:00",
       "amount": "20 awards of up to $5000",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "64059cc6",
@@ -4058,7 +4463,8 @@
       "deadline": "Monthly",
       "amount": "1200.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "23a46973",
@@ -4068,7 +4474,8 @@
       "deadline": "Monthly on the 31st",
       "amount": "2000.0",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "BOTH"
     },
     {
       "id": "8202ef7d",
@@ -4078,7 +4485,8 @@
       "deadline": "2023-11-30 00:00:00",
       "amount": "$10,000 (5 awards)",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "73a0fec7",
@@ -4088,7 +4496,8 @@
       "deadline": "2024-04-01 00:00:00",
       "amount": "Not specified",
       "need_based": "",
-      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1"
+      "source": "b7eb9051-edb0-4ee1-aee1-10d7abb5f17f.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "a9df3007",
@@ -4098,7 +4507,8 @@
       "deadline": "Februrary 22, 2023",
       "amount": "Varies: See website for more details",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 2",
+      "country": "US"
     },
     {
       "id": "e635f53c",
@@ -4108,7 +4518,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "5210fdf2",
@@ -4118,7 +4529,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "ab9d7480",
@@ -4128,7 +4540,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "14347af7",
@@ -4138,7 +4551,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "e07ec4f1",
@@ -4148,7 +4562,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "4e0f2b7e",
@@ -4158,7 +4573,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "07c411e0",
@@ -4168,7 +4584,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "351e6127",
@@ -4178,7 +4595,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "df25a69f",
@@ -4188,7 +4606,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "94a30553",
@@ -4198,7 +4617,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "9204d401",
@@ -4208,7 +4628,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "98c18a16",
@@ -4218,7 +4639,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "5d413c20",
@@ -4228,7 +4650,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "f01e962d",
@@ -4238,7 +4661,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "369f7757",
@@ -4248,7 +4672,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "f329c1cc",
@@ -4258,7 +4683,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "9064f369",
@@ -4268,7 +4694,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "4fbdf519",
@@ -4278,7 +4705,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "7631a555",
@@ -4288,7 +4716,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "397ce084",
@@ -4298,7 +4727,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "2ab28d00",
@@ -4308,7 +4738,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "5a1ff677",
@@ -4318,7 +4749,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "357b57ca",
@@ -4328,7 +4760,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "34b496af",
@@ -4338,7 +4771,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "58ebd6b5",
@@ -4348,7 +4782,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "cdd70b0f",
@@ -4358,7 +4793,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "3bc41244",
@@ -4368,7 +4804,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "547b79a3",
@@ -4378,7 +4815,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "52250629",
@@ -4388,7 +4826,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "410ec502",
@@ -4398,7 +4837,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "1d491d96",
@@ -4408,7 +4848,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "d8623838",
@@ -4418,7 +4859,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "12b13027",
@@ -4428,7 +4870,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Other Sites for searching",
+      "country": "US"
     },
     {
       "id": "fea230ce",
@@ -4438,7 +4881,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 1"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "19f97a51",
@@ -4448,7 +4892,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 1"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "9cef67b4",
@@ -4458,7 +4903,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 1"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "1b5b676b",
@@ -4468,7 +4914,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 1"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "71c3e278",
@@ -4478,7 +4925,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 1"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "6c8ed3a2",
@@ -4488,7 +4936,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 1"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Resource 1",
+      "country": "US"
     },
     {
       "id": "736bed6b",
@@ -4498,7 +4947,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main",
+      "country": "US"
     },
     {
       "id": "b7996030",
@@ -4508,7 +4958,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main",
+      "country": "US"
     },
     {
       "id": "358ea659",
@@ -4518,7 +4969,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main",
+      "country": "US"
     },
     {
       "id": "41de17d8",
@@ -4528,7 +4980,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main"
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Scholarship Main",
+      "country": "US"
     },
     {
       "id": "9f7f5cb2",
@@ -4538,7 +4991,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "8821cda2",
@@ -4548,7 +5002,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "fed0f77d",
@@ -4558,7 +5013,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "e53ab19d",
@@ -4568,7 +5024,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "c885c297",
@@ -4578,7 +5035,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "cd95cb7f",
@@ -4588,7 +5046,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "557438fd",
@@ -4598,7 +5057,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "b61825e5",
@@ -4608,7 +5068,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "e2131a4e",
@@ -4618,7 +5079,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "f63a3cc2",
@@ -4628,7 +5090,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "4079db77",
@@ -4638,7 +5101,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "244bfd11",
@@ -4648,7 +5112,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "a3ce177f",
@@ -4658,7 +5123,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "32659d63",
@@ -4668,7 +5134,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "2d7bbd0b",
@@ -4678,7 +5145,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "12e27c62",
@@ -4688,7 +5156,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "5224735c",
@@ -4698,7 +5167,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "a7b457cc",
@@ -4708,7 +5178,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "09d09380",
@@ -4718,7 +5189,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "6402a125",
@@ -4728,7 +5200,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "b48d499d",
@@ -4738,7 +5211,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "1727c27e",
@@ -4748,7 +5222,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "4e2e7c41",
@@ -4758,7 +5233,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "ccf8a82a",
@@ -4768,7 +5244,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "718bb7fe",
@@ -4778,7 +5255,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "56e246df",
@@ -4788,7 +5266,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "335658b2",
@@ -4798,7 +5277,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "63b03abe",
@@ -4808,7 +5288,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "194a3344",
@@ -4818,7 +5299,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "eda89acb",
@@ -4828,7 +5310,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "09b6304b",
@@ -4838,7 +5321,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "b669f32b",
@@ -4848,7 +5332,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "216558de",
@@ -4858,7 +5343,8 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for "
+      "source": "9dd796c4-40ff-48da-b5bd-4585393b22f7.xlsx:Plan for obtaining funding for ",
+      "country": "US"
     },
     {
       "id": "424ead48",
@@ -4868,7 +5354,723 @@
       "deadline": "Varies",
       "amount": "Varies",
       "need_based": "",
-      "source": "dd918db9-7ae8-4f4e-a149-1ad5165294c2.xlsx:Scholarship Main"
+      "source": "dd918db9-7ae8-4f4e-a149-1ad5165294c2.xlsx:Scholarship Main",
+      "country": "US"
+    },
+    {
+      "id": "ca_sch001",
+      "name": "Schulich Leader Scholarships",
+      "criteria": "Canadian citizen or permanent resident. Graduating high school or CEGEP in current year. Enrolling in STEM program at one of 20 partner universities. Entrepreneurial-minded with leadership, charisma, creativity. Must be nominated by high school. Strong consideration for financial need.",
+      "link": "https://schulichleaders.com/",
+      "deadline": "2026-01-28",
+      "amount": "$100,000\u2013$120,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch002",
+      "name": "Loran Award",
+      "criteria": "Canadian citizen or permanent resident. Graduating high school or CEGEP. Demonstrated character, service, and leadership. Selected through multi-round process including interviews. Approximately 36 recipients per year from 6,000+ applicants.",
+      "link": "https://loranscholar.ca/",
+      "deadline": "2026-10-15",
+      "amount": "$100,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch003",
+      "name": "Terry Fox Humanitarian Award",
+      "criteria": "Canadian citizen or landed immigrant. Completed community humanitarian service. Demonstrates courage and determination by overcoming adversity. Pursuing first post-secondary degree or diploma. Approximately 20 recipients per year.",
+      "link": "https://terryfoxawards.ca/",
+      "deadline": "2026-11-03",
+      "amount": "$28,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch004",
+      "name": "TD Scholarship for Community Leadership",
+      "criteria": "Canadian citizen or permanent resident. Final year of high school (or CEGEP in Quebec). Minimum 75% average (or R-score 26 in Quebec). Demonstrated community leadership. Up to 25 scholarships awarded annually.",
+      "link": "https://www.td.com/ca/en/personal-banking/solutions/student-banking/community-leadership-scholarship-for-canadians",
+      "deadline": "2026-11-15",
+      "amount": "$70,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch005",
+      "name": "McCall MacBain Scholarships (McGill)",
+      "criteria": "Applying to a graduate program at McGill University. Demonstrated character, community engagement, leadership, entrepreneurial spirit, academic strength, and intellectual curiosity. Open to applicants worldwide. Covers full tuition plus living stipend.",
+      "link": "https://mccallmacbainscholars.org/",
+      "deadline": "2026-08-20",
+      "amount": "Full Tuition + Stipend",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch006",
+      "name": "Horatio Alger Canadian Scholarship",
+      "criteria": "Canadian citizen or permanent resident. Enrolled full-time as a Grade 11 student. Commitment to pursue bachelor's degree. Critical financial need (family income $80,000 or less). Involvement in co-curricular and community service. Integrity and perseverance in overcoming adversity.",
+      "link": "https://horatioalger.ca/scholarships-and-services/undergraduate-scholarships/",
+      "deadline": "2026-03-31",
+      "amount": "$5,000\u2013$25,000",
+      "need_based": "Y",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch007",
+      "name": "Lester B. Pearson International Scholarship (U of T)",
+      "criteria": "International students nominated by their high school. Exceptional academic achievement and creativity. Recognition as a leader within their school. Attending University of Toronto. Covers tuition, books, incidental fees, and full residence for 4 years.",
+      "link": "https://future.utoronto.ca/pearson/",
+      "deadline": "2026-11-30",
+      "amount": "Full Tuition + Residence (4 years)",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch008",
+      "name": "RBC Elevate Scholarship",
+      "criteria": "Canadian citizen, permanent resident, or protected person. Pursuing first bachelor's degree or diploma. 40 scholarships awarded annually. Valued up to $15,000.",
+      "link": "https://www.rbc.com/dms/enterprise/scholarships.html",
+      "deadline": "2026-03-26",
+      "amount": "Up to $15,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch009",
+      "name": "RBC Ignite Scholarship",
+      "criteria": "Canadian citizen, permanent resident, or protected person/convention refugee. 500 scholarships awarded annually. For students entering or continuing post-secondary education.",
+      "link": "https://www.rbc.com/dms/enterprise/scholarships.html",
+      "deadline": "2026-03-31",
+      "amount": "Up to $1,500",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch010",
+      "name": "RBC Reimagine Scholarship",
+      "criteria": "Canadian citizen, permanent resident, or protected person. Seeking upskilling or reskilling opportunities. 100 scholarships awarded annually.",
+      "link": "https://www.rbc.com/dms/enterprise/scholarships.html",
+      "deadline": "2026-06-04",
+      "amount": "Up to $5,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch011",
+      "name": "RBC Future Launch Scholarship for Black Youth",
+      "criteria": "Identify as Black Canadian citizen, permanent resident, or refugee. High school student entering Grade 11 or 12, or enrolled in post-secondary. 20 scholarships awarded annually.",
+      "link": "https://www.rbc.com/en/future-launch/resource-type/scholarships-awards/black-scholarship/",
+      "deadline": "Varies",
+      "amount": "Up to $10,000/year",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch012",
+      "name": "RBC Future Launch Scholarship for Indigenous Youth",
+      "criteria": "First Nations, Inuit, or M\u00e9tis student. Canadian citizen or permanent resident. Demonstrating strong academic performance and community involvement. 20 scholarships awarded annually.",
+      "link": "https://www.rbc.com/en/future-launch/resource-type/scholarships-awards/indigenous-scholarship/",
+      "deadline": "Varies",
+      "amount": "Up to $10,000/year",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch013",
+      "name": "RBC Capital Markets Diversity Scholarship",
+      "criteria": "BIPOC student in Canada. Pursuing post-secondary education. Up to 8 scholarships awarded. Includes summer job, mentorship, and coaching.",
+      "link": "https://www.rbccm.com/en/careers/scholarships.page",
+      "deadline": "Varies",
+      "amount": "$5,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch014",
+      "name": "BMO Diversity Scholarships",
+      "criteria": "High school, university, or college student in Canada. Available in every field of study. Specific scholarships for Indigenous students and students with disabilities.",
+      "link": "https://www.bmo.com/main/about-bmo/corporate-responsibility/communities/bmo-scholarships/",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch015",
+      "name": "CIBC Student Life Network Scholarship",
+      "criteria": "High school student 16 years of age or older in Canada. Contest format. Open February to June annually.",
+      "link": "https://www.cibc.com/en/student/scholarships-and-contests/student-life-network.html",
+      "deadline": "2026-06-30",
+      "amount": "$7,500",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch016",
+      "name": "Telesat Women in Engineering & Technology Scholarship",
+      "criteria": "Canadian citizen or permanent resident. Enrolled or accepted in an engineering or technology program at a recognized Canadian post-secondary institution. Identifies as a woman. Indigenous, visible minority, and students with disabilities strongly encouraged to apply. 10 scholarships awarded.",
+      "link": "https://www.telesat.com/scholarships/",
+      "deadline": "Varies",
+      "amount": "$10,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch017",
+      "name": "Alberta Women in STEM Scholarship",
+      "criteria": "Identify as a woman. Pursuing career in STEM field where gender is underrepresented. Enrolled in eligible Alberta post-secondary institution. Application opens September 2026.",
+      "link": "https://www.alberta.ca/women-in-stem-scholarship",
+      "deadline": "2026-09-30",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch018",
+      "name": "Canadian Women in STEM Scholarship (FIRST Robotics Canada)",
+      "criteria": "Young women currently or recently enrolled in Canadian high school. Participated on a FIRST Robotics team. Planning to attend a post-secondary STEM program in Canada.",
+      "link": "https://firstroboticscanada.org/cwis/",
+      "deadline": "2026-01-31",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch019",
+      "name": "FIRST Canada Skilled Trade Scholarship",
+      "criteria": "Participated on a FIRST Robotics Competition (FRC) or FIRST Tech Challenge (FTC) team. Pursuing higher education or career in a skilled trade.",
+      "link": "https://firstroboticscanada.org/skilledtrades/",
+      "deadline": "2026-03-15",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch020",
+      "name": "De Beers Group Women in STEM Scholarship",
+      "criteria": "Identifies as a woman. Entering Year 1 of a STEM or STEM-related baccalaureate program at a recognized Canadian post-secondary institution. Renewable scholarship.",
+      "link": "https://www.debeersgroup.com/",
+      "deadline": "Varies",
+      "amount": "Varies (Renewable)",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch021",
+      "name": "SCWIST Scholarships (Society for Canadian Women in Science and Technology)",
+      "criteria": "Women pursuing STEM education in Canada. Multiple awards available through SCWIST for different STEM fields and education levels.",
+      "link": "https://scwist.ca/resources/scholarships/",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch022",
+      "name": "Indspire Building Brighter Futures Bursaries & Scholarships",
+      "criteria": "First Nations, Inuit, or M\u00e9tis student. Enrolled or accepted at a Canadian post-secondary institution. One application covers all Indspire bursaries and scholarships. Over $280 million disbursed since 1996. Applications open May 1 annually.",
+      "link": "https://indspire.ca/programs/students/bursaries-scholarships/",
+      "deadline": "2026-08-01",
+      "amount": "Varies (up to $20,000+)",
+      "need_based": "Y",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch023",
+      "name": "Alberta First Nations, M\u00e9tis and Inuit Bursary",
+      "criteria": "Self-identify as First Nations, M\u00e9tis, or Inuit. Enrolled in bachelor's, master's, or PhD program at an Alberta post-secondary institution. Up to 4 years of funding.",
+      "link": "https://www.alberta.ca/first-nations-metis-and-inuit-bursary",
+      "deadline": "Varies",
+      "amount": "Up to $11,500/year",
+      "need_based": "Y",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch024",
+      "name": "National Indigenous Scholarship Program (Western University)",
+      "criteria": "Indigenous student (First Nations, M\u00e9tis, or Inuit). Applying to Western University. Based on academic achievement and community involvement.",
+      "link": "https://registrar.uwo.ca/",
+      "deadline": "2026-03-14",
+      "amount": "$50,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch025",
+      "name": "University of Waterloo Scholarships for Black Students",
+      "criteria": "Students of African, African American, Afro-Latine, Black Canadian, Caribbean, or other African descent. Applying to study at University of Waterloo in 2026.",
+      "link": "https://uwaterloo.ca/",
+      "deadline": "2026-04-15",
+      "amount": "$40,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch026",
+      "name": "Jean Lumb Awards",
+      "criteria": "Canadian student. Open to various backgrounds. No essay required. Recognizes achievement in areas from arts to community service.",
+      "link": "https://jeanlumbawards.ca/",
+      "deadline": "Varies",
+      "amount": "$1,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch027",
+      "name": "LOUD Foundation Scholarships",
+      "criteria": "Grade 12 or university student in Canada. Member of the 2SLGBTQ+ community. Demonstrating leadership in the community. Approximately 20 awards per year. Applications open November, close January 31.",
+      "link": "https://www.loudfoundation.org/",
+      "deadline": "2026-01-31",
+      "amount": "$2,000\u2013$2,500",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch028",
+      "name": "Bill 7 Award Scholarship",
+      "criteria": "Ontario resident. Identify as lesbian, gay, bisexual, trans, two-spirited, or queer. Financial need. Enrolled in first program of study at any Ontario post-secondary institution. 16\u201320 scholarships awarded annually.",
+      "link": "https://bill7award.ca/",
+      "deadline": "Varies",
+      "amount": "$3,500",
+      "need_based": "Y",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch029",
+      "name": "Lambda Foundation Scholarships",
+      "criteria": "2SLGBTQ+ student in Canada. Pursuing post-secondary education. Various awards available through the foundation.",
+      "link": "https://lambdafoundation.org/",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch030",
+      "name": "Jeremy Dias Scholarship (Canadian Centre for Gender & Sexual Diversity)",
+      "criteria": "Youth across Canada who have taken initiative in addressing discrimination in their school or community. 2SLGBTQ+ ally or community member.",
+      "link": "https://ccgsd-ccdgs.org/",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch031",
+      "name": "Rick & Amanda Hansen Scholarship",
+      "criteria": "Youth with a physical disability. Pursuing 1- to 5-year post-secondary program at a publicly funded Canadian institution. Up to $10,000/year for up to 4 years.",
+      "link": "https://www.rickhansen.com/Scholarship",
+      "deadline": "Varies",
+      "amount": "Up to $40,000 ($10,000/year)",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch032",
+      "name": "Canada Student Grant for Students with Permanent Disabilities",
+      "criteria": "Canadian citizen or permanent resident. Enrolled at a designated post-secondary institution. Documented permanent disability. Federal government grant.",
+      "link": "https://www.canada.ca/en/employment-social-development/services/education/grants/disabilities.html",
+      "deadline": "Ongoing",
+      "amount": "$2,800/year",
+      "need_based": "Y",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch033",
+      "name": "DCCI Scholarship for Canadian Students with Disabilities",
+      "criteria": "High school student with documented disability. Pursuing post-secondary education in health care, criminal justice, or community & social services at an accredited Canadian institution. Annual scholarship.",
+      "link": "https://disabilitycreditcanada.com/dcci-scholarship-for-canadian-students-with-disabilities/",
+      "deadline": "Varies",
+      "amount": "$1,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch034",
+      "name": "CNIB Scholarships (Canadian National Institute for the Blind)",
+      "criteria": "Student who is blind or partially sighted. Enrolled or accepted at a Canadian post-secondary institution. Over 10 different scholarships available.",
+      "link": "https://www.cnib.ca/en/programs-and-services/scholarships",
+      "deadline": "Varies",
+      "amount": "$1,000\u2013$5,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch035",
+      "name": "RISE Scholarship (Beedie Luminaries)",
+      "criteria": "Refugee granted permanent residency or protected person status after Jan 1, 2016. Residing full-time in British Columbia for previous 6 months. Pursuing post-secondary education. Full-time or part-time study.",
+      "link": "https://beedieluminaries.ca/rise-scholarship/",
+      "deadline": "Varies (annual cohort)",
+      "amount": "Up to $44,000",
+      "need_based": "Y",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch036",
+      "name": "Daniel Schickedanz Scholarship (Canadian Council for Refugees)",
+      "criteria": "Young person of refugee and/or migrant background. Pursuing higher education in Canada. Community engagement. 10 scholarships per year.",
+      "link": "https://ccrweb.ca/en/daniel-schickedanz-scholarship",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "Y",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch037",
+      "name": "BC Provincial Scholarships Program",
+      "criteria": "Grade 12 student completing high school in British Columbia. Supports post-secondary tuition and fees. Multiple awards available through the provincial program.",
+      "link": "https://gov.bc.ca/provincialscholarshipsprogram",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch038",
+      "name": "Owen Hart Foundation Award",
+      "criteria": "High school senior attending a Calgary-area school. Community involvement and academic achievement.",
+      "link": "https://owenhartfoundation.org/",
+      "deadline": "2026-05-30",
+      "amount": "Up to $4,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch039",
+      "name": "Clay Riddell Community Hero Scholarship",
+      "criteria": "Canadian youth who demonstrate community involvement and exemplify leadership, integrity, and generosity. Up to 3 awards per year.",
+      "link": "https://calgaryfoundation.org/awards/scholarships-awards-bursaries/",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch040",
+      "name": "UBC International Major Entrance Scholarship (IMES)",
+      "criteria": "International student admitted to UBC. Exceptional academic achievement, leadership, and community involvement. Automatically considered upon admission. Renewable.",
+      "link": "https://you.ubc.ca/financial-planning/scholarships-awards-international-students/",
+      "deadline": "2026-01-15",
+      "amount": "$10,000\u2013$25,000/year",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch041",
+      "name": "UBC Schulich Leader Scholarship",
+      "criteria": "Canadian citizen. Nominated by high school. Enrolling in STEM program at UBC. Entrepreneurial-minded with leadership qualities.",
+      "link": "https://you.ubc.ca/financial-planning/scholarships-awards-canadian-students/schulich-leader/",
+      "deadline": "2026-01-28",
+      "amount": "$100,000\u2013$120,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch042",
+      "name": "McGill Entrance Scholarships",
+      "criteria": "Admitted to McGill University. Based on academic achievement. Automatic consideration upon admission for most entrance scholarships. Major entrance scholarships require separate application.",
+      "link": "https://www.mcgill.ca/studentaid/scholarships-aid/future-undergrads/entrance-scholarships",
+      "deadline": "Varies",
+      "amount": "$3,000\u2013$12,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch043",
+      "name": "University of Waterloo Entrance Awards",
+      "criteria": "Admitted to University of Waterloo. Based on admission average. Multiple tiers available. International students may receive automatic $10,000 first-year funding.",
+      "link": "https://uwaterloo.ca/undergraduate-entrance-awards/",
+      "deadline": "Varies",
+      "amount": "$2,000\u2013$10,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch044",
+      "name": "Queen's University Major Admission Awards",
+      "criteria": "Admitted to Queen's University. Automatic $4,000 award based on admission average. Major admission awards require separate application emphasizing community involvement and creative thinking.",
+      "link": "https://www.queensu.ca/registrar/financial-aid/application-required/future-students/",
+      "deadline": "Varies",
+      "amount": "$4,000\u2013$36,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch045",
+      "name": "McMaster Provost Entrance Scholarship for International Students",
+      "criteria": "International student admitted to McMaster University. Based on academic excellence. Automatically considered.",
+      "link": "https://www.mcmaster.ca/",
+      "deadline": "Varies",
+      "amount": "$7,500",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch046",
+      "name": "University of Alberta Entrance Scholarships",
+      "criteria": "Admitted to University of Alberta. Based on academic achievement. WISEST scholarships available for women in STEM. Automatic and application-based awards.",
+      "link": "https://www.ualberta.ca/en/admissions/tuition-and-scholarships/entrance-scholarships/",
+      "deadline": "Varies",
+      "amount": "$1,000\u2013$10,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch047",
+      "name": "Dalhousie University Entrance Scholarships",
+      "criteria": "Admitted to Dalhousie University. Based on academic excellence. Schulich Leader Scholarships also available through Dal. Automatic and application-based.",
+      "link": "https://www.dal.ca/admissions/money_matters/",
+      "deadline": "Varies",
+      "amount": "$1,000\u2013$40,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch048",
+      "name": "U Sports Athletic Financial Awards (AFA)",
+      "criteria": "Student-athlete at a U Sports member university. Meeting minimum academic requirements. Award value capped at tuition and compulsory fees. Available across all U Sports member institutions.",
+      "link": "https://usports.ca/en",
+      "deadline": "Varies by institution",
+      "amount": "Up to full tuition",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch049",
+      "name": "CCAA Athletic Scholarships",
+      "criteria": "Student-athlete at a Canadian Collegiate Athletic Association member college. Meeting academic eligibility requirements. Over $7 million awarded annually across CCAA members.",
+      "link": "https://www.ccaa.ca/information/student_athletes/index",
+      "deadline": "Varies by institution",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch050",
+      "name": "Athlete Assistance Program (AAP) \u2014 Government of Canada",
+      "criteria": "High-performance Canadian athlete. Carded by a national sport organization. Assists athletes combining sport and academic/working careers while training for international competition.",
+      "link": "https://www.canada.ca/en/canadian-heritage/services/funding/athlete-assistance.html",
+      "deadline": "Ongoing",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch051",
+      "name": "Study in Canada Scholarships (Government of Canada)",
+      "criteria": "International students from select countries in Asia, Europe, Middle East, North Africa, and Sub-Saharan Africa. For study at eligible Canadian post-secondary institutions. Fully funded including tuition, travel, and living expenses.",
+      "link": "https://www.educanada.ca/scholarships-bourses/can/institutions/study-in-canada-sep-etudes-au-canada-pct.aspx",
+      "deadline": "Varies",
+      "amount": "Full Funding",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch052",
+      "name": "Vanier Canada Graduate Scholarships",
+      "criteria": "Doctoral student at a Canadian institution. Nominated by the institution. Demonstrated leadership, academic excellence, and research potential. Health, natural sciences/engineering, or social sciences/humanities. Note: program transitioning to CGRS-D.",
+      "link": "https://vanier.gc.ca/",
+      "deadline": "Varies",
+      "amount": "$50,000/year (3 years)",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch053",
+      "name": "Canada Graduate Research Scholarship \u2014 Doctoral (CGRS-D)",
+      "criteria": "Doctoral student at a Canadian institution. Administered by CIHR, NSERC, and SSHRC. Research excellence in health, natural sciences/engineering, or social sciences/humanities.",
+      "link": "https://nserc-crsng.canada.ca/en/funding-opportunity/canada-graduate-research-scholarship-doctoral-program",
+      "deadline": "Varies by agency",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch054",
+      "name": "Pierre Elliott Trudeau Foundation Doctoral Scholarship",
+      "criteria": "Doctoral student. Covers tuition and living expenses plus research/travel/networking costs. Highly competitive. Annual competition closes ~November.",
+      "link": "https://www.trudeaufoundation.ca/scholarship/",
+      "deadline": "2026-11-17",
+      "amount": "$50,000/year + $20,000/year expenses (3 years)",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch055",
+      "name": "Skilled Trades College Scholarship",
+      "criteria": "Student pursuing skilled trades education at an accredited Canadian trades college. Various programs supported including electrical, plumbing, HVAC, and welding.",
+      "link": "https://www.skilledtradescollege.ca/",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch056",
+      "name": "Scotiabank Women for STEM Scholarship (Ontario Tech University)",
+      "criteria": "Female student enrolled in a STEM program at Ontario Tech University. Financial need considered. Supports women pursuing STEM careers.",
+      "link": "https://ontariotechu.ca/",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "Y",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch057",
+      "name": "MPOWER Women in STEM Scholarship (Canada)",
+      "criteria": "Female international or DACA student. Currently enrolled or accepted in full-time STEM degree program. Must study at an MPOWER-eligible program in Canada or United States.",
+      "link": "https://www.mpowerfinancing.com/scholarships/women-in-stem",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch058",
+      "name": "Mavis Smith Scholarship for Afro-Caribbean Students (Concordia)",
+      "criteria": "Afro-Caribbean student currently pursuing Bachelor's degree at Concordia University in any discipline. Addresses underrepresentation of Black students in academia.",
+      "link": "https://www.concordia.ca/black-presence/students/funding-awards-black-students.html",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch059",
+      "name": "University of Waterloo Women in Engineering Entrance Scholarship",
+      "criteria": "Female student admitted to an engineering program at University of Waterloo. Based on academic achievement and leadership.",
+      "link": "https://uwaterloo.ca/undergraduate-entrance-awards/",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch060",
+      "name": "Leaders To Be Proud Of Awards (Start Proud)",
+      "criteria": "2SLGBTQ+ student in Canada. Demonstrated leadership and professional development. Transitioning from school to career.",
+      "link": "https://startproud.org/",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch061",
+      "name": "Chown Centennial Scholarship",
+      "criteria": "Available to all high schools in Manitoba and Northwestern Ontario. $1,000 per student.",
+      "link": "https://www.scholarshipscanada.com/",
+      "deadline": "2026-06-30",
+      "amount": "$1,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch062",
+      "name": "Canadian Hearing Society Scholarships",
+      "criteria": "Student who is Deaf, deafblind, or hard of hearing. Enrolled at a Canadian post-secondary institution. 20 scholarships awarded annually.",
+      "link": "https://www.chs.ca/",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch063",
+      "name": "University of Ottawa Entrance Scholarships",
+      "criteria": "Admitted to University of Ottawa. Based on admission average. Automatic and application-based awards available. Various tiers for domestic and international students.",
+      "link": "https://www.uottawa.ca/",
+      "deadline": "Varies",
+      "amount": "$1,000\u2013$30,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch064",
+      "name": "UNB (University of New Brunswick) Entrance Scholarships",
+      "criteria": "High school student admitted to University of New Brunswick. Based on academic achievement. Multiple tiers and application-based awards.",
+      "link": "https://www.unb.ca/moneymatters/scholarships/highschool.html",
+      "deadline": "Varies",
+      "amount": "$1,000\u2013$20,000",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
+    },
+    {
+      "id": "ca_sch065",
+      "name": "OFSAA Scholarships (Ontario Federation of School Athletic Associations)",
+      "criteria": "Ontario high school student-athlete. Demonstrated athletic and academic excellence. Must be nominated through OFSAA member school.",
+      "link": "https://www.ofsaa.on.ca/recognition/scholarships/",
+      "deadline": "Varies",
+      "amount": "Varies",
+      "need_based": "",
+      "source": "web-research-2026",
+      "country": "CA"
     }
   ],
   "updated": "2026-02-16",

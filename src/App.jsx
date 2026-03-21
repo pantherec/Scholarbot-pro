@@ -61,6 +61,7 @@ async function fetchScholarshipsFromSupabase() {
       id: r.id, name: r.name, criteria: r.criteria || "",
       link: r.link || "", deadline: r.deadline || "Varies",
       amount: r.amount || "Varies", needBased: r.need_based || "",
+      country: r.country || "US",
     }));
   } catch(e) { return null; }
 }
@@ -137,36 +138,36 @@ const store = {
 // SCHOLARSHIP DATABASE (30 verified fallback)
 // ============================================================
 const DEFAULT_SCHOLARSHIP_DB = [
-  {id:"a91bc024",name:"Gates Scholarship",criteria:"High school seniors from minority backgrounds (African American, Hispanic, Asian/Pacific Islander, Native American). Pell-eligible. Must demonstrate leadership and academic excellence. 3.3+ GPA on 4.0 scale. U.S. citizen, national, or permanent resident.",link:"https://www.thegatesscholarship.org/",deadline:"2026-09-15",amount:"Full Tuition",needBased:"Y"},
-  {id:"c7f3e011",name:"Ron Brown Scholar Program",criteria:"African American high school seniors. Must demonstrate academic excellence, leadership, and community service. U.S. citizen or permanent resident. Financial need considered.",link:"https://ronbrown.org/ron-brown-scholarship/",deadline:"2026-12-01",amount:"$40,000",needBased:"Y"},
-  {id:"e8a2d445",name:"Coca-Cola Scholars Foundation",criteria:"High school seniors with leadership in school and community. U.S. citizens, nationals, permanent residents, refugees, or asylees. Must be eligible for federal financial aid. Achievement-based.",link:"https://www.coca-colascholarsfoundation.org/apply/",deadline:"2026-09-30",amount:"$20,000",needBased:""},
-  {id:"f12b9923",name:"Dell Scholars Program",criteria:"Must participate in an approved college readiness program. Demonstrate need for financial assistance. GPA of 2.4+. U.S. citizen or permanent resident. Must be a current high school senior.",link:"https://www.dellscholars.org/",deadline:"2026-12-01",amount:"$20,000",needBased:"Y"},
-  {id:"b34cd881",name:"QuestBridge National College Match",criteria:"High-achieving low-income students. Typically household income under $65,000. Strong academics. High school seniors applying to partner colleges.",link:"https://www.questbridge.org/",deadline:"2026-09-26",amount:"Full Ride",needBased:"Y"},
-  {id:"19afe723",name:"Elks Most Valuable Student Scholarship",criteria:"U.S. citizen high school senior. Judged on scholarship, leadership, financial need. Must plan to pursue a four-year degree.",link:"https://www.elks.org/scholars/scholarships/mvs.cfm",deadline:"2026-11-05",amount:"$12,500",needBased:"Y"},
-  {id:"20bcd561",name:"Burger King Scholars Program",criteria:"High school seniors in U.S., Canada, Puerto Rico, or Guam. GPA 2.0+. Demonstrate financial need, work experience, community involvement. Awards range $1,000 to $60,000.",link:"https://burgerking.scholarsapply.org/",deadline:"2026-12-15",amount:"$1,000-$60,000",needBased:"Y"},
-  {id:"31def892",name:"Cameron Impact Scholarship",criteria:"High school seniors. Demonstrated academic achievement, community involvement, and leadership. U.S. citizens. Plan to attend four-year institution.",link:"https://www.bryancameroneducationfoundation.org/",deadline:"2026-09-14",amount:"Full Tuition",needBased:""},
-  {id:"42eaf123",name:"Daniels Fund Scholarship",criteria:"Graduating high school seniors from CO, NM, UT, WY. Demonstrate strength of character, leadership, community service. Financial need.",link:"https://www.danielsfund.org/scholarships",deadline:"2026-11-15",amount:"Full Tuition",needBased:"Y"},
-  {id:"53fba234",name:"UNCF Scholarships",criteria:"Underrepresented minority students. Multiple scholarship programs available year-round. Must attend an HBCU or other accredited institution.",link:"https://uncf.org/scholarships",deadline:"Varies",amount:"Varies",needBased:"Y"},
-  {id:"64acb345",name:"Hispanic Scholarship Fund",criteria:"Of Hispanic heritage. U.S. citizen, permanent resident, or DACA eligible. Minimum 3.0 GPA. Plan to enroll full-time in accredited institution.",link:"https://www.hsf.net/scholarship",deadline:"2026-02-15",amount:"$500-$5,000",needBased:""},
-  {id:"75bdc456",name:"Asian & Pacific Islander American Scholarship (APIASF)",criteria:"Asian American or Pacific Islander ethnicity. 2.7+ GPA. U.S. citizen, national, permanent resident, or citizen of Freely Associated States. Financial need.",link:"https://apiascholars.org/",deadline:"2026-01-11",amount:"Up to $20,000",needBased:"Y"},
-  {id:"eq01ex25",name:"Equitable Excellence Scholarship",criteria:"High school senior. U.S. citizen or legal resident in 50 states, D.C., or Puerto Rico. 2.5+ GPA. Demonstrate leadership, determination, and resilience. Formerly AXA Achievement Scholarship.",link:"https://equitable.com/foundation/equitable-excellence-scholarship",deadline:"2026-12-18",amount:"$5,000/yr renewable",needBased:""},
-  {id:"97dfe678",name:"Horatio Alger Scholarship",criteria:"High school senior. Demonstrated financial need (family income under $55,000). Minimum 2.0 GPA. Involvement in co-curricular and community activities. U.S. citizen.",link:"https://scholars.horatioalger.org/",deadline:"2026-10-25",amount:"$25,000",needBased:"Y"},
-  {id:"a8ef7789",name:"Jack Kent Cooke Foundation College Scholarship",criteria:"High school senior with financial need (family income under $95,000). 3.5+ unweighted GPA. Standardized test scores. U.S. citizen or permanent resident.",link:"https://www.jkcf.org/our-scholarships/",deadline:"2026-11-18",amount:"Up to $55,000/yr",needBased:"Y"},
-  {id:"b9f0889a",name:"Posse Foundation Scholarship",criteria:"Must be nominated by high school. Urban public high school students with extraordinary leadership potential. Full tuition at partner colleges.",link:"https://www.possefoundation.org/",deadline:"Nomination Only",amount:"Full Tuition",needBased:""},
-  {id:"ca01999b",name:"Regeneron Science Talent Search",criteria:"High school seniors in the U.S. Must submit original research project in science, math, or engineering. Prestigious STEM competition.",link:"https://www.societyforscience.org/regeneron-sts/",deadline:"2026-11-12",amount:"Up to $250,000",needBased:""},
-  {id:"db12aa0c",name:"National Merit Scholarship",criteria:"U.S. high school students. Based on PSAT/NMSQT scores taken in junior year. Must be enrolled or plan to enroll full-time in college.",link:"https://www.nationalmerit.org/",deadline:"2026-10-01",amount:"$2,500+",needBased:""},
-  {id:"ec23bb1d",name:"Cobell Scholarship (Native American)",criteria:"Must be enrolled member of a federally recognized tribe. Undergraduate or graduate student. Financial need demonstrated.",link:"https://cobellscholar.org/",deadline:"2026-01-31",amount:"Up to $5,000",needBased:"Y"},
-  {id:"fd34cc2e",name:"NAACP Scholarships",criteria:"African American students. Must be current NAACP member. Varies by specific scholarship program. Academic merit and financial need considered.",link:"https://naacp.org/find-resources/scholarships",deadline:"Varies",amount:"Varies",needBased:"Y"},
-  {id:"0e45dd3f",name:"Dream.US Scholarship (DREAMers)",criteria:"DACA or TPS recipients. First-time college students or community college transfers. Financial need. 2.5+ GPA. Must attend a partner college.",link:"https://www.thedream.us/",deadline:"2026-02-28",amount:"Up to $33,000",needBased:"Y"},
-  {id:"1f56ee40",name:"GE-Reagan Foundation Scholarship",criteria:"High school senior. U.S. citizen. Demonstrate leadership, drive, integrity, and citizenship. 3.0+ GPA. $20,000 renewable scholarship.",link:"https://www.reaganfoundation.org/education/scholarship-programs/",deadline:"2026-01-05",amount:"$10,000/yr renewable",needBased:""},
-  {id:"3b780062",name:"Amazon Future Engineer Scholarship",criteria:"High school senior planning to study computer science. Financial need. Participation in STEM activities. Includes paid internship at Amazon.",link:"https://www.amazonfutureengineer.com/scholarships",deadline:"2026-01-20",amount:"$40,000",needBased:"Y"},
-  {id:"4c890173",name:"Buick Achievers Scholarship",criteria:"High school senior or current undergraduate. Plan to major in a STEM field. Demonstrate financial need. Leadership and community involvement.",link:"https://www.buickachievers.com/",deadline:"2026-02-28",amount:"$25,000",needBased:"Y"},
-  {id:"5d9a0284",name:"Davidson Fellows Scholarship",criteria:"Students 18 or under. Must complete a significant project in STEM, literature, music, philosophy, or outside the box. U.S. citizen or permanent resident.",link:"https://www.davidsongifted.org/gifted-programs/fellows-scholarship/",deadline:"2026-02-11",amount:"$10,000-$50,000",needBased:""},
-  {id:"pev2026a",name:"Prudential Emerging Visionaries",criteria:"Ages 14-18. Must have created a financial or societal solution for your community. Replaces the former Prudential Spirit of Community Awards. U.S. residents.",link:"https://www.prudential.com/emerging-visionaries",deadline:"2026-11-01",amount:"Up to $15,000",needBased:""},
-  {id:"7fbc24a6",name:"Taco Bell Live Mas Scholarship",criteria:"Ages 16-26. Must be pursuing education at an accredited institution in the U.S. Based on passion and innovation, not just grades. No GPA minimum.",link:"https://www.tacobellfoundation.org/live-mas-scholarship/",deadline:"2026-01-24",amount:"$5,000-$25,000",needBased:""},
-  {id:"d65e378d",name:"Jackie Robinson Foundation Scholarship",criteria:"Minority high school senior with leadership potential. SAT/ACT scores considered. Financial need demonstrated. Must be U.S. citizen.",link:"https://www.jackierobinson.org/apply/",deadline:"2026-02-01",amount:"Up to $30,000",needBased:"Y"},
-  {id:"fluncf26",name:"Foot Locker Foundation-UNCF Scholarship",criteria:"Students attending a UNCF member HBCU. Minimum 2.5 GPA. U.S. citizen, permanent resident, or national. Demonstrate financial need. Seeking bachelor's degree.",link:"https://uncf.org/scholarships",deadline:"2026-04-10",amount:"$5,000",needBased:"Y"},
-  {id:"tmcfcoke",name:"TMCF Coca-Cola First Generation HBCU Scholarship",criteria:"First-generation college student. Graduating high school senior. Enrolling full-time at a TMCF member HBCU. Financial need. U.S. citizen or permanent resident.",link:"https://tmcf.org/",deadline:"2026-05-01",amount:"$5,000",needBased:"Y"},
+  {id:"a91bc024",name:"Gates Scholarship",criteria:"High school seniors from minority backgrounds (African American, Hispanic, Asian/Pacific Islander, Native American). Pell-eligible. Must demonstrate leadership and academic excellence. 3.3+ GPA on 4.0 scale. U.S. citizen, national, or permanent resident.",link:"https://www.thegatesscholarship.org/",deadline:"2026-09-15",amount:"Full Tuition",needBased:"Y",country:"US"},
+  {id:"c7f3e011",name:"Ron Brown Scholar Program",criteria:"African American high school seniors. Must demonstrate academic excellence, leadership, and community service. U.S. citizen or permanent resident. Financial need considered.",link:"https://ronbrown.org/ron-brown-scholarship/",deadline:"2026-12-01",amount:"$40,000",needBased:"Y",country:"US"},
+  {id:"e8a2d445",name:"Coca-Cola Scholars Foundation",criteria:"High school seniors with leadership in school and community. U.S. citizens, nationals, permanent residents, refugees, or asylees. Must be eligible for federal financial aid. Achievement-based.",link:"https://www.coca-colascholarsfoundation.org/apply/",deadline:"2026-09-30",amount:"$20,000",needBased:"",country:"US"},
+  {id:"f12b9923",name:"Dell Scholars Program",criteria:"Must participate in an approved college readiness program. Demonstrate need for financial assistance. GPA of 2.4+. U.S. citizen or permanent resident. Must be a current high school senior.",link:"https://www.dellscholars.org/",deadline:"2026-12-01",amount:"$20,000",needBased:"Y",country:"US"},
+  {id:"b34cd881",name:"QuestBridge National College Match",criteria:"High-achieving low-income students. Typically household income under $65,000. Strong academics. High school seniors applying to partner colleges.",link:"https://www.questbridge.org/",deadline:"2026-09-26",amount:"Full Ride",needBased:"Y",country:"US"},
+  {id:"19afe723",name:"Elks Most Valuable Student Scholarship",criteria:"U.S. citizen high school senior. Judged on scholarship, leadership, financial need. Must plan to pursue a four-year degree.",link:"https://www.elks.org/scholars/scholarships/mvs.cfm",deadline:"2026-11-05",amount:"$12,500",needBased:"Y",country:"US"},
+  {id:"20bcd561",name:"Burger King Scholars Program",criteria:"High school seniors in U.S., Canada, Puerto Rico, or Guam. GPA 2.0+. Demonstrate financial need, work experience, community involvement. Awards range $1,000 to $60,000.",link:"https://burgerking.scholarsapply.org/",deadline:"2026-12-15",amount:"$1,000-$60,000",needBased:"Y",country:"BOTH"},
+  {id:"31def892",name:"Cameron Impact Scholarship",criteria:"High school seniors. Demonstrated academic achievement, community involvement, and leadership. U.S. citizens. Plan to attend four-year institution.",link:"https://www.bryancameroneducationfoundation.org/",deadline:"2026-09-14",amount:"Full Tuition",needBased:"",country:"US"},
+  {id:"42eaf123",name:"Daniels Fund Scholarship",criteria:"Graduating high school seniors from CO, NM, UT, WY. Demonstrate strength of character, leadership, community service. Financial need.",link:"https://www.danielsfund.org/scholarships",deadline:"2026-11-15",amount:"Full Tuition",needBased:"Y",country:"US"},
+  {id:"53fba234",name:"UNCF Scholarships",criteria:"Underrepresented minority students. Multiple scholarship programs available year-round. Must attend an HBCU or other accredited institution.",link:"https://uncf.org/scholarships",deadline:"Varies",amount:"Varies",needBased:"Y",country:"US"},
+  {id:"64acb345",name:"Hispanic Scholarship Fund",criteria:"Of Hispanic heritage. U.S. citizen, permanent resident, or DACA eligible. Minimum 3.0 GPA. Plan to enroll full-time in accredited institution.",link:"https://www.hsf.net/scholarship",deadline:"2026-02-15",amount:"$500-$5,000",needBased:"",country:"US"},
+  {id:"75bdc456",name:"Asian & Pacific Islander American Scholarship (APIASF)",criteria:"Asian American or Pacific Islander ethnicity. 2.7+ GPA. U.S. citizen, national, permanent resident, or citizen of Freely Associated States. Financial need.",link:"https://apiascholars.org/",deadline:"2026-01-11",amount:"Up to $20,000",needBased:"Y",country:"US"},
+  {id:"eq01ex25",name:"Equitable Excellence Scholarship",criteria:"High school senior. U.S. citizen or legal resident in 50 states, D.C., or Puerto Rico. 2.5+ GPA. Demonstrate leadership, determination, and resilience. Formerly AXA Achievement Scholarship.",link:"https://equitable.com/foundation/equitable-excellence-scholarship",deadline:"2026-12-18",amount:"$5,000/yr renewable",needBased:"",country:"US"},
+  {id:"97dfe678",name:"Horatio Alger Scholarship",criteria:"High school senior. Demonstrated financial need (family income under $55,000). Minimum 2.0 GPA. Involvement in co-curricular and community activities. U.S. citizen.",link:"https://scholars.horatioalger.org/",deadline:"2026-10-25",amount:"$25,000",needBased:"Y",country:"US"},
+  {id:"a8ef7789",name:"Jack Kent Cooke Foundation College Scholarship",criteria:"High school senior with financial need (family income under $95,000). 3.5+ unweighted GPA. Standardized test scores. U.S. citizen or permanent resident.",link:"https://www.jkcf.org/our-scholarships/",deadline:"2026-11-18",amount:"Up to $55,000/yr",needBased:"Y",country:"US"},
+  {id:"b9f0889a",name:"Posse Foundation Scholarship",criteria:"Must be nominated by high school. Urban public high school students with extraordinary leadership potential. Full tuition at partner colleges.",link:"https://www.possefoundation.org/",deadline:"Nomination Only",amount:"Full Tuition",needBased:"",country:"US"},
+  {id:"ca01999b",name:"Regeneron Science Talent Search",criteria:"High school seniors in the U.S. Must submit original research project in science, math, or engineering. Prestigious STEM competition.",link:"https://www.societyforscience.org/regeneron-sts/",deadline:"2026-11-12",amount:"Up to $250,000",needBased:"",country:"US"},
+  {id:"db12aa0c",name:"National Merit Scholarship",criteria:"U.S. high school students. Based on PSAT/NMSQT scores taken in junior year. Must be enrolled or plan to enroll full-time in college.",link:"https://www.nationalmerit.org/",deadline:"2026-10-01",amount:"$2,500+",needBased:"",country:"US"},
+  {id:"ec23bb1d",name:"Cobell Scholarship (Native American)",criteria:"Must be enrolled member of a federally recognized tribe. Undergraduate or graduate student. Financial need demonstrated.",link:"https://cobellscholar.org/",deadline:"2026-01-31",amount:"Up to $5,000",needBased:"Y",country:"US"},
+  {id:"fd34cc2e",name:"NAACP Scholarships",criteria:"African American students. Must be current NAACP member. Varies by specific scholarship program. Academic merit and financial need considered.",link:"https://naacp.org/find-resources/scholarships",deadline:"Varies",amount:"Varies",needBased:"Y",country:"US"},
+  {id:"0e45dd3f",name:"Dream.US Scholarship (DREAMers)",criteria:"DACA or TPS recipients. First-time college students or community college transfers. Financial need. 2.5+ GPA. Must attend a partner college.",link:"https://www.thedream.us/",deadline:"2026-02-28",amount:"Up to $33,000",needBased:"Y",country:"US"},
+  {id:"1f56ee40",name:"GE-Reagan Foundation Scholarship",criteria:"High school senior. U.S. citizen. Demonstrate leadership, drive, integrity, and citizenship. 3.0+ GPA. $20,000 renewable scholarship.",link:"https://www.reaganfoundation.org/education/scholarship-programs/",deadline:"2026-01-05",amount:"$10,000/yr renewable",needBased:"",country:"US"},
+  {id:"3b780062",name:"Amazon Future Engineer Scholarship",criteria:"High school senior planning to study computer science. Financial need. Participation in STEM activities. Includes paid internship at Amazon.",link:"https://www.amazonfutureengineer.com/scholarships",deadline:"2026-01-20",amount:"$40,000",needBased:"Y",country:"US"},
+  {id:"4c890173",name:"Buick Achievers Scholarship",criteria:"High school senior or current undergraduate. Plan to major in a STEM field. Demonstrate financial need. Leadership and community involvement.",link:"https://www.buickachievers.com/",deadline:"2026-02-28",amount:"$25,000",needBased:"Y",country:"US"},
+  {id:"5d9a0284",name:"Davidson Fellows Scholarship",criteria:"Students 18 or under. Must complete a significant project in STEM, literature, music, philosophy, or outside the box. U.S. citizen or permanent resident.",link:"https://www.davidsongifted.org/gifted-programs/fellows-scholarship/",deadline:"2026-02-11",amount:"$10,000-$50,000",needBased:"",country:"US"},
+  {id:"pev2026a",name:"Prudential Emerging Visionaries",criteria:"Ages 14-18. Must have created a financial or societal solution for your community. Replaces the former Prudential Spirit of Community Awards. U.S. residents.",link:"https://www.prudential.com/emerging-visionaries",deadline:"2026-11-01",amount:"Up to $15,000",needBased:"",country:"US"},
+  {id:"7fbc24a6",name:"Taco Bell Live Mas Scholarship",criteria:"Ages 16-26. Must be pursuing education at an accredited institution in the U.S. Based on passion and innovation, not just grades. No GPA minimum.",link:"https://www.tacobellfoundation.org/live-mas-scholarship/",deadline:"2026-01-24",amount:"$5,000-$25,000",needBased:"",country:"US"},
+  {id:"d65e378d",name:"Jackie Robinson Foundation Scholarship",criteria:"Minority high school senior with leadership potential. SAT/ACT scores considered. Financial need demonstrated. Must be U.S. citizen.",link:"https://www.jackierobinson.org/apply/",deadline:"2026-02-01",amount:"Up to $30,000",needBased:"Y",country:"US"},
+  {id:"fluncf26",name:"Foot Locker Foundation-UNCF Scholarship",criteria:"Students attending a UNCF member HBCU. Minimum 2.5 GPA. U.S. citizen, permanent resident, or national. Demonstrate financial need. Seeking bachelor's degree.",link:"https://uncf.org/scholarships",deadline:"2026-04-10",amount:"$5,000",needBased:"Y",country:"US"},
+  {id:"tmcfcoke",name:"TMCF Coca-Cola First Generation HBCU Scholarship",criteria:"First-generation college student. Graduating high school senior. Enrolling full-time at a TMCF member HBCU. Financial need. U.S. citizen or permanent resident.",link:"https://tmcf.org/",deadline:"2026-05-01",amount:"$5,000",needBased:"Y",country:"US"},
 ];
 
 // ============================================================
@@ -404,6 +405,7 @@ export default function ScholarBotPro() {
   const [importUrl, setImportUrl] = useState("");
   const [importLoading, setImportLoading] = useState(false);
   const [filterNeedBased, setFilterNeedBased] = useState("all");
+  const [filterCountry, setFilterCountry] = useState("all");
   const [matchResults, setMatchResults] = useState([]);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATES[0]);
@@ -447,11 +449,16 @@ export default function ScholarBotPro() {
 
   // Feature gating
   const FREE_LIMITS = { matchesPerMonth: 5, lettersPerMonth: 2 };
+  const PRO_LIMITS = { lettersPerMonth: 50 };
   const isPremium = userSubscription === "premium" || userSubscription === "seasonal";
   const canMatch = isPremium || monthlyMatchesUsed < FREE_LIMITS.matchesPerMonth;
-  const canGenerateLetter = isPremium || monthlyLettersUsed < FREE_LIMITS.lettersPerMonth;
+  const canGenerateLetter = isPremium
+    ? monthlyLettersUsed < PRO_LIMITS.lettersPerMonth
+    : monthlyLettersUsed < FREE_LIMITS.lettersPerMonth;
   const remainingMatches = isPremium ? "Unlimited" : Math.max(0, FREE_LIMITS.matchesPerMonth - monthlyMatchesUsed);
-  const remainingLetters = isPremium ? "Unlimited" : Math.max(0, FREE_LIMITS.lettersPerMonth - monthlyLettersUsed);
+  const remainingLetters = isPremium
+    ? Math.max(0, PRO_LIMITS.lettersPerMonth - monthlyLettersUsed)
+    : Math.max(0, FREE_LIMITS.lettersPerMonth - monthlyLettersUsed);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   // Sync usage counters to Supabase
@@ -856,7 +863,14 @@ export default function ScholarBotPro() {
       return;
     }
     if (!profile.name) { notify("Complete your profile first.", "error"); return; }
-    if (!canGenerateLetter) { setShowUpgradeModal(true); return; }
+    if (!canGenerateLetter) {
+      if (isPremium) {
+        notify(`You've used all ${PRO_LIMITS.lettersPerMonth} letters this month. Your limit resets next month.`, "error");
+      } else {
+        setShowUpgradeModal(true);
+      }
+      return;
+    }
 
     setGeneratingLetter(true);
     setGeneratedLetter("");
@@ -958,8 +972,21 @@ export default function ScholarBotPro() {
     const q = searchQuery.toLowerCase();
     const matchesSearch = !q || s.name.toLowerCase().includes(q) || s.criteria.toLowerCase().includes(q) || (s.amount||"").toLowerCase().includes(q);
     const matchesNeed = filterNeedBased === "all" || (filterNeedBased === "need" && s.needBased === "Y") || (filterNeedBased === "merit" && s.needBased !== "Y");
-    return matchesSearch && matchesNeed;
+    const sc = s.country || "US";
+    const matchesCountry = filterCountry === "all" || sc === filterCountry || sc === "BOTH" || (filterCountry === "BOTH" && true);
+    return matchesSearch && matchesNeed && matchesCountry;
   });
+
+  // Country flag helper
+  const CountryFlag = ({ country }) => {
+    const flags = { US: { emoji: "\uD83C\uDDFA\uD83C\uDDF8", label: "US", bg: "#1a3a5c" }, CA: { emoji: "\uD83C\uDDE8\uD83C\uDDE6", label: "CA", bg: "#5c1a1a" }, BOTH: { emoji: "\uD83C\uDDFA\uD83C\uDDF8\uD83C\uDDE8\uD83C\uDDE6", label: "US+CA", bg: "#3a2a5c" } };
+    const f = flags[country] || flags.US;
+    return (
+      <span style={{ fontSize: 10, fontFamily: FONTS.body, padding: "2px 7px", borderRadius: 4, background: f.bg, color: "#fff", whiteSpace: "nowrap", letterSpacing: 1 }}>
+        {f.emoji} {f.label}
+      </span>
+    );
+  };
 
   // Deadline helpers
   const getDeadlineStatus = (deadline) => {
@@ -1106,7 +1133,7 @@ export default function ScholarBotPro() {
               Free accounts get {FREE_LIMITS.matchesPerMonth} matches and {FREE_LIMITS.lettersPerMonth} letters per month.
             </p>
             <p style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6, marginBottom: 24 }}>
-              Upgrade to Premium for unlimited matches, unlimited letters, all 4 writing templates, and deadline alerts.
+              Upgrade to Premium for unlimited matches, {PRO_LIMITS.lettersPerMonth} AI letters per month, all 4 writing templates, and deadline alerts.
             </p>
             <div style={{
               background: COLORS.surface, borderRadius: 12, padding: "20px 24px", marginBottom: 24,
@@ -1339,7 +1366,7 @@ export default function ScholarBotPro() {
                 <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 2.2 }}>
                   <div style={{ color: COLORS.gold }}>&#10003; Everything in Free, plus:</div>
                   <div>&#10003; Unlimited AI matches</div>
-                  <div>&#10003; Unlimited AI letters</div>
+                  <div>&#10003; 50 AI letters per month</div>
                   <div>&#10003; All 4 writing templates</div>
                   <div>&#10003; Deadline alert emails</div>
                   <div>&#10003; Scholarship URL import</div>
@@ -1476,7 +1503,7 @@ export default function ScholarBotPro() {
                       <span style={{ color: isPremium ? COLORS.teal : COLORS.textDim }}>{isPremium ? "PRO" : "Free"}</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: COLORS.textDim }}>
-                      <span>Letters: {remainingLetters} left</span>
+                      <span>Letters: {remainingLetters}{isPremium ? `/${PRO_LIMITS.lettersPerMonth}` : ""} left</span>
                       {!isPremium && <span style={{ cursor: "pointer", color: COLORS.gold }} onClick={() => setShowUpgradeModal(true)}>Upgrade</span>}
                     </div>
                   </div>
@@ -1875,6 +1902,17 @@ export default function ScholarBotPro() {
                         color: COLORS.text, fontSize: 14, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box",
                       }}/>
                   </div>
+                  <select value={filterCountry} onChange={e => setFilterCountry(e.target.value)}
+                    style={{
+                      padding: "12px 16px", background: COLORS.surface,
+                      border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                      color: COLORS.text, fontSize: 13, fontFamily: FONTS.body, outline: "none",
+                    }}>
+                    <option value="all">All Countries</option>
+                    <option value="US">US Only</option>
+                    <option value="CA">Canada Only</option>
+                    <option value="BOTH">US + Canada</option>
+                  </select>
                   <select value={filterNeedBased} onChange={e => setFilterNeedBased(e.target.value)}
                     style={{
                       padding: "12px 16px", background: COLORS.surface,
@@ -1898,7 +1936,8 @@ export default function ScholarBotPro() {
                           <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5, marginBottom: 10 }}>
                             {s.criteria.slice(0, 160)}{s.criteria.length > 160 ? "..." : ""}
                           </div>
-                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                            <CountryFlag country={s.country || "US"} />
                             {s.amount && <Badge color={COLORS.gold}>{s.amount}</Badge>}
                             <Badge color={dl.color}>{dl.label}</Badge>
                             {s.needBased === "Y" && <Badge color={COLORS.teal}>Need-Based</Badge>}
@@ -1960,7 +1999,10 @@ export default function ScholarBotPro() {
                             }}>{s.matchScore}</div>
                           </div>
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 16, fontWeight: 400, marginBottom: 4 }}>{s.name}</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                              <div style={{ fontSize: 16, fontWeight: 400 }}>{s.name}</div>
+                              <CountryFlag country={s.country || "US"} />
+                            </div>
                             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                               {s.matchReasons.map((r, j) => (
                                 <span key={j} style={{
