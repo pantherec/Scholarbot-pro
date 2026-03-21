@@ -437,9 +437,11 @@ export default function ScholarBotPro() {
   const [authUser, setAuthUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState("signin"); // signin | signup | forgot
+  const [authMode, setAuthMode] = useState("signin"); // signin | signup | forgot | reset
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [authSubmitting, setAuthSubmitting] = useState(false);
   const [userSubscription, setUserSubscription] = useState("free"); // free | premium | seasonal
@@ -643,6 +645,21 @@ export default function ScholarBotPro() {
     setAuthSubmitting(false);
   };
 
+  const handleUpdatePassword = async () => {
+    setAuthError(""); setAuthSubmitting(true);
+    if (newPassword.length < 6) { setAuthError("Password must be at least 6 characters."); setAuthSubmitting(false); return; }
+    if (newPassword !== confirmPassword) { setAuthError("Passwords don't match."); setAuthSubmitting(false); return; }
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) { setAuthError(error.message); }
+      else {
+        notify("Password updated successfully!", "success");
+        setShowAuthModal(false); setNewPassword(""); setConfirmPassword(""); setAuthMode("signin");
+      }
+    } catch(e) { setAuthError("Something went wrong. Please try again."); }
+    setAuthSubmitting(false);
+  };
+
   const handleSignOut = async () => {
     await supabase?.auth.signOut();
     setAuthUser(null);
@@ -690,6 +707,15 @@ export default function ScholarBotPro() {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
         const user = session?.user ?? null;
         setAuthUser(user);
+        // If user arrived via password reset link, show the reset password modal
+        if (_event === "PASSWORD_RECOVERY") {
+          setAuthMode("reset");
+          setShowAuthModal(true);
+          setNewPassword("");
+          setConfirmPassword("");
+          setAuthError("");
+          return;
+        }
         // Load subscription status from Supabase
         if (user && supabase) {
           const { data: prof } = await supabase
@@ -973,17 +999,35 @@ export default function ScholarBotPro() {
     const matchesSearch = !q || s.name.toLowerCase().includes(q) || s.criteria.toLowerCase().includes(q) || (s.amount||"").toLowerCase().includes(q);
     const matchesNeed = filterNeedBased === "all" || (filterNeedBased === "need" && s.needBased === "Y") || (filterNeedBased === "merit" && s.needBased !== "Y");
     const sc = s.country || "US";
-    const matchesCountry = filterCountry === "all" || sc === filterCountry || sc === "BOTH" || (filterCountry === "BOTH" && true);
+    const matchesCountry =
+      filterCountry === "all" ||
+      sc === filterCountry ||
+      // "BOTH"-tagged scholarships show when filtering US or CA
+      (sc === "BOTH" && (filterCountry === "US" || filterCountry === "CA")) ||
+      // "US + Canada" filter shows only scholarships tagged BOTH
+      (filterCountry === "BOTH" && sc === "BOTH");
     return matchesSearch && matchesNeed && matchesCountry;
   });
 
-  // Country flag helper
+  // Country flag helper — uses Flagpedia CDN for crisp flag images
   const CountryFlag = ({ country }) => {
-    const flags = { US: { emoji: "\uD83C\uDDFA\uD83C\uDDF8", label: "US", bg: "#1a3a5c" }, CA: { emoji: "\uD83C\uDDE8\uD83C\uDDE6", label: "CA", bg: "#5c1a1a" }, BOTH: { emoji: "\uD83C\uDDFA\uD83C\uDDF8\uD83C\uDDE8\uD83C\uDDE6", label: "US+CA", bg: "#3a2a5c" } };
+    const flags = {
+      US: { code: "us", label: "US", bg: "#1a3a5c", border: "#2a5a8c" },
+      CA: { code: "ca", label: "Canada", bg: "#5c1a1a", border: "#8c2a2a" },
+      BOTH: { label: "US + CA", bg: "#3a2a5c", border: "#5a4a7c" },
+    };
     const f = flags[country] || flags.US;
+    const flagImg = (code) => (
+      <img src={`https://flagcdn.com/w40/${code}.png`} alt={code.toUpperCase()} style={{ height: 12, borderRadius: 1, verticalAlign: "middle" }} />
+    );
     return (
-      <span style={{ fontSize: 10, fontFamily: FONTS.body, padding: "2px 7px", borderRadius: 4, background: f.bg, color: "#fff", whiteSpace: "nowrap", letterSpacing: 1 }}>
-        {f.emoji} {f.label}
+      <span style={{
+        fontSize: 10, fontFamily: FONTS.body, padding: "3px 8px", borderRadius: 5,
+        background: f.bg, border: `1px solid ${f.border}`, color: "#fff",
+        whiteSpace: "nowrap", letterSpacing: 0.5, display: "inline-flex", alignItems: "center", gap: 5,
+      }}>
+        {country === "BOTH" ? <>{flagImg("us")}{flagImg("ca")}</> : flagImg(f.code)}
+        <span>{f.label}</span>
       </span>
     );
   };
@@ -1041,7 +1085,7 @@ export default function ScholarBotPro() {
           position: "fixed", inset: 0, zIndex: 10000,
           display: "flex", alignItems: "center", justifyContent: "center",
           background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)",
-        }} onClick={() => setShowAuthModal(false)}>
+        }} onClick={() => { if (authMode !== "reset") setShowAuthModal(false); }}>
           <div onClick={e => e.stopPropagation()} style={{
             background: COLORS.card, border: `1px solid ${COLORS.border}`,
             borderRadius: 16, padding: 36, width: 380, maxWidth: "90vw",
@@ -1050,10 +1094,10 @@ export default function ScholarBotPro() {
             <div style={{ textAlign: "center", marginBottom: 28 }}>
               <div style={{ fontSize: 11, fontFamily: FONTS.body, letterSpacing: 3, color: COLORS.gold, textTransform: "uppercase", marginBottom: 4 }}>ScholarBot Pro</div>
               <h2 style={{ fontSize: 24, fontWeight: 400, marginBottom: 6 }}>
-                {authMode === "signup" ? "Create Account" : authMode === "forgot" ? "Reset Password" : "Welcome Back"}
+                {authMode === "signup" ? "Create Account" : authMode === "forgot" ? "Reset Password" : authMode === "reset" ? "Set New Password" : "Welcome Back"}
               </h2>
               <p style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted }}>
-                {authMode === "signup" ? "Start finding scholarships in minutes" : authMode === "forgot" ? "We'll send you a reset link" : "Sign in to your account"}
+                {authMode === "signup" ? "Start finding scholarships in minutes" : authMode === "forgot" ? "We'll send you a reset link" : authMode === "reset" ? "Choose a new password for your account" : "Sign in to your account"}
               </p>
             </div>
 
@@ -1064,35 +1108,69 @@ export default function ScholarBotPro() {
             )}
 
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <input
-                type="email" placeholder="Email address" value={authEmail}
-                onChange={e => setAuthEmail(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && (authMode === "forgot" ? handleForgotPassword() : authMode === "signup" ? handleSignUp() : handleSignIn())}
-                style={{
-                  padding: "12px 16px", borderRadius: 10, fontSize: 14, fontFamily: FONTS.body,
-                  background: COLORS.surface, border: `1px solid ${COLORS.border}`, color: COLORS.text,
-                  outline: "none",
-                }}
-              />
-              {authMode !== "forgot" && (
-                <input
-                  type="password" placeholder="Password (min 6 characters)" value={authPassword}
-                  onChange={e => setAuthPassword(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && (authMode === "signup" ? handleSignUp() : handleSignIn())}
-                  style={{
-                    padding: "12px 16px", borderRadius: 10, fontSize: 14, fontFamily: FONTS.body,
-                    background: COLORS.surface, border: `1px solid ${COLORS.border}`, color: COLORS.text,
-                    outline: "none",
-                  }}
-                />
+              {authMode === "reset" ? (
+                <>
+                  <input
+                    type="password" placeholder="New password (min 6 characters)" value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && confirmPassword && handleUpdatePassword()}
+                    style={{
+                      padding: "12px 16px", borderRadius: 10, fontSize: 14, fontFamily: FONTS.body,
+                      background: COLORS.surface, border: `1px solid ${COLORS.border}`, color: COLORS.text,
+                      outline: "none",
+                    }}
+                  />
+                  <input
+                    type="password" placeholder="Confirm new password" value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && handleUpdatePassword()}
+                    style={{
+                      padding: "12px 16px", borderRadius: 10, fontSize: 14, fontFamily: FONTS.body,
+                      background: COLORS.surface, border: `1px solid ${COLORS.border}`, color: COLORS.text,
+                      outline: "none",
+                    }}
+                  />
+                  <Button
+                    onClick={handleUpdatePassword}
+                    disabled={authSubmitting || !newPassword || !confirmPassword}
+                    style={{ width: "100%", justifyContent: "center", fontSize: 15, padding: "14px 24px", marginTop: 4 }}
+                  >
+                    {authSubmitting ? "Please wait..." : "Update Password"}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <input
+                    type="email" placeholder="Email address" value={authEmail}
+                    onChange={e => setAuthEmail(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && (authMode === "forgot" ? handleForgotPassword() : authMode === "signup" ? handleSignUp() : handleSignIn())}
+                    style={{
+                      padding: "12px 16px", borderRadius: 10, fontSize: 14, fontFamily: FONTS.body,
+                      background: COLORS.surface, border: `1px solid ${COLORS.border}`, color: COLORS.text,
+                      outline: "none",
+                    }}
+                  />
+                  {authMode !== "forgot" && (
+                    <input
+                      type="password" placeholder="Password (min 6 characters)" value={authPassword}
+                      onChange={e => setAuthPassword(e.target.value)}
+                      onKeyDown={e => e.key === "Enter" && (authMode === "signup" ? handleSignUp() : handleSignIn())}
+                      style={{
+                        padding: "12px 16px", borderRadius: 10, fontSize: 14, fontFamily: FONTS.body,
+                        background: COLORS.surface, border: `1px solid ${COLORS.border}`, color: COLORS.text,
+                        outline: "none",
+                      }}
+                    />
+                  )}
+                  <Button
+                    onClick={authMode === "forgot" ? handleForgotPassword : authMode === "signup" ? handleSignUp : handleSignIn}
+                    disabled={authSubmitting || !authEmail}
+                    style={{ width: "100%", justifyContent: "center", fontSize: 15, padding: "14px 24px", marginTop: 4 }}
+                  >
+                    {authSubmitting ? "Please wait..." : authMode === "signup" ? "Create Account" : authMode === "forgot" ? "Send Reset Link" : "Sign In"}
+                  </Button>
+                </>
               )}
-              <Button
-                onClick={authMode === "forgot" ? handleForgotPassword : authMode === "signup" ? handleSignUp : handleSignIn}
-                disabled={authSubmitting || !authEmail}
-                style={{ width: "100%", justifyContent: "center", fontSize: 15, padding: "14px 24px", marginTop: 4 }}
-              >
-                {authSubmitting ? "Please wait..." : authMode === "signup" ? "Create Account" : authMode === "forgot" ? "Send Reset Link" : "Sign In"}
-              </Button>
             </div>
 
             <div style={{ marginTop: 20, textAlign: "center", fontFamily: FONTS.body, fontSize: 13, color: COLORS.textMuted }}>
@@ -1108,6 +1186,9 @@ export default function ScholarBotPro() {
               )}
               {authMode === "forgot" && (
                 <span style={{ cursor: "pointer", color: COLORS.gold }} onClick={() => { setAuthMode("signin"); setAuthError(""); }}>Back to sign in</span>
+              )}
+              {authMode === "reset" && (
+                <span style={{ fontSize: 12, color: COLORS.textMuted }}>Enter your new password above to complete the reset.</span>
               )}
             </div>
           </div>
@@ -1890,6 +1971,49 @@ export default function ScholarBotPro() {
                   </GlowCard>
                 )}
 
+                {/* Country Filter Tabs */}
+                {(() => {
+                  const countUS = scholarshipDB.filter(s => (s.country || "US") === "US" || (s.country || "US") === "BOTH").length;
+                  const countCA = scholarshipDB.filter(s => (s.country || "US") === "CA" || (s.country || "US") === "BOTH").length;
+                  const countBoth = scholarshipDB.filter(s => (s.country || "US") === "BOTH").length;
+                  const tabs = [
+                    { key: "all", label: "All Scholarships", count: scholarshipDB.length },
+                    { key: "US", label: "US", count: countUS, flag: "us" },
+                    { key: "CA", label: "Canada", count: countCA, flag: "ca" },
+                    { key: "BOTH", label: "US + Canada", count: countBoth },
+                  ];
+                  return (
+                    <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+                      {tabs.map(tab => {
+                        const active = filterCountry === tab.key;
+                        return (
+                          <button key={tab.key} onClick={() => setFilterCountry(tab.key)} style={{
+                            display: "inline-flex", alignItems: "center", gap: 6,
+                            padding: "8px 16px", borderRadius: 20, cursor: "pointer",
+                            fontSize: 13, fontFamily: FONTS.body, fontWeight: active ? 600 : 400,
+                            background: active ? (tab.key === "CA" ? "#5c1a1a" : tab.key === "US" ? "#1a3a5c" : tab.key === "BOTH" ? "#3a2a5c" : COLORS.gold + "22") : COLORS.surface,
+                            border: `1px solid ${active ? (tab.key === "CA" ? "#8c2a2a" : tab.key === "US" ? "#2a5a8c" : tab.key === "BOTH" ? "#5a4a7c" : COLORS.gold) : COLORS.border}`,
+                            color: active ? "#fff" : COLORS.textMuted,
+                            transition: "all 0.2s ease",
+                          }}>
+                            {tab.flag && <img src={`https://flagcdn.com/w40/${tab.flag}.png`} alt={tab.flag} style={{ height: 13, borderRadius: 1 }} />}
+                            {tab.key === "BOTH" && <>
+                              <img src="https://flagcdn.com/w40/us.png" alt="US" style={{ height: 13, borderRadius: 1 }} />
+                              <img src="https://flagcdn.com/w40/ca.png" alt="CA" style={{ height: 13, borderRadius: 1, marginLeft: -3 }} />
+                            </>}
+                            <span>{tab.label}</span>
+                            <span style={{
+                              fontSize: 11, padding: "1px 7px", borderRadius: 10,
+                              background: active ? "rgba(255,255,255,0.2)" : COLORS.border,
+                              color: active ? "#fff" : COLORS.textDim,
+                            }}>{tab.count}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
                 {/* Search + Filters */}
                 <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
                   <div style={{ flex: 1, position: "relative" }}>
@@ -1902,17 +2026,6 @@ export default function ScholarBotPro() {
                         color: COLORS.text, fontSize: 14, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box",
                       }}/>
                   </div>
-                  <select value={filterCountry} onChange={e => setFilterCountry(e.target.value)}
-                    style={{
-                      padding: "12px 16px", background: COLORS.surface,
-                      border: `1px solid ${COLORS.border}`, borderRadius: 10,
-                      color: COLORS.text, fontSize: 13, fontFamily: FONTS.body, outline: "none",
-                    }}>
-                    <option value="all">All Countries</option>
-                    <option value="US">US Only</option>
-                    <option value="CA">Canada Only</option>
-                    <option value="BOTH">US + Canada</option>
-                  </select>
                   <select value={filterNeedBased} onChange={e => setFilterNeedBased(e.target.value)}
                     style={{
                       padding: "12px 16px", background: COLORS.surface,
