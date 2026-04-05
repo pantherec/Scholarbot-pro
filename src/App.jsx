@@ -936,14 +936,49 @@ export default function ScholarBotPro() {
 
     const profileSummary = `CANDIDATE: ${profile.name}\nLOCATION: ${profile.location || "N/A"}\nCITIZENSHIP: ${profile.citizenship || "N/A"}\nHERITAGE: ${(profile.ethnicity || []).join(", ")}\nGPA: ${profile.gpa || "N/A"} | TEST SCORES: ${profile.satact || "N/A"}\nINTENDED MAJOR: ${profile.intendedMajor || "N/A"}\nGRADUATION: ${profile.gradYear || "N/A"}\nFINANCIAL NEED: ${profile.financialNeed || "N/A"}\nACTIVITIES: ${profile.activities || "N/A"}\nAWARDS: ${profile.awards || "N/A"}\nCOMMUNITY SERVICE: ${profile.communityService || "N/A"}\nPERSONAL STORY: ${profile.personalStory || "N/A"}\nCAREER GOAL: ${profile.careerGoal || "N/A"}\nWRITING VOICE: ${profile.writingStyle || "Warm and narrative"}\nBRAG SHEET: ${bragSheet || "None"}\nAPP ANSWERS: ${JSON.stringify(appAnswers)}`;
 
-    const systemPrompt = `You are a scholarship application letter writer. Write in the candidate's authentic voice — NOT like an AI.\n\nSTYLE TEMPLATE: "${selectedTemplate.name}"\nRULES: ${selectedTemplate.rules}\n\nCRITICAL ANTI-DETECTION RULES:\n1. NEVER use: "delve," "cutting-edge," "landscape," "foster," "tapestry," "game-changer," "testament," "unwavering," "thrilled," "elevate," "synergy"\n2. Vary sentence length. Mix short punchy sentences with longer ones.\n3. Use specific details — names, dates, numbers, places.\n4. Sound like a real ${profile.gradYear || "2026"} high school student.\n5. NO em-dashes. Use periods or commas.\n6. Don't start paragraphs with "Additionally," "Furthermore," or "Moreover."\n7. Open with something MEMORABLE.\n\nCANDIDATE PROFILE:\n${profileSummary}`;
+    const systemPrompt = `You are a scholarship letter writer. Your job is not to write a generic impressive letter. Write a letter that sounds unmistakably like THIS student wrote it — with their specific experiences, their particular details, and their real voice. A scholarship committee member should finish the letter and think: "I know who this person is." Not: "This applicant has strong qualifications."
+
+STYLE: ${selectedTemplate.name}
+${selectedTemplate.rules}
+
+SPECIFICITY IS EVERYTHING:
+Every paragraph must contain at least one concrete detail from the student's profile: a real school name, a specific activity or club, an actual number or achievement, a place, or a named person. Never write "throughout my high school career" — write something specific. Never write "I developed leadership skills" — write what the leadership actually looked like. Do not invent experiences the student did not mention. If a field is blank, omit it rather than filling with generic claims.
+
+SENTENCE LENGTH — VARY IT DELIBERATELY:
+Use short sentences (under 8 words) for emphasis and rhythm. Use medium sentences (15–25 words) for narration and explanation. Use longer sentences (30+ words) for immersive scenes and analysis, sparingly. Never write more than two sentences of similar length in a row. A paragraph of three long sentences reads as machine-generated.
+
+PARAGRAPH LENGTH — MIX IT UP:
+Opening paragraph: 3–4 sentences. Body paragraphs: alternate between 2-sentence punchy ones and 5–6 sentence immersive ones. Closing paragraph: 3–4 sentences. Never end a section with a neat summary statement — real writing doesn't wrap itself up neatly.
+
+EMOTION — ONE REAL ONE:
+Pick one emotion this student probably feels: pride, determination, quiet resolve, frustration turned to growth. Show it through a specific action or memory. Never write "I am passionate about" — show what the passion made them actually do.
+
+BANNED WORDS — NEVER USE ANY OF THESE:
+delve, bolster, harness (abstract sense), unlock, unleash, empower (self-referential), underscore, illuminate, elucidate, embark, unravel, reimagine, revolutionize, transcend, resonate, reverberate, grapple (abstract), intertwine, garner, amplify (abstract), glean, maximize, unveil (abstract), champion (self-referential), spearhead, multifaceted, seamless, cutting-edge, holistic, meticulous, innovative, vibrant (abstract), compelling, invaluable, paramount, enduring, indelible, poignant, timeless, relentless, tireless, noteworthy, commendable, exemplary, unprecedented, captivating, nuanced (standalone), unparalleled, unwavering, ever-evolving, game-changing, tapestry, beacon (metaphor), synergy, paradigm shift, catalyst (abstract), interplay, plethora, trajectory (abstract), landscape, foster, testament, thrilled, elevate
+
+BANNED SENTENCE STARTERS — NEVER OPEN A SENTENCE OR PARAGRAPH WITH:
+"In today's world," / "Now more than ever," / "As technology continues to evolve," / "Furthermore," / "Moreover," / "Additionally," / "Notably," / "Crucially," / "It is important to note" / "One of the most important" / "I have always been passionate about" / "Ever since I was a child" / "I want to make a difference"
+
+BANNED CLOSING PHRASES — NEVER END THE LETTER WITH:
+"In conclusion," / "To summarize," / "Overall," / "Ultimately," / "I would be honored to be selected" / "I am a strong candidate" / "This scholarship would mean the world to me" / "I am passionate about" (as a claim — show it instead)
+
+PUNCTUATION RULES:
+No em-dashes (—). Replace with a comma and conjunction, a period, parentheses, or a colon.
+Always use Oxford commas: "biology, chemistry, and math" not "biology, chemistry and math."
+Open the letter with a scene, a fact, a question, or an action in progress. Never open with "My name is" or "I am applying for."
+
+FORMAT:
+350–450 words. Narrative prose only — no bullet points, no headers, no bold text in the letter body. Standard paragraph breaks.
+
+CANDIDATE PROFILE:
+${profileSummary}`;
 
     try {
       const response = await fetch("/api/generate-stream", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514", max_tokens: 1000, system: systemPrompt,
-          messages: [{ role: "user", content: `Write a scholarship application letter for "${scholarshipLabel}".\n\n${scholarshipDetails}\n\nWrite a compelling, authentic letter (350-500 words). Make it feel HUMAN, not AI-generated.` }]
+          model: "claude-sonnet-4-20250514", max_tokens: 1200, system: systemPrompt,
+          messages: [{ role: "user", content: `Write a scholarship application letter for "${scholarshipLabel}".\n\n${scholarshipDetails}\n\nWrite a 350–450 word letter that sounds like this specific student wrote it. Use their actual details from the profile. Open with a specific moment or scene, not a statement of intent.` }]
         })
       });
 
