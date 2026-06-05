@@ -63,7 +63,7 @@ export default async function handler(req, res) {
             stripe_customer_id: customerId,
             stripe_subscription_id: session.subscription,
             updated_at: new Date().toISOString(),
-          }).eq("user_id", userId);
+          }).eq("id", userId);
         } else if (session.mode === "payment") {
           // Seasonal one-time payment — set expiry 6 months out
           const expiresAt = new Date();
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
             stripe_customer_id: customerId,
             seasonal_expires_at: expiresAt.toISOString(),
             updated_at: new Date().toISOString(),
-          }).eq("user_id", userId);
+          }).eq("id", userId);
         }
 
         console.log(`Checkout completed for user ${userId}, mode: ${session.mode}`);
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
         await supabase.from("user_profiles").update({
           subscription_status: appStatus,
           updated_at: new Date().toISOString(),
-        }).eq("user_id", userId);
+        }).eq("id", userId);
 
         console.log(`Subscription updated for user ${userId}: ${appStatus}`);
         break;
@@ -112,7 +112,7 @@ export default async function handler(req, res) {
           subscription_status: "free",
           stripe_subscription_id: null,
           updated_at: new Date().toISOString(),
-        }).eq("user_id", userId);
+        }).eq("id", userId);
 
         console.log(`Subscription cancelled for user ${userId}`);
         break;

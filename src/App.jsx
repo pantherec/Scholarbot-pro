@@ -17,11 +17,11 @@ const COLORS = {
   goldGlow: "rgba(201,162,39,0.25)",
   teal: "#4ecdc4",
   tealDim: "rgba(78,205,196,0.12)",
-  pink: "#e056a0",
-  pinkDim: "rgba(224,86,160,0.12)",
-  purple: "#7c6bff",
-  purpleDim: "rgba(124,107,255,0.12)",
-  orange: "#f5a623",
+  pink: "#e04040",
+  pinkDim: "rgba(224,64,64,0.12)",
+  purple: "#4ecdc4",
+  purpleDim: "rgba(78,205,196,0.12)",
+  orange: "#c9a227",
   text: "#e8e4dc",
   textMuted: "#8a8a9a",
   textDim: "#555566",
@@ -394,7 +394,7 @@ function ProgressRing({ value, size = 52, color = COLORS.teal }) {
 // ============================================================
 // MAIN APP COMPONENT
 // ============================================================
-export default function ScholarBotPro() {
+export default function MeritLaunch() {
   const [view, setView] = useState("landing");
   const [profile, setProfile] = useState({});
   const [bragSheet, setBragSheet] = useState("");
@@ -473,7 +473,7 @@ export default function ScholarBotPro() {
       } else if (field === "letters") {
         updates.letters_used_this_month = monthlyLettersUsed + 1;
       }
-      await supabase.from("user_profiles").update(updates).eq("user_id", authUser.id);
+      await supabase.from("user_profiles").update(updates).eq("id", authUser.id);
     } catch (e) { console.error("Usage sync failed:", e); }
   }, [authUser, monthlyMatchesUsed, monthlyLettersUsed]);
 
@@ -743,7 +743,7 @@ export default function ScholarBotPro() {
           const { data: prof } = await supabase
             .from("user_profiles")
             .select("subscription_status, letters_used_this_month, matches_used_this_month, usage_reset_at")
-            .eq("user_id", user.id)
+            .eq("id", user.id)
             .single();
           if (prof) {
             setUserSubscription(prof.subscription_status || "free");
@@ -759,7 +759,7 @@ export default function ScholarBotPro() {
                 letters_used_this_month: 0,
                 matches_used_this_month: 0,
                 usage_reset_at: now.toISOString(),
-              }).eq("user_id", user.id);
+              }).eq("id", user.id);
             } else {
               setMonthlyLettersUsed(prof.letters_used_this_month || 0);
               setMonthlyMatchesUsed(prof.matches_used_this_month || 0);
@@ -1033,7 +1033,7 @@ ${profileSummary}`;
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514", max_tokens: 1000,
-          messages: [{ role: "user", content: `Create a candidate profile in Markdown format for scholarship applications:\n\n# Candidate Profile: [Name]\n\n**Contact Info:**\n* Email / Phone / Location\n\n**Voice:** [Describe their writing voice]\n\n**Humanization & Anti-Detection Rules (CRITICAL):**\n[4 specific rules]\n\n**Key Directives:**\n[5 directives based on strongest assets]\n\nBASE THIS ON:\n${profileData}${bragSheet ? `\nBRAG SHEET:\n${bragSheet}` : ""}${Object.keys(appAnswers).length > 0 ? `\nAPPLICATION ANSWERS:\n${JSON.stringify(appAnswers)}` : ""}` }]
+          messages: [{ role: "user", content: `Create a candidate profile in Markdown format for scholarship applications:\n\n# Candidate Profile: [Name]\n\n**Contact Info:**\n* Email / Phone / Location\n\n**Voice:** [Describe their writing voice]\n\n**Authenticity & Voice Rules (CRITICAL):**\n[4 specific rules]\n\n**Key Directives:**\n[5 directives based on strongest assets]\n\nBASE THIS ON:\n${profileData}${bragSheet ? `\nBRAG SHEET:\n${bragSheet}` : ""}${Object.keys(appAnswers).length > 0 ? `\nAPPLICATION ANSWERS:\n${JSON.stringify(appAnswers)}` : ""}` }]
         })
       });
       const data = await response.json();
@@ -1149,7 +1149,7 @@ ${profileSummary}`;
             boxShadow: `0 24px 80px rgba(0,0,0,0.5)`,
           }}>
             <div style={{ textAlign: "center", marginBottom: 28 }}>
-              <div style={{ fontSize: 11, fontFamily: FONTS.body, letterSpacing: 3, color: COLORS.gold, textTransform: "uppercase", marginBottom: 4 }}>ScholarBot Pro</div>
+              <div style={{ fontSize: 11, fontFamily: FONTS.body, letterSpacing: 3, color: COLORS.gold, textTransform: "uppercase", marginBottom: 4 }}>MeritLaunch</div>
               <h2 style={{ fontSize: 24, fontWeight: 400, marginBottom: 6 }}>
                 {authMode === "signup" ? "Create Account" : authMode === "forgot" ? "Reset Password" : authMode === "reset" ? "Set New Password" : "Welcome Back"}
               </h2>
@@ -1309,8 +1309,7 @@ ${profileSummary}`;
             borderBottom: `1px solid ${COLORS.border}`,
           }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <span style={{ fontSize: 11, fontFamily: FONTS.body, letterSpacing: 3, color: COLORS.gold, textTransform: "uppercase" }}>ScholarBot</span>
-              <span style={{ fontSize: 20, fontWeight: 400, color: COLORS.text }}>PRO</span>
+              <span style={{ fontSize: 11, fontFamily: FONTS.body, letterSpacing: 3, color: COLORS.gold, textTransform: "uppercase" }}>MeritLaunch</span>
             </div>
             <div className="landing-nav-buttons" style={{ display: "flex", gap: 12 }}>
               {authUser ? (
@@ -1386,7 +1385,7 @@ ${profileSummary}`;
           </div>
 
           {/* Social proof strip */}
-          <div className="landing-stats-grid" style={{
+          <div className="landing-stats-grid reveal" style={{
             display: "flex", justifyContent: "center", gap: 48, padding: "32px 20px",
             borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`,
             flexWrap: "wrap",
@@ -1407,14 +1406,14 @@ ${profileSummary}`;
           {/* Feature Pillars */}
           <div style={{ padding: "80px 40px", maxWidth: 1100, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 48 }}>
-              <h2 style={{ fontSize: 36, fontWeight: 400, marginBottom: 10 }}>How ScholarBot Pro Works</h2>
+              <h2 style={{ fontSize: 36, fontWeight: 400, marginBottom: 10 }}>How MeritLaunch Works</h2>
               <p style={{ fontSize: 15, fontFamily: FONTS.body, color: COLORS.textMuted }}>Three steps to scholarship-ready applications</p>
             </div>
-            <div className="landing-steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+            <div className="landing-steps-grid reveal" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
               {[
-                { icon: "◈", title: "Build Your Profile", desc: "Answer guided questions or upload your brag sheet. ScholarBot learns your story, strengths, and goals.", color: COLORS.gold },
+                { icon: "◈", title: "Build Your Profile", desc: "Answer guided questions or upload your brag sheet. MeritLaunch learns your story, strengths, and goals.", color: COLORS.gold },
                 { icon: "◆", title: "Get Matched", desc: "Our scoring engine analyzes eligibility, heritage, GPA, need, and field to rank your best-fit scholarships.", color: COLORS.teal },
-                { icon: "◉", title: "Generate Letters", desc: "Choose a writing style. Get human-sounding, anti-AI-detection application letters tailored to each scholarship.", color: COLORS.pink },
+                { icon: "◉", title: "Generate Letters", desc: "Choose a writing style. Draft application letters in your own authentic voice, grounded in your real story - you stay the author.", color: COLORS.teal },
               ].map((f, i) => (
                 <GlowCard key={i} glow={f.color} style={{ textAlign: "center", padding: "40px 28px" }}>
                   <div style={{ fontSize: 40, marginBottom: 16, color: f.color }}>{f.icon}</div>
@@ -1432,7 +1431,7 @@ ${profileSummary}`;
               <h2 style={{ fontSize: 30, fontWeight: 400, textAlign: "center", marginBottom: 12 }}>We've Been Where You Are</h2>
               <p style={{ textAlign: "center", fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim, marginBottom: 40 }}>A real story from the parent who built this tool</p>
               <GlowCard hover={false} glow={COLORS.gold} style={{ padding: "40px 36px", borderLeft: `3px solid ${COLORS.gold}` }}>
-                <div style={{ fontSize: 15, fontFamily: "Georgia, 'Times New Roman', serif", color: COLORS.textMuted, lineHeight: 1.85, fontStyle: "italic" }}>
+                <div style={{ fontSize: 17, fontFamily: FONTS.heading, color: COLORS.textMuted, lineHeight: 1.7, fontStyle: "italic" }}>
                   <p style={{ marginBottom: 16 }}>
                     "It was the fall of their senior year, and my kids were running on fumes. They were carrying full loads of advanced coursework. Multiple AP classes, college-level engineering. Just about honors everything."
                   </p>
@@ -1446,7 +1445,7 @@ ${profileSummary}`;
                     "My children did it. They finished strong in their coursework AND submitted every application. I'm proud of that. But I watched the cost. The late nights. The stress of choosing between studying for an exam and polishing a scholarship letter."
                   </p>
                   <p style={{ marginBottom: 0 }}>
-                    "I kept thinking: what if they could have focused on what mattered most — their ideas, their story, their voice — and let a tool handle the rest? That's why ScholarBot Pro exists. Not to replace the student. To give them back their time."
+                    "I kept thinking: what if they could have focused on what mattered most — their ideas, their story, their voice — and let a tool handle the rest? That's why MeritLaunch exists. Not to replace the student. To give them back their time."
                   </p>
                 </div>
                 <div style={{ marginTop: 24, display: "flex", alignItems: "center", gap: 16 }}>
@@ -1455,7 +1454,7 @@ ${profileSummary}`;
                   </div>
                   <div>
                     <div style={{ fontSize: 16, fontWeight: 600, fontFamily: FONTS.body, color: COLORS.gold }}>Corey S.</div>
-                    <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textDim }}>Parent, Educator & Creator of ScholarBot Pro</div>
+                    <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textDim }}>Parent, Educator & Creator of MeritLaunch</div>
                   </div>
                 </div>
               </GlowCard>
@@ -1466,7 +1465,7 @@ ${profileSummary}`;
           <div style={{ padding: "80px 40px", textAlign: "center" }}>
             <h2 style={{ fontSize: 30, fontWeight: 400, marginBottom: 8 }}>Simple, Transparent Pricing</h2>
             <p style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 40 }}>Start free. Upgrade when you're ready to go all-in on scholarship season.</p>
-            <div className="landing-pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, maxWidth: 900, margin: "0 auto" }}>
+            <div className="landing-pricing-grid reveal" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, maxWidth: 900, margin: "0 auto" }}>
               {/* Free Tier */}
               <GlowCard hover={false} style={{ padding: "32px 24px", textAlign: "left" }}>
                 <div style={{ fontSize: 13, fontFamily: FONTS.body, fontWeight: 600, color: COLORS.textMuted, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Free</div>
@@ -1554,7 +1553,7 @@ ${profileSummary}`;
             display: "flex", justifyContent: "space-between", alignItems: "center",
             fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim,
           }}>
-            <span>ScholarBot Pro © 2026 — Not to replace the student. To give them back their time.</span>
+            <span>MeritLaunch © 2026 — Not to replace the student. To give them back their time.</span>
             <span>{scholarshipDB.length} scholarships | $2.3M+ in opportunities</span>
           </footer>
         </div>
@@ -1580,8 +1579,7 @@ ${profileSummary}`;
             {/* Logo */}
             <div style={{ padding: "24px 20px 16px", borderBottom: `1px solid ${COLORS.border}` }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                <span style={{ fontSize: 10, fontFamily: FONTS.body, letterSpacing: 3, color: COLORS.gold, textTransform: "uppercase" }}>ScholarBot</span>
-                <span style={{ fontSize: 18, fontWeight: 400, color: COLORS.text }}>PRO</span>
+                <span style={{ fontSize: 10, fontFamily: FONTS.body, letterSpacing: 3, color: COLORS.gold, textTransform: "uppercase" }}>MeritLaunch</span>
               </div>
               <div style={{ fontSize: 10, fontFamily: FONTS.body, color: COLORS.textDim, marginTop: 4 }}>
                 {scholarshipDB.length} scholarships loaded
@@ -1648,7 +1646,7 @@ ${profileSummary}`;
                   {isPremium && (
                     <button onClick={async () => {
                       try {
-                        const { data: prof } = await supabase.from("user_profiles").select("stripe_customer_id").eq("user_id", authUser.id).single();
+                        const { data: prof } = await supabase.from("user_profiles").select("stripe_customer_id").eq("id", authUser.id).single();
                         if (prof?.stripe_customer_id) {
                           const resp = await fetch("/api/customer-portal", {
                             method: "POST", headers: { "Content-Type": "application/json" },
@@ -1698,7 +1696,7 @@ ${profileSummary}`;
               <div>
                 <SectionHeader
                   title={profile.name ? `Welcome back, ${profile.name.split(" ")[0]}` : "Your Scholarship Command Center"}
-                  subtitle={`${scholarshipDB.length} scholarships loaded. AI-powered matching. Human-sounding letters.`}
+                  subtitle={`${scholarshipDB.length} scholarships loaded. AI-powered matching. Letters in your authentic voice.`}
                 />
 
                 {/* Stats */}
@@ -1762,7 +1760,7 @@ ${profileSummary}`;
                   {[
                     { label: "Build Your Profile", desc: "Answer questions to create your scholarship persona.", action: () => setView("profile"), color: COLORS.gold, icon: "◈" },
                     { label: "Find Matches", desc: "AI matches you to best-fit scholarships.", action: () => { if (profile.name) runMatching(); else setView("profile"); }, color: COLORS.teal, icon: "◆" },
-                    { label: "Generate a Letter", desc: "Create a human-sounding application letter.", action: () => setView("generate"), color: COLORS.pink, icon: "◉" },
+                    { label: "Generate a Letter", desc: "Draft a letter in your own authentic voice.", action: () => setView("generate"), color: COLORS.teal, icon: "◉" },
                     { label: "Track Applications", desc: `${trackedApps.length} scholarships in your pipeline.`, action: () => setView("tracker"), color: "#8B5CF6", icon: "▦" },
                   ].map((a, i) => (
                     <GlowCard key={i} onClick={a.action} glow={a.color} style={{ padding: "28px 24px", cursor: "pointer" }}>
@@ -1982,7 +1980,7 @@ ${profileSummary}`;
                 }}>
                   <span style={{ fontSize: 18, flexShrink: 0, marginTop: -1 }}>&#9432;</span>
                   <span>
-                    <strong style={{ color: COLORS.orange }}>Disclaimer:</strong> ScholarBot Pro aggregates scholarship information from public sources for your convenience. While we work to keep this data accurate, we cannot independently verify every listing. Always confirm eligibility, deadlines, and legitimacy directly with the scholarship provider before applying. <strong>Never pay an application fee for a legitimate scholarship.</strong>
+                    <strong style={{ color: COLORS.orange }}>Disclaimer:</strong> MeritLaunch aggregates scholarship information from public sources for your convenience. While we work to keep this data accurate, we cannot independently verify every listing. Always confirm eligibility, deadlines, and legitimacy directly with the scholarship provider before applying. <strong>Never pay an application fee for a legitimate scholarship.</strong>
                   </span>
                 </div>
 
@@ -2659,6 +2657,17 @@ ${profileSummary}`;
         }
         button:hover { opacity: 0.92; }
         button:active { transform: scale(0.98); }
+
+        @keyframes revealUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @supports (animation-timeline: view()) {
+          @media (prefers-reduced-motion: no-preference) {
+            .reveal { animation: revealUp linear both; animation-timeline: view(); animation-range: entry 5% cover 25%; }
+          }
+        }
+        @media (max-width: 1024px) {
+          .landing-hero-title { font-size: clamp(40px, 6vw, 60px) !important; }
+          .app-main { padding: 28px 28px !important; }
+        }
 
         /* Mobile responsiveness */
         @media (max-width: 768px) {
