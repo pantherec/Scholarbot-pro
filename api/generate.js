@@ -1,17 +1,17 @@
-// This runs on Vercel's server, NOT in the user's browser.
-// The ANTHROPIC_API_KEY environment variable is only accessible here.
-// Users never see it.
+// Server-side proxy for Claude (non-streaming). Auth + rate limited.
+import { verifyAuth, checkRateLimit } from "./_shared/auth.js";
 
 export default async function handler(req, res) {
-  // Only allow POST requests
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+  const { user, error: authError } = await verifyAuth(req);
+  if (!user) return res.status(401).json({ error: authError || "Authentication required" });
+
+  const rl = checkRateLimit(`gen:${user.id}`, 30, 3600000);
+  if (!rl.allowed) return res.status(429).json({ error: "Rate limit exceeded. Please try again later." });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: "API key not configured on server" });
-  }
+  if (!apiKey) return res.status(500).json({ error: "API key not configured on server" });
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -23,21 +23,10 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify(req.body),
     });
-
     const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(response.status).json(data);
-    }
-
+    if (!response.ok) return res.status(response.status).json(data);
     return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({ error: "Failed to reach AI service" });
   }
 }
-
-
-
-
-
-

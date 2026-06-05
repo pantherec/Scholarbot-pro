@@ -44,6 +44,19 @@ const SUPABASE_KEY = (typeof import.meta !== "undefined" && import.meta.env?.VIT
 
 const supabase = SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
+// Attach the Supabase access token to API requests so server endpoints can verify the user.
+async function authFetch(url, options = {}) {
+  const headers = { ...(options.headers || {}) };
+  try {
+    if (supabase) {
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if (token) headers["Authorization"] = "Bearer " + token;
+    }
+  } catch (e) { /* proceed unauthenticated */ }
+  return fetch(url, { ...options, headers });
+}
+
 // ============================================================
 // STRIPE CONFIG
 // ============================================================
@@ -486,7 +499,7 @@ export default function MeritLaunch() {
     setCheckoutLoading(true);
     try {
       const isSubscription = plan === "premium";
-      const resp = await fetch("/api/create-checkout", {
+      const resp = await authFetch("/api/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -586,7 +599,7 @@ export default function MeritLaunch() {
     if (!scholarshipUrl.trim()) { notify("Please enter a URL.", "error"); return; }
     setFetchingUrl(true);
     try {
-      const response = await fetch("/api/generate", {
+      const response = await authFetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -904,6 +917,7 @@ export default function MeritLaunch() {
 
   // Letter generation
   const generateLetter = async () => {
+    if (!authUser) { setAuthMode("signup"); setShowAuthModal(true); notify("Create a free account to generate letters.", "info"); return; }
     const hasDbSelection = scholarshipInputMode === "database" && selectedScholarship;
     const hasCustomInput = scholarshipInputMode !== "database" && customScholarshipText.trim();
     if (!hasDbSelection && !hasCustomInput) {
@@ -974,7 +988,7 @@ CANDIDATE PROFILE:
 ${profileSummary}`;
 
     try {
-      const response = await fetch("/api/generate-stream", {
+      const response = await authFetch("/api/generate-stream", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514", max_tokens: 1200, system: systemPrompt,
@@ -1025,11 +1039,12 @@ ${profileSummary}`;
 
   // Profile generation
   const generateCandidateProfile = async () => {
+    if (!authUser) { setAuthMode("signup"); setShowAuthModal(true); notify("Create a free account to continue.", "info"); return; }
     if (!profile.name) { notify("Complete your profile first.", "error"); return; }
     setGeneratingLetter(true);
     const profileData = PROFILE_QUESTIONS.map(q => `${q.q}: ${Array.isArray(profile[q.id]) ? profile[q.id].join(", ") : (profile[q.id] || "N/A")}`).join("\n");
     try {
-      const response = await fetch("/api/generate", {
+      const response = await authFetch("/api/generate", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514", max_tokens: 1000,
@@ -1648,7 +1663,7 @@ ${profileSummary}`;
                       try {
                         const { data: prof } = await supabase.from("user_profiles").select("stripe_customer_id").eq("id", authUser.id).single();
                         if (prof?.stripe_customer_id) {
-                          const resp = await fetch("/api/customer-portal", {
+                          const resp = await authFetch("/api/customer-portal", {
                             method: "POST", headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ customerId: prof.stripe_customer_id }),
                           });
@@ -2003,7 +2018,7 @@ ${profileSummary}`;
                           <Button disabled={importLoading || !importUrl.trim()} onClick={async () => {
                             setImportLoading(true);
                             try {
-                              const resp = await fetch("/api/import-scholarship", {
+                              const resp = await authFetch("/api/import-scholarship", {
                                 method: "POST", headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({ url: importUrl.trim() }),
                               });
