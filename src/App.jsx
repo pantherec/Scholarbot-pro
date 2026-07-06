@@ -1,5 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
+import {
+  initAnalytics,
+  identifyUser,
+  resetUser,
+  trackSignupStarted,
+  trackSignupCompleted,
+  trackLetterGenerated,
+} from "./analytics.js";
 
 // ============================================================
 // DESIGN SYSTEM — Phase A: Brand Voice & Visual Identity
@@ -61,8 +69,8 @@ async function authFetch(url, options = {}) {
 // STRIPE CONFIG
 // ============================================================
 const STRIPE_PRICES = {
-  premium: "price_1TCNywCKmFEw0ke8GFSBvuVc",
-  seasonal: "price_1TCNzyCKmFEw0ke8Ej82CRAM",
+  premium: "price_1Tm50TC3noYRmoDviVtHCicV",   // LIVE — MeritLaunch Premium $9.99/mo (2026-06-25)
+  seasonal: "price_1Tm51gC3noYRmoDvTQZJndll",  // LIVE — MeritLaunch Seasonal Pass $29.99 one-time
 };
 
 async function fetchScholarshipsFromSupabase() {
@@ -74,7 +82,7 @@ async function fetchScholarshipsFromSupabase() {
       id: r.id, name: r.name, criteria: r.criteria || "",
       link: r.link || "", deadline: r.deadline || "Varies",
       amount: r.amount || "Varies", needBased: r.need_based || "",
-      country: r.country || "US",
+      country: r.country || "US", state: r.state || "",
     }));
   } catch(e) { return null; }
 }
@@ -182,6 +190,18 @@ const DEFAULT_SCHOLARSHIP_DB = [
   {id:"fluncf26",name:"Foot Locker Foundation-UNCF Scholarship",criteria:"Students attending a UNCF member HBCU. Minimum 2.5 GPA. U.S. citizen, permanent resident, or national. Demonstrate financial need. Seeking bachelor's degree.",link:"https://uncf.org/scholarships",deadline:"2026-04-10",amount:"$5,000",needBased:"Y",country:"US"},
   {id:"tmcfcoke",name:"TMCF Coca-Cola First Generation HBCU Scholarship",criteria:"First-generation college student. Graduating high school senior. Enrolling full-time at a TMCF member HBCU. Financial need. U.S. citizen or permanent resident.",link:"https://tmcf.org/",deadline:"2026-05-01",amount:"$5,000",needBased:"Y",country:"US"},
 ];
+
+// Full names for the optional state filter (codes come from the scholarship data)
+const US_STATE_NAMES = {
+  AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",
+  DE:"Delaware",DC:"District of Columbia",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",
+  IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",
+  MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",
+  NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",
+  OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",
+  TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",
+  WI:"Wisconsin",WY:"Wyoming",
+};
 
 // ============================================================
 // PROFILE QUESTIONS
@@ -419,6 +439,7 @@ export default function MeritLaunch() {
   const [importLoading, setImportLoading] = useState(false);
   const [filterNeedBased, setFilterNeedBased] = useState("all");
   const [filterCountry, setFilterCountry] = useState("all");
+  const [filterState, setFilterState] = useState("all");
   const [matchResults, setMatchResults] = useState([]);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATES[0]);
@@ -457,6 +478,7 @@ export default function MeritLaunch() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [authSubmitting, setAuthSubmitting] = useState(false);
+  const [authDob, setAuthDob] = useState(""); // COPPA: used only for age check, never stored
   const [userSubscription, setUserSubscription] = useState("free"); // free | premium | seasonal
   const [monthlyLettersUsed, setMonthlyLettersUsed] = useState(0);
   const [monthlyMatchesUsed, setMonthlyMatchesUsed] = useState(0);
@@ -628,10 +650,38 @@ export default function MeritLaunch() {
   // Auth handlers
   const handleSignUp = async () => {
     setAuthError(""); setAuthSubmitting(true);
+    // COPPA age gate — check age, then discard DOB immediately (never stored)
+    if (authDob) {
+      const birthDate = new Date(authDob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+      if (age < 13) {
+        setAuthError("You must be 13 or older to use MeritLaunch.");
+        setAuthSubmitting(false);
+        setAuthDob(""); // discard immediately
+        return;
+      }
+    } else {
+      setAuthError("Please enter your date of birth to confirm you are 13 or older.");
+      setAuthSubmitting(false);
+      return;
+    }
+    setAuthDob(""); // discard DOB — not stored anywhere
     try {
       const { data, error } = await supabase.auth.signUp({ email: authEmail, password: authPassword });
       if (error) { setAuthError(error.message); }
-      else { setAuthError(""); notify("Check your email for a confirmation link!", "success"); setAuthMode("signin"); }
+      else {
+        setAuthError("");
+        notify("Check your email for a confirmation link!", "success");
+        setAuthMode("signin");
+        const newUserId = data?.user?.id;
+        if (newUserId) {
+          identifyUser(newUserId);
+          trackSignupCompleted(newUserId);
+        }
+      }
     } catch(e) { setAuthError("Something went wrong. Please try again."); }
     setAuthSubmitting(false);
   };
@@ -641,7 +691,11 @@ export default function MeritLaunch() {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email: authEmail, password: authPassword });
       if (error) { setAuthError(error.message); }
-      else { setShowAuthModal(false); setAuthEmail(""); setAuthPassword(""); notify("Welcome back!", "success"); }
+      else {
+        setShowAuthModal(false); setAuthEmail(""); setAuthPassword("");
+        notify("Welcome back!", "success");
+        if (data?.user?.id) identifyUser(data.user.id);
+      }
     } catch(e) { setAuthError("Something went wrong. Please try again."); }
     setAuthSubmitting(false);
   };
@@ -673,14 +727,24 @@ export default function MeritLaunch() {
     setAuthSubmitting(false);
   };
 
+  // Analytics: fire signup_started whenever the modal opens in signup mode
+  useEffect(() => {
+    if (showAuthModal && authMode === "signup") {
+      trackSignupStarted();
+    }
+  }, [showAuthModal, authMode]);
+
   const handleSignOut = async () => {
     await supabase?.auth.signOut();
+    resetUser(); // clear PostHog identity on sign-out
     setAuthUser(null);
     notify("Signed out.", "info");
   };
 
   // Load data on mount + auth listener
   useEffect(() => {
+    initAnalytics(); // PostHog — no-op if VITE_POSTHOG_KEY not set
+
     // Load local data first (fast)
     const p = store.get("scholarbot-profile"); if (p) setProfile(p);
     const l = store.get("scholarbot-letters"); if (l) setSavedLetters(l);
@@ -1030,7 +1094,15 @@ ${profileSummary}`;
         }
       }
 
-      if (!fullText) setGeneratedLetter("Error: Empty response from AI service.");
+      if (!fullText) {
+        setGeneratedLetter("Error: Empty response from AI service.");
+      } else {
+        // Analytics: fire after successful letter generation
+        trackLetterGenerated({
+          scholarshipName: scholarshipLabel,
+          template: selectedTemplate?.name || "unknown",
+        });
+      }
     } catch(e) {
       setGeneratedLetter("Error: Could not connect to the AI service.");
     }
@@ -1078,8 +1150,15 @@ ${profileSummary}`;
       (sc === "BOTH" && (filterCountry === "US" || filterCountry === "CA")) ||
       // "US + Canada" filter shows only scholarships tagged BOTH
       (filterCountry === "BOTH" && sc === "BOTH");
-    return matchesSearch && matchesNeed && matchesCountry;
+    // Optional state filter: national scholarships (no state) ALWAYS show — a student
+    // considering schools elsewhere still wants those. Picking a state adds that
+    // state's scholarships on top; it never hides the national ones.
+    const matchesState = filterState === "all" || !s.state || s.state === filterState;
+    return matchesSearch && matchesNeed && matchesCountry && matchesState;
   });
+
+  // States that actually have scholarships in the DB (auto-grows as data is added)
+  const availableStates = [...new Set(scholarshipDB.map(s => s.state).filter(Boolean))].sort();
 
   // Country flag helper — uses Flagpedia CDN for crisp flag images
   const CountryFlag = ({ country }) => {
@@ -1234,6 +1313,23 @@ ${profileSummary}`;
                       }}
                     />
                   )}
+                  {authMode === "signup" && (
+                    <div>
+                      <label style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textMuted, display: "block", marginBottom: 6 }}>
+                        Date of birth — required to confirm you are 13 or older (not stored)
+                      </label>
+                      <input
+                        type="date" value={authDob}
+                        onChange={e => setAuthDob(e.target.value)}
+                        max={new Date().toISOString().split("T")[0]}
+                        style={{
+                          padding: "12px 16px", borderRadius: 10, fontSize: 14, fontFamily: FONTS.body,
+                          background: COLORS.surface, border: `1px solid ${COLORS.border}`, color: COLORS.text,
+                          outline: "none", width: "100%", boxSizing: "border-box",
+                        }}
+                      />
+                    </div>
+                  )}
                   <Button
                     onClick={authMode === "forgot" ? handleForgotPassword : authMode === "signup" ? handleSignUp : handleSignIn}
                     disabled={authSubmitting || !authEmail}
@@ -1254,7 +1350,7 @@ ${profileSummary}`;
                 </>
               )}
               {authMode === "signup" && (
-                <span>Already have an account? <span style={{ cursor: "pointer", color: COLORS.gold }} onClick={() => { setAuthMode("signin"); setAuthError(""); }}>Sign in</span></span>
+                <span>Already have an account? <span style={{ cursor: "pointer", color: COLORS.gold }} onClick={() => { setAuthMode("signin"); setAuthError(""); setAuthDob(""); }}>Sign in</span></span>
               )}
               {authMode === "forgot" && (
                 <span style={{ cursor: "pointer", color: COLORS.gold }} onClick={() => { setAuthMode("signin"); setAuthError(""); }}>Back to sign in</span>
@@ -2106,6 +2202,20 @@ ${profileSummary}`;
                     <option value="need">Need-Based</option>
                     <option value="merit">Merit-Based</option>
                   </select>
+                  {availableStates.length > 0 && (
+                    <select value={filterState} onChange={e => setFilterState(e.target.value)}
+                      title="Show national scholarships plus those for a state you're considering"
+                      style={{
+                        padding: "12px 16px", background: COLORS.surface,
+                        border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                        color: COLORS.text, fontSize: 13, fontFamily: FONTS.body, outline: "none",
+                      }}>
+                      <option value="all">All States</option>
+                      {availableStates.map(code => (
+                        <option key={code} value={code}>{US_STATE_NAMES[code] || code}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 {/* Scholarship Cards */}

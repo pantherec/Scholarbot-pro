@@ -29,6 +29,10 @@ build/
 .DS_Store
 Thumbs.db
 
+# Local backups & stray skill copies (not part of the app)
+backups/
+meritlaunch-master-skill/
+
 # Node
 node_modules/
 
