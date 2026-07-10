@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "coupon:tester": "node scripts/create-friendly-tester-coupon.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.99.2",
