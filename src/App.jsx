@@ -52,16 +52,40 @@ const SUPABASE_KEY = (typeof import.meta !== "undefined" && import.meta.env?.VIT
 
 const supabase = SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
+// Race a promise against a timeout. Resolves null on timeout instead of hanging —
+// a stale/deadlocked Supabase auth lock must never silently block the UI.
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise(resolve => setTimeout(() => resolve(null), ms)),
+  ]);
+}
+
+// Get the current access token without ever hanging: try getSession() (3s cap),
+// then fall back to the session Supabase persists in localStorage.
+async function getAccessTokenSafe() {
+  if (!supabase) return null;
+  try {
+    const result = await withTimeout(supabase.auth.getSession(), 3000);
+    const token = result?.data?.session?.access_token;
+    if (token) return token;
+  } catch (e) { /* fall through to localStorage */ }
+  try {
+    const ref = SUPABASE_URL.replace("https://", "").split(".")[0];
+    const raw = localStorage.getItem("sb-" + ref + "-auth-token");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return parsed?.access_token || parsed?.currentSession?.access_token || null;
+    }
+  } catch (e) { /* proceed unauthenticated */ }
+  return null;
+}
+
 // Attach the Supabase access token to API requests so server endpoints can verify the user.
 async function authFetch(url, options = {}) {
   const headers = { ...(options.headers || {}) };
-  try {
-    if (supabase) {
-      const { data } = await supabase.auth.getSession();
-      const token = data?.session?.access_token;
-      if (token) headers["Authorization"] = "Bearer " + token;
-    }
-  } catch (e) { /* proceed unauthenticated */ }
+  const token = await getAccessTokenSafe();
+  if (token) headers["Authorization"] = "Bearer " + token;
   return fetch(url, { ...options, headers });
 }
 
@@ -76,7 +100,11 @@ const STRIPE_PRICES = {
 async function fetchScholarshipsFromSupabase() {
   if (!supabase) return null;
   try {
-    const { data, error } = await supabase.from("scholarships").select("*");
+    // 8s cap — a hung request must return null (and be retried) rather than
+    // silently stranding the app on the small built-in fallback DB.
+    const result = await withTimeout(supabase.from("scholarships").select("*"), 8000);
+    if (!result) return null;
+    const { data, error } = result;
     if (error || !data) return null;
     return data.map(r => ({
       id: r.id, name: r.name, criteria: r.criteria || "",
@@ -735,7 +763,15 @@ export default function MeritLaunch() {
   }, [showAuthModal, authMode]);
 
   const handleSignOut = async () => {
-    await supabase?.auth.signOut();
+    // 3s cap — a deadlocked auth client must never trap the user signed-in.
+    // On timeout, force-clear the persisted session so a reload starts clean.
+    const result = await withTimeout(supabase?.auth.signOut() ?? Promise.resolve(true), 3000);
+    if (result === null) {
+      try {
+        const ref = SUPABASE_URL.replace("https://", "").split(".")[0];
+        localStorage.removeItem("sb-" + ref + "-auth-token");
+      } catch (e) { /* best effort */ }
+    }
     resetUser(); // clear PostHog identity on sign-out
     setAuthUser(null);
     notify("Signed out.", "info");
@@ -751,14 +787,24 @@ export default function MeritLaunch() {
     const t = store.get("scholarbot-templates"); if (t) setTemplates(t);
     const a = store.get("scholarbot-answers"); if (a) setAppAnswers(a);
 
-    // Fetch scholarships from Supabase
-    fetchScholarshipsFromSupabase().then(rows => {
+    // Fetch scholarships from Supabase — retry with backoff so a transient
+    // failure self-heals instead of stranding the app on the 30 built-ins.
+    let scholarshipsLoaded = false;
+    const retryTimers = [];
+    const loadScholarships = async () => {
+      if (scholarshipsLoaded) return;
+      const rows = await fetchScholarshipsFromSupabase();
       if (rows && rows.length > 0) {
+        scholarshipsLoaded = true;
         setScholarshipDB(rows);
         setDbLastUpdated(new Date().toISOString().split("T")[0]);
         setDbSource("synced");
       }
-    });
+    };
+    loadScholarships();
+    for (const delay of [5000, 20000, 60000]) {
+      retryTimers.push(setTimeout(loadScholarships, delay));
+    }
 
     // Auth listener
     if (supabase) {
@@ -877,9 +923,10 @@ export default function MeritLaunch() {
         }
       });
 
-      return () => subscription?.unsubscribe();
+      return () => { subscription?.unsubscribe(); retryTimers.forEach(clearTimeout); };
     } else {
       setAuthLoading(false);
+      return () => retryTimers.forEach(clearTimeout);
     }
   }, []);
 
