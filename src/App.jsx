@@ -61,6 +61,17 @@ function withTimeout(promise, ms) {
   ]);
 }
 
+// Nuke the persisted Supabase session out of localStorage. Used whenever an auth
+// call times out — a stuck/corrupted token can deadlock the client's internal
+// lock for EVERY subsequent auth call in this tab (sign in, sign up, getSession,
+// sign out all share it), so clearing it is what lets the next attempt succeed.
+function clearStaleSupabaseSession() {
+  try {
+    const ref = SUPABASE_URL.replace("https://", "").split(".")[0];
+    localStorage.removeItem("sb-" + ref + "-auth-token");
+  } catch (e) { /* best effort */ }
+}
+
 // Get the current access token without ever hanging: try getSession() (3s cap),
 // then fall back to the session Supabase persists in localStorage.
 async function getAccessTokenSafe() {
@@ -97,22 +108,54 @@ const STRIPE_PRICES = {
   seasonal: "price_1Tm51gC3noYRmoDvTQZJndll",  // LIVE — MeritLaunch Seasonal Pass $29.99 one-time
 };
 
+function mapScholarshipRow(r) {
+  return {
+    id: r.id, name: r.name, criteria: r.criteria || "",
+    link: r.link || "", deadline: r.deadline || "Varies",
+    amount: r.amount || "Varies", needBased: r.need_based || "",
+    country: r.country || "US", state: r.state || "",
+  };
+}
+
+// Fetch scholarships with a raw REST call to PostgREST — deliberately bypasses the
+// supabase-js client so this read can NEVER be blocked by a stuck/corrupted auth
+// session in this browser tab. supabase-js coordinates auth refresh via a single
+// shared client-side lock; a stale session can deadlock that lock, which then
+// hangs every call routed through the client (including plain .from().select()
+// reads) — this is what stranded users on the 30 built-in scholarships even
+// though the 8s-timeout+retry logic on the client-wrapped call kept firing.
+// Scholarships are public data (no RLS/auth needed), so a bare fetch() with just
+// the anon key is both simpler and immune to that failure mode. Paginated past
+// PostgREST's default 1000-row-per-request cap so the full table always loads.
 async function fetchScholarshipsFromSupabase() {
-  if (!supabase) return null;
+  if (!SUPABASE_URL || !SUPABASE_KEY) return null;
+  const pageSize = 1000;
+  let all = [];
   try {
-    // 8s cap — a hung request must return null (and be retried) rather than
-    // silently stranding the app on the small built-in fallback DB.
-    const result = await withTimeout(supabase.from("scholarships").select("*"), 8000);
-    if (!result) return null;
-    const { data, error } = result;
-    if (error || !data) return null;
-    return data.map(r => ({
-      id: r.id, name: r.name, criteria: r.criteria || "",
-      link: r.link || "", deadline: r.deadline || "Varies",
-      amount: r.amount || "Varies", needBased: r.need_based || "",
-      country: r.country || "US", state: r.state || "",
-    }));
-  } catch(e) { return null; }
+    for (let offset = 0; ; offset += pageSize) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+      let res;
+      try {
+        res = await fetch(`${SUPABASE_URL}/rest/v1/scholarships?select=*&order=id`, {
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            Range: `${offset}-${offset + pageSize - 1}`,
+          },
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timer);
+      }
+      if (!res.ok && res.status !== 206) break;
+      const page = await res.json();
+      if (!Array.isArray(page) || page.length === 0) break;
+      all = all.concat(page);
+      if (page.length < pageSize) break; // last page
+    }
+  } catch (e) { /* return whatever pages succeeded before the network error */ }
+  return all.length > 0 ? all.map(mapScholarshipRow) : null;
 }
 
 // Save user profile to Supabase
@@ -698,7 +741,14 @@ export default function MeritLaunch() {
     }
     setAuthDob(""); // discard DOB — not stored anywhere
     try {
-      const { data, error } = await supabase.auth.signUp({ email: authEmail, password: authPassword });
+      const result = await withTimeout(supabase.auth.signUp({ email: authEmail, password: authPassword }), 8000);
+      if (result === null) {
+        clearStaleSupabaseSession();
+        setAuthError("That timed out — we've reset your session. Please try again.");
+        setAuthSubmitting(false);
+        return;
+      }
+      const { data, error } = result;
       if (error) { setAuthError(error.message); }
       else {
         setAuthError("");
@@ -717,7 +767,14 @@ export default function MeritLaunch() {
   const handleSignIn = async () => {
     setAuthError(""); setAuthSubmitting(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email: authEmail, password: authPassword });
+      const result = await withTimeout(supabase.auth.signInWithPassword({ email: authEmail, password: authPassword }), 8000);
+      if (result === null) {
+        clearStaleSupabaseSession();
+        setAuthError("Sign-in timed out — we've reset your session. Please try again.");
+        setAuthSubmitting(false);
+        return;
+      }
+      const { data, error } = result;
       if (error) { setAuthError(error.message); }
       else {
         setShowAuthModal(false); setAuthEmail(""); setAuthPassword("");
@@ -731,9 +788,16 @@ export default function MeritLaunch() {
   const handleForgotPassword = async () => {
     setAuthError(""); setAuthSubmitting(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(authEmail, {
+      const result = await withTimeout(supabase.auth.resetPasswordForEmail(authEmail, {
         redirectTo: window.location.origin,
-      });
+      }), 8000);
+      if (result === null) {
+        clearStaleSupabaseSession();
+        setAuthError("That timed out — we've reset your session. Please try again.");
+        setAuthSubmitting(false);
+        return;
+      }
+      const { error } = result;
       if (error) { setAuthError(error.message); }
       else { notify("Password reset email sent!", "success"); setAuthMode("signin"); }
     } catch(e) { setAuthError("Something went wrong."); }
@@ -745,7 +809,14 @@ export default function MeritLaunch() {
     if (newPassword.length < 6) { setAuthError("Password must be at least 6 characters."); setAuthSubmitting(false); return; }
     if (newPassword !== confirmPassword) { setAuthError("Passwords don't match."); setAuthSubmitting(false); return; }
     try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      const result = await withTimeout(supabase.auth.updateUser({ password: newPassword }), 8000);
+      if (result === null) {
+        clearStaleSupabaseSession();
+        setAuthError("That timed out — we've reset your session. Please try again.");
+        setAuthSubmitting(false);
+        return;
+      }
+      const { error } = result;
       if (error) { setAuthError(error.message); }
       else {
         notify("Password updated successfully!", "success");
@@ -766,12 +837,7 @@ export default function MeritLaunch() {
     // 3s cap — a deadlocked auth client must never trap the user signed-in.
     // On timeout, force-clear the persisted session so a reload starts clean.
     const result = await withTimeout(supabase?.auth.signOut() ?? Promise.resolve(true), 3000);
-    if (result === null) {
-      try {
-        const ref = SUPABASE_URL.replace("https://", "").split(".")[0];
-        localStorage.removeItem("sb-" + ref + "-auth-token");
-      } catch (e) { /* best effort */ }
-    }
+    if (result === null) clearStaleSupabaseSession();
     resetUser(); // clear PostHog identity on sign-out
     setAuthUser(null);
     notify("Signed out.", "info");
@@ -808,7 +874,17 @@ export default function MeritLaunch() {
 
     // Auth listener
     if (supabase) {
-      supabase.auth.getSession().then(({ data: { session } }) => {
+      // 8s cap — a stuck/corrupted session must never leave the app spinning on
+      // auth forever. On timeout, clear the bad session so the next sign-in
+      // attempt starts clean instead of inheriting the same deadlock.
+      withTimeout(supabase.auth.getSession(), 8000).then(result => {
+        if (result === null) {
+          clearStaleSupabaseSession();
+          setAuthUser(null);
+          setAuthLoading(false);
+          return;
+        }
+        const { data: { session } } = result;
         setAuthUser(session?.user ?? null);
         setAuthLoading(false);
         // If logged in, try to load cloud profile
