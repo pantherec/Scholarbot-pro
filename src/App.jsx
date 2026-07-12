@@ -808,6 +808,67 @@ export default function MeritLaunch() {
       retryTimers.push(setTimeout(loadScholarships, delay));
     }
 
+    // Loads subscription status, usage counters, notifications, and tracked
+    // applications for a signed-in user. Called from BOTH the initial session
+    // check and onAuthStateChange below — onAuthStateChange alone can miss a
+    // session that's silently restored from localStorage on page load,
+    // which was leaving premium users showing as "Free" after a refresh.
+    const loadAccountData = async (user) => {
+      const { data: prof } = await supabase
+        .from("user_profiles")
+        .select("subscription_status, letters_used_this_month, matches_used_this_month, usage_reset_at")
+        .eq("id", user.id)
+        .single();
+      if (prof) {
+        setUserSubscription(prof.subscription_status || "free");
+        const resetAt = prof.usage_reset_at ? new Date(prof.usage_reset_at) : new Date(0);
+        const now = new Date();
+        const monthsSinceReset = (now.getFullYear() - resetAt.getFullYear()) * 12 + now.getMonth() - resetAt.getMonth();
+        if (monthsSinceReset >= 1) {
+          setMonthlyLettersUsed(0);
+          setMonthlyMatchesUsed(0);
+          supabase.from("user_profiles").update({
+            letters_used_this_month: 0,
+            matches_used_this_month: 0,
+            usage_reset_at: now.toISOString(),
+          }).eq("id", user.id);
+        } else {
+          setMonthlyLettersUsed(prof.letters_used_this_month || 0);
+          setMonthlyMatchesUsed(prof.matches_used_this_month || 0);
+        }
+      }
+
+      const { data: alerts } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("read", false)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (alerts) setDeadlineAlerts(alerts);
+
+      const { data: cloudApps } = await supabase
+        .from("applications")
+        .select("*")
+        .eq("user_id", user.id);
+      if (cloudApps && cloudApps.length > 0) {
+        const merged = cloudApps.map(a => ({
+          id: a.id,
+          scholarshipId: a.scholarship_id,
+          name: a.scholarship_name || a.scholarship_id,
+          amount: "", deadline: "", link: "",
+          status: a.status || "interested",
+          addedAt: a.created_at,
+          notes: a.notes || "",
+        }));
+        const localIds = new Set(merged.map(a => a.scholarshipId));
+        const localOnly = trackedApps.filter(a => !localIds.has(a.scholarshipId));
+        const combined = [...merged, ...localOnly];
+        setTrackedApps(combined);
+        localStorage.setItem("scholarbot-tracked-apps", JSON.stringify(combined));
+      }
+    };
+
     // Auth listener
     if (supabase) {
       supabase.auth.getSession().then(({ data: { session } }) => {
@@ -826,6 +887,7 @@ export default function MeritLaunch() {
               setSavedLetters(cloudLetters);
             }
           });
+          loadAccountData(session.user);
         }
       });
 
@@ -863,65 +925,8 @@ export default function MeritLaunch() {
           setAuthError("");
           return;
         }
-        // Load subscription status from Supabase
         if (user && supabase) {
-          const { data: prof } = await supabase
-            .from("user_profiles")
-            .select("subscription_status, letters_used_this_month, matches_used_this_month, usage_reset_at")
-            .eq("id", user.id)
-            .single();
-          if (prof) {
-            setUserSubscription(prof.subscription_status || "free");
-            // Check if usage needs monthly reset
-            const resetAt = prof.usage_reset_at ? new Date(prof.usage_reset_at) : new Date(0);
-            const now = new Date();
-            const monthsSinceReset = (now.getFullYear() - resetAt.getFullYear()) * 12 + now.getMonth() - resetAt.getMonth();
-            if (monthsSinceReset >= 1) {
-              // Reset counters for new month
-              setMonthlyLettersUsed(0);
-              setMonthlyMatchesUsed(0);
-              supabase.from("user_profiles").update({
-                letters_used_this_month: 0,
-                matches_used_this_month: 0,
-                usage_reset_at: now.toISOString(),
-              }).eq("id", user.id);
-            } else {
-              setMonthlyLettersUsed(prof.letters_used_this_month || 0);
-              setMonthlyMatchesUsed(prof.matches_used_this_month || 0);
-            }
-          }
-          // Fetch deadline alerts
-          const { data: alerts } = await supabase
-            .from("notifications")
-            .select("*")
-            .eq("user_id", user.id)
-            .eq("read", false)
-            .order("created_at", { ascending: false })
-            .limit(10);
-          if (alerts) setDeadlineAlerts(alerts);
-
-          // Load tracked applications from cloud
-          const { data: cloudApps } = await supabase
-            .from("applications")
-            .select("*")
-            .eq("user_id", user.id);
-          if (cloudApps && cloudApps.length > 0) {
-            const merged = cloudApps.map(a => ({
-              id: a.id,
-              scholarshipId: a.scholarship_id,
-              name: a.scholarship_name || a.scholarship_id,
-              amount: "", deadline: "", link: "",
-              status: a.status || "interested",
-              addedAt: a.created_at,
-              notes: a.notes || "",
-            }));
-            // Merge with local, preferring cloud data
-            const localIds = new Set(merged.map(a => a.scholarshipId));
-            const localOnly = trackedApps.filter(a => !localIds.has(a.scholarshipId));
-            const combined = [...merged, ...localOnly];
-            setTrackedApps(combined);
-            localStorage.setItem("scholarbot-tracked-apps", JSON.stringify(combined));
-          }
+          await loadAccountData(user);
         }
       });
 
