@@ -8,6 +8,7 @@ import {
   trackSignupCompleted,
   trackLetterGenerated,
 } from "./analytics.js";
+import { PRIVACY_SECTIONS, TERMS_SECTIONS, LAST_UPDATED } from "./legalContent.js";
 
 // ============================================================
 // DESIGN SYSTEM — Phase A: Brand Voice & Visual Identity
@@ -543,6 +544,7 @@ export default function MeritLaunch() {
   const [authLoading, setAuthLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState("signin"); // signin | signup | forgot | reset
+  const [legalModal, setLegalModal] = useState(null); // null | "privacy" | "terms"
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -872,6 +874,67 @@ export default function MeritLaunch() {
       retryTimers.push(setTimeout(loadScholarships, delay));
     }
 
+    // Loads subscription status, usage counters, notifications, and tracked
+    // applications for a signed-in user. Called from BOTH the initial session
+    // check and onAuthStateChange below — onAuthStateChange alone can miss a
+    // session that's silently restored from localStorage on page load,
+    // which was leaving premium users showing as "Free" after a refresh.
+    const loadAccountData = async (user) => {
+      const { data: prof } = await supabase
+        .from("user_profiles")
+        .select("subscription_status, letters_used_this_month, matches_used_this_month, usage_reset_at")
+        .eq("id", user.id)
+        .single();
+      if (prof) {
+        setUserSubscription(prof.subscription_status || "free");
+        const resetAt = prof.usage_reset_at ? new Date(prof.usage_reset_at) : new Date(0);
+        const now = new Date();
+        const monthsSinceReset = (now.getFullYear() - resetAt.getFullYear()) * 12 + now.getMonth() - resetAt.getMonth();
+        if (monthsSinceReset >= 1) {
+          setMonthlyLettersUsed(0);
+          setMonthlyMatchesUsed(0);
+          supabase.from("user_profiles").update({
+            letters_used_this_month: 0,
+            matches_used_this_month: 0,
+            usage_reset_at: now.toISOString(),
+          }).eq("id", user.id);
+        } else {
+          setMonthlyLettersUsed(prof.letters_used_this_month || 0);
+          setMonthlyMatchesUsed(prof.matches_used_this_month || 0);
+        }
+      }
+
+      const { data: alerts } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("read", false)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (alerts) setDeadlineAlerts(alerts);
+
+      const { data: cloudApps } = await supabase
+        .from("applications")
+        .select("*")
+        .eq("user_id", user.id);
+      if (cloudApps && cloudApps.length > 0) {
+        const merged = cloudApps.map(a => ({
+          id: a.id,
+          scholarshipId: a.scholarship_id,
+          name: a.scholarship_name || a.scholarship_id,
+          amount: "", deadline: "", link: "",
+          status: a.status || "interested",
+          addedAt: a.created_at,
+          notes: a.notes || "",
+        }));
+        const localIds = new Set(merged.map(a => a.scholarshipId));
+        const localOnly = trackedApps.filter(a => !localIds.has(a.scholarshipId));
+        const combined = [...merged, ...localOnly];
+        setTrackedApps(combined);
+        localStorage.setItem("scholarbot-tracked-apps", JSON.stringify(combined));
+      }
+    };
+
     // Auth listener
     if (supabase) {
       // 8s cap — a stuck/corrupted session must never leave the app spinning on
@@ -900,6 +963,7 @@ export default function MeritLaunch() {
               setSavedLetters(cloudLetters);
             }
           });
+          loadAccountData(session.user);
         }
       });
 
@@ -937,65 +1001,8 @@ export default function MeritLaunch() {
           setAuthError("");
           return;
         }
-        // Load subscription status from Supabase
         if (user && supabase) {
-          const { data: prof } = await supabase
-            .from("user_profiles")
-            .select("subscription_status, letters_used_this_month, matches_used_this_month, usage_reset_at")
-            .eq("id", user.id)
-            .single();
-          if (prof) {
-            setUserSubscription(prof.subscription_status || "free");
-            // Check if usage needs monthly reset
-            const resetAt = prof.usage_reset_at ? new Date(prof.usage_reset_at) : new Date(0);
-            const now = new Date();
-            const monthsSinceReset = (now.getFullYear() - resetAt.getFullYear()) * 12 + now.getMonth() - resetAt.getMonth();
-            if (monthsSinceReset >= 1) {
-              // Reset counters for new month
-              setMonthlyLettersUsed(0);
-              setMonthlyMatchesUsed(0);
-              supabase.from("user_profiles").update({
-                letters_used_this_month: 0,
-                matches_used_this_month: 0,
-                usage_reset_at: now.toISOString(),
-              }).eq("id", user.id);
-            } else {
-              setMonthlyLettersUsed(prof.letters_used_this_month || 0);
-              setMonthlyMatchesUsed(prof.matches_used_this_month || 0);
-            }
-          }
-          // Fetch deadline alerts
-          const { data: alerts } = await supabase
-            .from("notifications")
-            .select("*")
-            .eq("user_id", user.id)
-            .eq("read", false)
-            .order("created_at", { ascending: false })
-            .limit(10);
-          if (alerts) setDeadlineAlerts(alerts);
-
-          // Load tracked applications from cloud
-          const { data: cloudApps } = await supabase
-            .from("applications")
-            .select("*")
-            .eq("user_id", user.id);
-          if (cloudApps && cloudApps.length > 0) {
-            const merged = cloudApps.map(a => ({
-              id: a.id,
-              scholarshipId: a.scholarship_id,
-              name: a.scholarship_name || a.scholarship_id,
-              amount: "", deadline: "", link: "",
-              status: a.status || "interested",
-              addedAt: a.created_at,
-              notes: a.notes || "",
-            }));
-            // Merge with local, preferring cloud data
-            const localIds = new Set(merged.map(a => a.scholarshipId));
-            const localOnly = trackedApps.filter(a => !localIds.has(a.scholarshipId));
-            const combined = [...merged, ...localOnly];
-            setTrackedApps(combined);
-            localStorage.setItem("scholarbot-tracked-apps", JSON.stringify(combined));
-          }
+          await loadAccountData(user);
         }
       });
 
@@ -1453,6 +1460,14 @@ ${profileSummary}`;
                       />
                     </div>
                   )}
+                  {authMode === "signup" && (
+                    <p style={{ fontSize: 11.5, fontFamily: FONTS.body, color: COLORS.textDim, lineHeight: 1.5, margin: 0 }}>
+                      By creating an account, you agree to our{" "}
+                      <span style={{ color: COLORS.gold, cursor: "pointer" }} onClick={() => setLegalModal("terms")}>Terms of Service</span>
+                      {" "}and{" "}
+                      <span style={{ color: COLORS.gold, cursor: "pointer" }} onClick={() => setLegalModal("privacy")}>Privacy Policy</span>.
+                    </p>
+                  )}
                   <Button
                     onClick={authMode === "forgot" ? handleForgotPassword : authMode === "signup" ? handleSignUp : handleSignIn}
                     disabled={authSubmitting || !authEmail}
@@ -1482,6 +1497,57 @@ ${profileSummary}`;
                 <span style={{ fontSize: 12, color: COLORS.textMuted }}>Enter your new password above to complete the reset.</span>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* LEGAL MODAL (Privacy Policy / Terms of Service) */}
+      {legalModal && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 10000,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", padding: 20,
+        }} onClick={() => setLegalModal(null)}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background: COLORS.card, border: `1px solid ${COLORS.border}`,
+            borderRadius: 16, padding: "36px 36px 28px", width: 640, maxWidth: "92vw",
+            maxHeight: "85vh", overflowY: "auto",
+            boxShadow: `0 24px 80px rgba(0,0,0,0.5)`,
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+              <div>
+                <div style={{ fontSize: 11, fontFamily: FONTS.body, letterSpacing: 3, color: COLORS.gold, textTransform: "uppercase", marginBottom: 4 }}>MeritLaunch</div>
+                <h2 style={{ fontSize: 24, fontWeight: 400, margin: 0 }}>
+                  {legalModal === "privacy" ? "Privacy Policy" : "Terms of Service"}
+                </h2>
+                <p style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim, marginTop: 6 }}>Last updated {LAST_UPDATED}</p>
+              </div>
+              <button onClick={() => setLegalModal(null)} style={{
+                background: "none", border: "none", color: COLORS.textDim, fontSize: 20,
+                cursor: "pointer", lineHeight: 1, padding: 4,
+              }}>✕</button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+              {(legalModal === "privacy" ? PRIVACY_SECTIONS : TERMS_SECTIONS).map((section, i) => (
+                <div key={i}>
+                  <h3 style={{ fontSize: 14, fontFamily: FONTS.body, fontWeight: 600, color: COLORS.teal, marginBottom: 8 }}>
+                    {section.heading}
+                  </h3>
+                  <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6 }}>
+                    {section.body.map((line, j) => (
+                      <li key={j} style={{ fontSize: 13.5, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6 }}>
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            <p style={{ fontSize: 11, fontFamily: FONTS.body, color: COLORS.textDim, marginTop: 28, paddingTop: 16, borderTop: `1px solid ${COLORS.border}` }}>
+              This is general information, not legal advice, and may be updated as MeritLaunch changes.
+            </p>
           </div>
         </div>
       )}
@@ -1788,6 +1854,11 @@ ${profileSummary}`;
             fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim,
           }}>
             <span>MeritLaunch © 2026 — Not to replace the student. To give them back their time.</span>
+            <span>
+              <span style={{ cursor: "pointer" }} onClick={() => setLegalModal("privacy")}>Privacy</span>
+              <span style={{ margin: "0 8px" }}>·</span>
+              <span style={{ cursor: "pointer" }} onClick={() => setLegalModal("terms")}>Terms</span>
+            </span>
             <span>{scholarshipDB.length} scholarships | $2.3M+ in opportunities</span>
           </footer>
         </div>
