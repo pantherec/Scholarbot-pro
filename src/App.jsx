@@ -630,32 +630,51 @@ export default function MeritLaunch() {
     }
   }, []);
 
-  // File reader helper
-  const readFileAsText = (file) => {
+  // File reader helper. PDFs and .docx get real text extraction (pdfjs / mammoth,
+  // lazy-loaded so they stay out of the main bundle); plain-text formats are read
+  // directly. Legacy binary .doc can't be parsed in the browser — tell the user
+  // instead of silently feeding the AI garbage bytes.
+  const readFileAsText = async (file) => {
+    const name = file.name.toLowerCase();
+    const MAX_CHARS = 15000;
+
+    if (name.endsWith(".pdf")) {
+      const pdfjs = await import("pdfjs-dist");
+      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+        "pdfjs-dist/build/pdf.worker.min.mjs",
+        import.meta.url
+      ).toString();
+      const data = await file.arrayBuffer();
+      const doc = await pdfjs.getDocument({ data }).promise;
+      let text = "";
+      for (let i = 1; i <= doc.numPages && text.length < MAX_CHARS; i++) {
+        const page = await doc.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map((it) => it.str).join(" ") + "\n";
+      }
+      const cleaned = text.replace(/[ \t]+/g, " ").trim().slice(0, MAX_CHARS);
+      if (!cleaned) throw new Error("No readable text found in this PDF — it may be a scanned image. Try pasting the content instead.");
+      return cleaned;
+    }
+
+    if (name.endsWith(".docx")) {
+      const mammoth = await import("mammoth");
+      const arrayBuffer = await file.arrayBuffer();
+      const { value } = await mammoth.extractRawText({ arrayBuffer });
+      const cleaned = (value || "").trim().slice(0, MAX_CHARS);
+      if (!cleaned) throw new Error("No readable text found in this Word document. Try pasting the content instead.");
+      return cleaned;
+    }
+
+    if (name.endsWith(".doc")) {
+      throw new Error("Legacy .doc files aren't supported — save it as .docx or PDF, or paste the text.");
+    }
+
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      const name = file.name.toLowerCase();
-      if (name.endsWith(".pdf")) {
-        reader.onload = async (e) => {
-          try {
-            const uint8 = new Uint8Array(e.target.result);
-            const text = new TextDecoder("utf-8", { fatal: false }).decode(uint8);
-            const readable = text.match(/[\x20-\x7E]{4,}/g) || [];
-            const cleaned = readable.join(" ").replace(/\s+/g, " ").slice(0, 15000);
-            if (cleaned.length > 100) {
-              resolve(cleaned);
-            } else {
-              resolve(`[PDF DOCUMENT]\nFilename: ${file.name}\nRaw text fragments:\n${readable.slice(0, 200).join("\n")}`);
-            }
-          } catch(err) { reject(err); }
-        };
-        reader.onerror = reject;
-        reader.readAsArrayBuffer(file);
-      } else {
-        reader.onload = (e) => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsText(file);
-      }
+      reader.onload = (e) => resolve(String(e.target.result).slice(0, MAX_CHARS));
+      reader.onerror = reject;
+      reader.readAsText(file);
     });
   };
 
@@ -669,7 +688,8 @@ export default function MeritLaunch() {
       setBragSheet(prev => prev ? prev + "\n\n--- Uploaded from: " + file.name + " ---\n\n" + text : text);
       notify(`Brag sheet "${file.name}" uploaded successfully!`, "success");
     } catch(err) {
-      notify("Error reading file. Try pasting the content instead.", "error");
+      notify(err?.message || "Error reading file. Try pasting the content instead.", "error");
+      setBragSheetFileName("");
     }
     setBragSheetUploading(false);
     if (bragFileRef.current) bragFileRef.current.value = "";
@@ -698,9 +718,10 @@ export default function MeritLaunch() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: "claude-sonnet-5",
           max_tokens: 1000,
-          tools: [{ type: "web_search_20250305", name: "web_search" }],
+          thinking: { type: "disabled" },
+          tools: [{ type: "web_search_20260209", name: "web_search" }],
           messages: [{ role: "user", content: `Search for this scholarship page and extract the key details: ${scholarshipUrl}\n\nReturn a structured summary with: Scholarship Name, Organization, Eligibility/Criteria, Award Amount, Deadline, and Application Requirements.` }]
         })
       });
@@ -1185,7 +1206,7 @@ ${profileSummary}`;
       const response = await authFetch("/api/generate-stream", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514", max_tokens: 1200, system: systemPrompt,
+          model: "claude-sonnet-5", max_tokens: 1200, thinking: { type: "disabled" }, system: systemPrompt,
           messages: [{ role: "user", content: `Write a scholarship application letter for "${scholarshipLabel}".\n\n${scholarshipDetails}\n\nWrite a 350–450 word letter that sounds like this specific student wrote it. Use their actual details from the profile. Open with a specific moment or scene, not a statement of intent.` }]
         })
       });
@@ -1249,7 +1270,7 @@ ${profileSummary}`;
       const response = await authFetch("/api/generate", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514", max_tokens: 1000,
+          model: "claude-sonnet-5", max_tokens: 1000, thinking: { type: "disabled" },
           messages: [{ role: "user", content: `Create a candidate profile in Markdown format for scholarship applications:\n\n# Candidate Profile: [Name]\n\n**Contact Info:**\n* Email / Phone / Location\n\n**Voice:** [Describe their writing voice]\n\n**Authenticity & Voice Rules (CRITICAL):**\n[4 specific rules]\n\n**Key Directives:**\n[5 directives based on strongest assets]\n\nBASE THIS ON:\n${profileData}${bragSheet ? `\nBRAG SHEET:\n${bragSheet}` : ""}${Object.keys(appAnswers).length > 0 ? `\nAPPLICATION ANSWERS:\n${JSON.stringify(appAnswers)}` : ""}` }]
         })
       });

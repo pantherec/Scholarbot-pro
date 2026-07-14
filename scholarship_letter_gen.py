@@ -22,6 +22,7 @@ Requires:
 import argparse
 import json
 import os
+import re
 import time
 from typing import Optional
 
@@ -34,7 +35,9 @@ from watchdog.observers import Observer
 
 # --- CONFIGURATION ---
 load_dotenv()
-MODEL_NAME = "gemini-2.5-pro"
+# "-latest" alias tracks Google's current model — the pinned "gemini-2.5-pro"
+# id stopped working for this project's tier (free-tier limit: 0) in July 2026.
+MODEL_NAME = "gemini-flash-latest"
 
 INPUT_SCHOLARSHIPS = os.path.join(".", "Input_Scholarships")
 OUTPUT_LETTERS = os.path.join(".", "Output_Letters")
