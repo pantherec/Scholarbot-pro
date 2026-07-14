@@ -50,3 +50,8 @@ public/hero-bg-new.mp4
 # Vite temp files
 *.mjs.timestamp-*
 vite.config.js.timestamp-*
+
+# Letter-gen pipeline runtime dirs (script-created; may contain personal content)
+Output_Letters/
+Profiles/
+Input_Scholarships/
