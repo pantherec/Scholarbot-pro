@@ -87,3 +87,17 @@ export function track(event, properties = {}) {
   if (!posthog) return;
   posthog.capture(event, properties);
 }
+
+// Report a client-side render/runtime error so a production crash tells us
+// exactly which component and line threw. Never let reporting itself throw.
+export function trackError(error, context = {}) {
+  try {
+    const posthog = getPosthog();
+    if (!posthog) return;
+    posthog.capture("client_error", {
+      message: error?.message || String(error),
+      stack: (error?.stack || "").slice(0, 3000),
+      ...context,
+    });
+  } catch (e) { /* reporting must never break the app */ }
+}
