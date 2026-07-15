@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, Component } from "react";
 import { createClient } from "@supabase/supabase-js";
 import {
   initAnalytics,
@@ -7,6 +7,7 @@ import {
   trackSignupStarted,
   trackSignupCompleted,
   trackLetterGenerated,
+  trackError,
 } from "./analytics.js";
 import { PRIVACY_SECTIONS, TERMS_SECTIONS, LAST_UPDATED } from "./legalContent.js";
 
@@ -331,8 +332,11 @@ function scoreMatch(profile, scholarship) {
     if (c.includes("daca") && cit.includes("daca")) { score += 25; reasons.push("DACA eligible"); }
   }
 
-  if (profile.ethnicity && profile.ethnicity.length > 0) {
-    const eth = profile.ethnicity.map(e => e.toLowerCase()).join(" ");
+  const ethArr = Array.isArray(profile.ethnicity)
+    ? profile.ethnicity
+    : (profile.ethnicity ? [profile.ethnicity] : []);
+  if (ethArr.length > 0) {
+    const eth = ethArr.map(e => String(e).toLowerCase()).join(" ");
     if ((c.includes("african american") || n.includes("african american") || c.includes("black")) && eth.includes("african")) { score += 25; reasons.push("Heritage match"); }
     if ((c.includes("hispanic") || n.includes("hispanic") || c.includes("latino")) && eth.includes("hispanic")) { score += 25; reasons.push("Heritage match"); }
     if ((c.includes("asian") || n.includes("asian") || c.includes("pacific islander")) && eth.includes("asian")) { score += 25; reasons.push("Heritage match"); }
@@ -494,6 +498,72 @@ function ProgressRing({ value, size = 52, color = COLORS.teal }) {
         style={{ transition: "stroke-dashoffset 0.6s cubic-bezier(0.4,0,0.2,1)" }} />
     </svg>
   );
+}
+
+// The profile's multiselect fields must be arrays. Older saved profiles (and
+// profiles edited directly in the database) sometimes stored `ethnicity` as a
+// plain string, which then blew up anywhere it was used with array methods like
+// .map()/.join(). Coerce these fields on every load so a stale shape can never
+// crash the app.
+const PROFILE_ARRAY_FIELDS = ["ethnicity"];
+function normalizeProfile(p) {
+  if (!p || typeof p !== "object") return {};
+  const out = { ...p };
+  for (const f of PROFILE_ARRAY_FIELDS) {
+    const v = out[f];
+    if (v == null || v === "") out[f] = [];
+    else if (!Array.isArray(v)) out[f] = [String(v)];
+  }
+  return out;
+}
+
+// Fallback shown when a render error is caught. Fully inline-styled so it never
+// depends on anything the crashed subtree was providing.
+function ErrorFallback({ onReset, onReload }) {
+  return (
+    <div style={{ minHeight: "100vh", background: COLORS.bg, color: COLORS.text, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: FONTS.body }}>
+      <div style={{ maxWidth: 460, textAlign: "center", background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: "40px 32px" }}>
+        <div style={{ fontSize: 40, marginBottom: 12 }}>&#9888;&#65039;</div>
+        <div style={{ fontSize: 20, fontFamily: FONTS.heading, color: COLORS.gold, marginBottom: 10 }}>Something went wrong</div>
+        <div style={{ fontSize: 14, color: COLORS.textMuted, lineHeight: 1.6, marginBottom: 24 }}>
+          This page hit an unexpected error. You&#39;re still signed in &mdash; try again to pick up where you left off.
+        </div>
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+          <button onClick={onReset} style={{ padding: "12px 24px", borderRadius: 10, border: "none", cursor: "pointer", background: COLORS.gold, color: COLORS.bg, fontSize: 14, fontWeight: 600, fontFamily: FONTS.body }}>Try again</button>
+          <button onClick={onReload} style={{ padding: "12px 24px", borderRadius: 10, cursor: "pointer", background: "transparent", color: COLORS.textMuted, fontSize: 14, fontFamily: FONTS.body, border: `1px solid ${COLORS.border}` }}>Reload page</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Without a boundary, ANY render-time throw unmounts the whole React tree and
+// leaves a blank white page — which is what stranded the user mid-letter and
+// forced a reload (and, on reload, a fresh session-restore that could time out
+// and "log them out"). This contains such a throw to a recoverable card and
+// reports the real stack so we can pinpoint and fix the underlying cause.
+export class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error, info) {
+    console.error("MeritLaunch render error:", error, info?.componentStack);
+    trackError(error, { componentStack: (info?.componentStack || "").slice(0, 3000) });
+  }
+  handleReset = () => {
+    this.setState({ hasError: false });
+    if (this.props.onReset) this.props.onReset();
+  };
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallback onReset={this.handleReset} onReload={() => window.location.reload()} />;
+    }
+    return this.props.children;
+  }
 }
 
 // ============================================================
@@ -871,7 +941,7 @@ export default function MeritLaunch() {
     initAnalytics(); // PostHog — no-op if VITE_POSTHOG_KEY not set
 
     // Load local data first (fast)
-    const p = store.get("scholarbot-profile"); if (p) setProfile(p);
+    const p = store.get("scholarbot-profile"); if (p) setProfile(normalizeProfile(p));
     const l = store.get("scholarbot-letters"); if (l) setSavedLetters(l);
     const t = store.get("scholarbot-templates"); if (t) setTemplates(t);
     const a = store.get("scholarbot-answers"); if (a) setAppAnswers(a);
@@ -975,8 +1045,9 @@ export default function MeritLaunch() {
         if (session?.user) {
           loadProfileFromSupabase(session.user.id).then(cloudProfile => {
             if (cloudProfile && Object.keys(cloudProfile).length > 0) {
-              setProfile(cloudProfile);
-              store.set("scholarbot-profile", cloudProfile);
+              const normalized = normalizeProfile(cloudProfile);
+              setProfile(normalized);
+              store.set("scholarbot-profile", normalized);
             }
           });
           loadLettersFromSupabase(session.user.id).then(cloudLetters => {
@@ -1163,7 +1234,7 @@ export default function MeritLaunch() {
       scholarshipDetails = `SCHOLARSHIP DETAILS (provided by user):\n- Name: ${customScholarshipName || "Not specified"}\n${scholarshipUrl ? `- URL: ${scholarshipUrl}\n` : ""}- Full Description:\n${customScholarshipText.slice(0, 8000)}`;
     }
 
-    const profileSummary = `CANDIDATE: ${profile.name}\nLOCATION: ${profile.location || "N/A"}\nCITIZENSHIP: ${profile.citizenship || "N/A"}\nHERITAGE: ${(profile.ethnicity || []).join(", ")}\nGPA: ${profile.gpa || "N/A"} | TEST SCORES: ${profile.satact || "N/A"}\nINTENDED MAJOR: ${profile.intendedMajor || "N/A"}\nGRADUATION: ${profile.gradYear || "N/A"}\nFINANCIAL NEED: ${profile.financialNeed || "N/A"}\nACTIVITIES: ${profile.activities || "N/A"}\nAWARDS: ${profile.awards || "N/A"}\nCOMMUNITY SERVICE: ${profile.communityService || "N/A"}\nPERSONAL STORY: ${profile.personalStory || "N/A"}\nCAREER GOAL: ${profile.careerGoal || "N/A"}\nWRITING VOICE: ${profile.writingStyle || "Warm and narrative"}\nBRAG SHEET: ${bragSheet || "None"}\nAPP ANSWERS: ${JSON.stringify(appAnswers)}`;
+    const profileSummary = `CANDIDATE: ${profile.name}\nLOCATION: ${profile.location || "N/A"}\nCITIZENSHIP: ${profile.citizenship || "N/A"}\nHERITAGE: ${(Array.isArray(profile.ethnicity) ? profile.ethnicity : (profile.ethnicity ? [profile.ethnicity] : [])).join(", ")}\nGPA: ${profile.gpa || "N/A"} | TEST SCORES: ${profile.satact || "N/A"}\nINTENDED MAJOR: ${profile.intendedMajor || "N/A"}\nGRADUATION: ${profile.gradYear || "N/A"}\nFINANCIAL NEED: ${profile.financialNeed || "N/A"}\nACTIVITIES: ${profile.activities || "N/A"}\nAWARDS: ${profile.awards || "N/A"}\nCOMMUNITY SERVICE: ${profile.communityService || "N/A"}\nPERSONAL STORY: ${profile.personalStory || "N/A"}\nCAREER GOAL: ${profile.careerGoal || "N/A"}\nWRITING VOICE: ${profile.writingStyle || "Warm and narrative"}\nBRAG SHEET: ${bragSheet || "None"}\nAPP ANSWERS: ${JSON.stringify(appAnswers)}`;
 
     const systemPrompt = `You are a scholarship letter writer. Your job is not to write a generic impressive letter. Write a letter that sounds unmistakably like THIS student wrote it — with their specific experiences, their particular details, and their real voice. A scholarship committee member should finish the letter and think: "I know who this person is." Not: "This applicant has strong qualifications."
 
@@ -2623,7 +2694,7 @@ ${profileSummary}`;
                             border: `1px solid ${COLORS.border}`, borderRadius: 10,
                             fontSize: 12, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6,
                           }}>
-                            <strong style={{ color: COLORS.gold }}>Criteria:</strong> {selectedScholarship.criteria.slice(0, 300)}
+                            <strong style={{ color: COLORS.gold }}>Criteria:</strong> {(selectedScholarship.criteria || "").slice(0, 300)}
                           </div>
                         )}
                       </div>
