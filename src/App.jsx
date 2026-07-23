@@ -973,11 +973,29 @@ export default function MeritLaunch() {
     const loadAccountData = async (user) => {
       const { data: prof } = await supabase
         .from("user_profiles")
-        .select("subscription_status, letters_used_this_month, matches_used_this_month, usage_reset_at")
+        .select("subscription_status, seasonal_expires_at, letters_used_this_month, matches_used_this_month, usage_reset_at")
         .eq("id", user.id)
         .single();
       if (prof) {
-        setUserSubscription(prof.subscription_status || "free");
+        // Seasonal Pass is a one-time payment with a fixed window. The webhook
+        // only ever WRITES seasonal_expires_at (one-time payments have no
+        // renewal/cancel events to flip the status later, unlike
+        // subscriptions), so expiry must be enforced here at read time —
+        // otherwise seasonal is effectively lifetime access. Self-heals the
+        // row to 'free' on first load after the window ends.
+        let status = prof.subscription_status || "free";
+        if (
+          status === "seasonal" &&
+          prof.seasonal_expires_at &&
+          new Date(prof.seasonal_expires_at) < new Date()
+        ) {
+          status = "free";
+          supabase.from("user_profiles").update({
+            subscription_status: "free",
+            updated_at: new Date().toISOString(),
+          }).eq("id", user.id);
+        }
+        setUserSubscription(status);
         const resetAt = prof.usage_reset_at ? new Date(prof.usage_reset_at) : new Date(0);
         const now = new Date();
         const monthsSinceReset = (now.getFullYear() - resetAt.getFullYear()) * 12 + now.getMonth() - resetAt.getMonth();
