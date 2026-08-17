@@ -1301,9 +1301,15 @@ ${profileSummary}`;
       });
 
       if (!response.ok) {
-        // Fallback to non-streaming if streaming endpoint fails
+        // Fallback to non-streaming if streaming endpoint fails. The server
+        // sometimes relays Anthropic's raw error body, where `.error` is an
+        // object ({type, message}) rather than a string — never render that
+        // directly, or React throws trying to mount an object as a child.
         const errData = await response.json().catch(() => ({}));
-        setGeneratedLetter(errData.error || "Error generating letter.");
+        const errMsg = typeof errData.error === "string"
+          ? errData.error
+          : (errData.error?.message || "Error generating letter.");
+        setGeneratedLetter(errMsg);
         setGeneratingLetter(false);
         return;
       }
