@@ -48,7 +48,7 @@ export const PRIVACY_SECTIONS = [
   {
     heading: "How long we keep it",
     body: [
-      "We keep your account and profile data as long as your account is active. If you want your account and data deleted, email us (contact below) and we'll delete it, typically within 30 days, except where we're required to keep billing records for tax/legal purposes.",
+      "We keep your account and profile data as long as your account is active. If you want your account and data deleted, email privacy@meritlaunch.com and we'll delete it, typically within 30 days, except where we're required to keep billing records for tax/legal purposes.",
     ],
   },
   {
@@ -68,7 +68,7 @@ export const PRIVACY_SECTIONS = [
   {
     heading: "Contact",
     body: [
-      "Questions about this policy, or a data access/deletion request: contact us through the email listed in your account confirmation, or via meritlaunch.com.",
+      "Questions about this policy, or a data access/deletion request: privacy@meritlaunch.com.",
     ],
   },
 ];
@@ -101,7 +101,7 @@ export const TERMS_SECTIONS = [
   {
     heading: "Billing",
     body: [
-      "Premium is a recurring monthly subscription; the Seasonal Pass is a one-time payment for a fixed period. Subscriptions renew automatically until canceled. You can cancel or manage billing from your account at any time — cancellation takes effect at the end of the current billing period. Payments are processed by Stripe; refunds are handled case-by-case, contact us if something went wrong with a charge.",
+      "Premium is a recurring monthly subscription; the Seasonal Pass is a one-time payment for a fixed period. Subscriptions renew automatically until canceled. You can cancel or manage billing from your account at any time — cancellation takes effect at the end of the current billing period. Payments are processed by Stripe; refunds are handled case-by-case — contact support@meritlaunch.com if something went wrong with a charge.",
     ],
   },
   {
@@ -125,7 +125,7 @@ export const TERMS_SECTIONS = [
   {
     heading: "Contact",
     body: [
-      "Questions about these terms: contact us through the email listed in your account confirmation, or via meritlaunch.com.",
+      "Questions about these terms: support@meritlaunch.com.",
     ],
   },
 ];
