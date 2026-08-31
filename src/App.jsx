@@ -311,9 +311,9 @@ const PROFILE_STEPS = [
 // STYLE TEMPLATES
 // ============================================================
 const DEFAULT_TEMPLATES = [
-  {id:"narrative",name:"The Storyteller",description:"Opens with a personal anecdote, weaves narrative throughout. Best for scholarships that value personal journey.",rules:"1. Open with a specific moment or memory. 2. Use I-statements. 3. Connect personal story to scholarship mission. 4. Close with forward-looking vision. 5. NO AI-isms: avoid 'delve','foster','landscape','cutting-edge'.",icon:"✍"},
+  {id:"narrative",name:"The Storyteller",description:"Opens with a personal anecdote, weaves narrative throughout. Best for scholarships that value personal journey.",rules:"1. Open with a specific moment or memory. 2. Use I-statements. 3. Connect personal story to scholarship mission. 4. Close with forward-looking vision. 5. Ground every claim in a scene the reader can picture.",icon:"✍"},
   {id:"evidence",name:"The Scientist",description:"Lead with evidence and accomplishments. Data-driven. Best for STEM and merit-based scholarships.",rules:"1. Open with a concrete achievement or metric. 2. Use specific numbers and outcomes. 3. Frame experiences as evidence of capability. 4. Connect technical skills to broader impact. 5. NO fluff: replace 'I am passionate about' with 'My work in X demonstrated...'",icon:"🔬"},
-  {id:"mission",name:"The Mission Matcher",description:"Deeply aligns candidate values with the scholarship’s stated mission. Best for foundation and organization scholarships.",rules:"1. Reference the scholarship's mission statement directly. 2. Mirror their language naturally. 3. Show how your goals amplify their mission. 4. Provide specific examples of aligned work. 5. Keep tone collaborative, not sycophantic.",icon:"🎯"},
+  {id:"mission",name:"The Mission Matcher",description:"Deeply aligns candidate values with the scholarship’s stated mission. Best for foundation and organization scholarships.",rules:"1. Reference the scholarship's mission statement directly. 2. Mirror their language naturally. 3. Show how your goals advance the same work they fund. 4. Provide specific examples of aligned work. 5. Keep tone collaborative, not sycophantic.",icon:"🎯"},
   {id:"underdog",name:"The Overcomer",description:"Emphasizes resilience, challenges overcome, and growth. Best for need-based and adversity scholarships.",rules:"1. Be honest about challenges without being pitiful. 2. Show agency — what YOU did about it. 3. Frame hardship as fuel, not excuse. 4. Demonstrate growth trajectory. 5. End with strength and vision, not gratitude alone.",icon:"💪"},
 ];
 
@@ -582,6 +582,9 @@ export default function MeritLaunch() {
   const [filterNeedBased, setFilterNeedBased] = useState("all");
   const [filterCountry, setFilterCountry] = useState("all");
   const [filterState, setFilterState] = useState("all");
+  // Expired scholarships are hidden by default — a dead listing is never actionable.
+  // The toggle brings them back for students researching next year's cycle.
+  const [showExpired, setShowExpired] = useState(false);
   const [matchResults, setMatchResults] = useState([]);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATES[0]);
@@ -945,6 +948,9 @@ export default function MeritLaunch() {
     const l = store.get("scholarbot-letters"); if (l) setSavedLetters(l);
     const t = store.get("scholarbot-templates"); if (t) setTemplates(t);
     const a = store.get("scholarbot-answers"); if (a) setAppAnswers(a);
+    // Voice scaffold is fed into every letter's system prompt, so it has to
+    // survive a reload — otherwise it only helps within the session that made it.
+    const vp = store.get("scholarbot-voice-profile"); if (vp) setGeneratedProfile(vp);
 
     // Fetch scholarships from Supabase — retry with backoff so a transient
     // failure self-heals instead of stranding the app on the 30 built-ins.
@@ -1220,7 +1226,9 @@ export default function MeritLaunch() {
   }, [profile, scholarshipDB, canMatch]);
 
   // Letter generation
-  const generateLetter = async () => {
+  // isRegenerate only affects the confirm prompt below — a regenerate is a real
+  // API call, so it still costs a letter. Usage is charged on success only.
+  const generateLetter = async ({ isRegenerate = false } = {}) => {
     if (!authUser) { setAuthMode("signup"); setShowAuthModal(true); notify("Create a free account to generate letters.", "info"); return; }
     const hasDbSelection = scholarshipInputMode === "database" && selectedScholarship;
     const hasCustomInput = scholarshipInputMode !== "database" && customScholarshipText.trim();
@@ -1237,11 +1245,18 @@ export default function MeritLaunch() {
       }
       return;
     }
+    // Regenerating burns another letter. Free users only get a couple, so don't
+    // spend one silently on a button they may have clicked out of curiosity.
+    if (isRegenerate && !isPremium) {
+      const left = Math.max(0, FREE_LIMITS.lettersPerMonth - monthlyLettersUsed);
+      const ok = window.confirm(
+        `Regenerating writes a brand new letter and uses one of your ${left} remaining free letter${left === 1 ? "" : "s"} this month.\n\nGenerate a new version?`
+      );
+      if (!ok) return;
+    }
 
     setGeneratingLetter(true);
     setGeneratedLetter("");
-    setMonthlyLettersUsed(prev => prev + 1);
-    syncUsageToSupabase("letters");
 
     let scholarshipDetails, scholarshipLabel;
     if (hasDbSelection) {
@@ -1252,7 +1267,7 @@ export default function MeritLaunch() {
       scholarshipDetails = `SCHOLARSHIP DETAILS (provided by user):\n- Name: ${customScholarshipName || "Not specified"}\n${scholarshipUrl ? `- URL: ${scholarshipUrl}\n` : ""}- Full Description:\n${customScholarshipText.slice(0, 8000)}`;
     }
 
-    const profileSummary = `CANDIDATE: ${profile.name}\nLOCATION: ${profile.location || "N/A"}\nCITIZENSHIP: ${profile.citizenship || "N/A"}\nHERITAGE: ${(Array.isArray(profile.ethnicity) ? profile.ethnicity : (profile.ethnicity ? [profile.ethnicity] : [])).join(", ")}\nGPA: ${profile.gpa || "N/A"} | TEST SCORES: ${profile.satact || "N/A"}\nINTENDED MAJOR: ${profile.intendedMajor || "N/A"}\nGRADUATION: ${profile.gradYear || "N/A"}\nFINANCIAL NEED: ${profile.financialNeed || "N/A"}\nACTIVITIES: ${profile.activities || "N/A"}\nAWARDS: ${profile.awards || "N/A"}\nCOMMUNITY SERVICE: ${profile.communityService || "N/A"}\nPERSONAL STORY: ${profile.personalStory || "N/A"}\nCAREER GOAL: ${profile.careerGoal || "N/A"}\nWRITING VOICE: ${profile.writingStyle || "Warm and narrative"}\nBRAG SHEET: ${bragSheet || "None"}\nAPP ANSWERS: ${JSON.stringify(appAnswers)}`;
+    const profileSummary = `CANDIDATE: ${profile.name}\nLOCATION: ${profile.location || "N/A"}\nCITIZENSHIP: ${profile.citizenship || "N/A"}\nHERITAGE: ${(Array.isArray(profile.ethnicity) ? profile.ethnicity : (profile.ethnicity ? [profile.ethnicity] : [])).join(", ")}\nGPA: ${profile.gpa || "N/A"} | TEST SCORES: ${profile.satact || "N/A"}\nINTENDED MAJOR: ${profile.intendedMajor || "N/A"}\nGRADUATION: ${profile.gradYear || "N/A"}\nFINANCIAL NEED: ${profile.financialNeed || "N/A"}\nACTIVITIES: ${profile.activities || "N/A"}\nAWARDS: ${profile.awards || "N/A"}\nCOMMUNITY SERVICE: ${profile.communityService || "N/A"}\nPERSONAL STORY: ${profile.personalStory || "N/A"}\nCAREER GOAL: ${profile.careerGoal || "N/A"}\nWRITING VOICE: ${profile.writingStyle || "Warm and narrative"}${generatedProfile ? `\n\nVOICE SCAFFOLD (built from this student's own answers — match this voice exactly):\n${generatedProfile}` : ""}\nBRAG SHEET: ${bragSheet || "None"}\nAPP ANSWERS: ${JSON.stringify(appAnswers)}`;
 
     const systemPrompt = `You are a scholarship letter writer. Your job is not to write a generic impressive letter. Write a letter that sounds unmistakably like THIS student wrote it — with their specific experiences, their particular details, and their real voice. A scholarship committee member should finish the letter and think: "I know who this person is." Not: "This applicant has strong qualifications."
 
@@ -1272,10 +1287,20 @@ EMOTION — ONE REAL ONE:
 Pick one emotion this student probably feels: pride, determination, quiet resolve, frustration turned to growth. Show it through a specific action or memory. Never write "I am passionate about" — show what the passion made them actually do.
 
 BANNED WORDS — NEVER USE ANY OF THESE:
-delve, bolster, harness (abstract sense), unlock, unleash, empower (self-referential), underscore, illuminate, elucidate, embark, unravel, reimagine, revolutionize, transcend, resonate, reverberate, grapple (abstract), intertwine, garner, amplify (abstract), glean, maximize, unveil (abstract), champion (self-referential), spearhead, multifaceted, seamless, cutting-edge, holistic, meticulous, innovative, vibrant (abstract), compelling, invaluable, paramount, enduring, indelible, poignant, timeless, relentless, tireless, noteworthy, commendable, exemplary, unprecedented, captivating, nuanced (standalone), unparalleled, unwavering, ever-evolving, game-changing, tapestry, beacon (metaphor), synergy, paradigm shift, catalyst (abstract), interplay, plethora, trajectory (abstract), landscape, foster, testament, thrilled, elevate
+VERBS: delve, bolster, harness (abstract), unlock, unleash, empower (self-referential), underscore, illuminate, elucidate, embark, unravel, reimagine, revolutionize, transcend, resonate, reverberate, grapple (abstract), intertwine, entwine, weave (abstract), garner, espouse, evoke, exacerbate, amplify, augment, glean, maximize, unveil (abstract), uncover (abstract), champion (self-referential), spearhead, foster, elevate
+ADJECTIVES: multifaceted, layered, intricate (unless a literal object), seamless, cutting-edge, holistic, meticulous, innovative, vibrant (abstract), compelling, invaluable, paramount, enduring, indelible, poignant, timeless, relentless, tireless, noteworthy, commendable, exemplary, versatile, unprecedented, captivating, daunting, bustling, burgeoning, flourishing, nuanced (standalone), unparalleled, unwavering, ever-evolving, state-of-the-art, game-changing
+NOUNS: tapestry, beacon (metaphor), symphony (metaphor), intricacies, underpinnings, synergy, toolkit, quest (of education or career), nexus, bedrock, cornerstone, foundation (abstract), pinnacle, crucible, enigma, epicenter, linchpin, plethora, treasure trove, paradigm shift, trajectory (abstract), catalyst (abstract), interplay, roadmap (abstract), landscape, testament
+ADVERBS: meticulously, profoundly, indelibly, tirelessly, relentlessly, remarkably, effortlessly, holistically, undoubtedly, broadly speaking, generally speaking
+HYPE AND FILLER: "exciting possibilities lie ahead", "represents a significant milestone", "paving the way for", "pushing the boundaries", "revolutionizing the way", "a game-changer", "redefine the future", "reaching new heights", thrilled
 
 BANNED SENTENCE STARTERS — NEVER OPEN A SENTENCE OR PARAGRAPH WITH:
-"In today's world," / "Now more than ever," / "As technology continues to evolve," / "Furthermore," / "Moreover," / "Additionally," / "Notably," / "Crucially," / "It is important to note" / "One of the most important" / "I have always been passionate about" / "Ever since I was a child" / "I want to make a difference"
+"In today's world," / "In today's fast-paced world," / "In today's digital age," / "Now more than ever," / "As technology continues to evolve," / "As we navigate," / "When it comes to," / "Furthermore," / "Moreover," / "Additionally," / "Notably," / "Crucially," / "Consequently," / "Subsequently," / "It is important to note" / "One of the most important" / "I have always been passionate about" / "Ever since I was a child" / "From a young age" / "I want to make a difference"
+
+BANNED SCHOLARSHIP CLICHÉS — these read as both AI-written and badly written:
+"I am committed to giving back to my community" / "I have overcome many obstacles" (show them, never label them) / "My journey has been defined by" / "I am uniquely qualified because" / "I believe I am the ideal candidate" / "I am driven by a desire to" / "This scholarship would mean the world to me". If the student is a first-generation college student, state it as a fact inside a sentence, never as an opening line.
+
+BANNED BOT VOICE — you are writing AS the student, not assisting them. Never produce:
+"Let's delve into" / "Let's explore" / "Sure! Here's" / "Certainly!" / "Great question!" / "Here's a comprehensive overview" / "I would be happy to" / any meta-commentary about the letter itself.
 
 BANNED CLOSING PHRASES — NEVER END THE LETTER WITH:
 "In conclusion," / "To summarize," / "Overall," / "Ultimately," / "I would be honored to be selected" / "I am a strong candidate" / "This scholarship would mean the world to me" / "I am passionate about" (as a claim — show it instead)
@@ -1284,12 +1309,27 @@ PUNCTUATION RULES:
 No em-dashes (—). Replace with a comma and conjunction, a period, parentheses, or a colon.
 Always use Oxford commas: "biology, chemistry, and math" not "biology, chemistry and math."
 Open the letter with a scene, a fact, a question, or an action in progress. Never open with "My name is" or "I am applying for."
+Semicolons: at most two in the entire letter.
+Use three literal periods for an ellipsis (...). No Unicode ellipsis, no curly quotes.
+
+STRUCTURAL PATTERNS — NEVER DO THESE:
+Do not end a paragraph with a summary of that paragraph. Let ideas hang, develop, or pivot.
+Do not use mechanical parallelism ("I am a student. I am a leader. I am a scientist.").
+Do not ask a question and immediately answer it ("What drives me? A love of learning."). That is blog structure, not student writing.
+Do not use fake-suspense phrases: "Here's the thing", "The best part?", "Here's where it gets interesting", "But here's the truth".
+Do not open two consecutive sentences with an adverb ("Interestingly, ... Importantly, ...").
+
+ADDRESS THE CRITERIA:
+The scholarship's stated criteria appear in the user message. At least one paragraph must show — through a specific experience, not a claim — why this student meets the criterion that matters most. Do not restate the criteria back at the committee, and do not claim eligibility the profile does not support. If the profile is silent on a criterion, write around it rather than inventing.
 
 FORMAT:
 350–450 words. Narrative prose only — no bullet points, no headers, no bold text in the letter body. Standard paragraph breaks.
 
 CANDIDATE PROFILE:
-${profileSummary}`;
+${profileSummary}
+
+BEFORE YOU OUTPUT:
+Silently re-read your draft once and fix any violation of the rules above — a banned word or phrase, an em-dash, three consecutive sentences of similar length, a paragraph with no concrete detail from the profile, a summary-style closing, a word count outside 350–450. Output only the corrected final letter. Never show this review, never explain your edits, never add a preamble or a sign-off note.`;
 
     try {
       const response = await authFetch("/api/generate-stream", {
@@ -1337,6 +1377,10 @@ ${profileSummary}`;
       if (!fullText) {
         setGeneratedLetter("Error: Empty response from AI service.");
       } else {
+        // Charge the letter only once we actually have one — a failed or empty
+        // generation used to still burn the user's monthly allowance.
+        setMonthlyLettersUsed(prev => prev + 1);
+        syncUsageToSupabase("letters");
         // Analytics: fire after successful letter generation
         trackLetterGenerated({
           scholarshipName: scholarshipLabel,
@@ -1364,7 +1408,10 @@ ${profileSummary}`;
         })
       });
       const data = await response.json();
-      setGeneratedProfile(data.content?.map(b => b.text || "").join("\n") || "Error.");
+      const text = data.content?.map(b => b.text || "").join("\n") || "";
+      if (!text) { notify("Error generating profile.", "error"); setGeneratingLetter(false); return; }
+      setGeneratedProfile(text);
+      store.set("scholarbot-voice-profile", text);
       setView("profileResult");
     } catch(e) { notify("Error generating profile.", "error"); }
     setGeneratingLetter(false);
@@ -1378,7 +1425,7 @@ ${profileSummary}`;
     "Why should you be selected for this scholarship? (100-200 words)"
   ];
 
-  const filteredScholarships = scholarshipDB.filter(s => {
+  const matchedScholarships = scholarshipDB.filter(s => {
     const q = searchQuery.toLowerCase();
     const matchesSearch = !q || s.name.toLowerCase().includes(q) || s.criteria.toLowerCase().includes(q) || (s.amount||"").toLowerCase().includes(q);
     const matchesNeed = filterNeedBased === "all" || (filterNeedBased === "need" && s.needBased === "Y") || (filterNeedBased === "merit" && s.needBased !== "Y");
@@ -1424,16 +1471,80 @@ ${profileSummary}`;
   };
 
   // Deadline helpers
-  const getDeadlineStatus = (deadline) => {
-    if (!deadline || deadline === "Varies" || deadline === "Nomination Only") return { label: deadline || "Varies", color: COLORS.textDim };
-    const d = new Date(deadline);
-    const now = new Date();
-    const days = Math.ceil((d - now) / (1000 * 60 * 60 * 24));
-    if (days < 0) return { label: "Expired", color: COLORS.pink };
-    if (days <= 14) return { label: `${days}d left`, color: COLORS.pink };
-    if (days <= 60) return { label: `${days}d left`, color: COLORS.orange };
-    return { label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }), color: COLORS.teal };
+  // Deadlines in the catalog come in three shapes: ISO dates ("2026-09-15"),
+  // recurring year-less dates ("Mar 1", "December 31"), and free text ("Varies",
+  // "Rolling"). A bare `new Date("Mar 1")` resolves to the year 2001, which made
+  // every recurring scholarship render as "Expired" and made the deadline-alert
+  // cron skip it. Parse deliberately instead.
+  // NOTE: api/deadline-alerts.js carries a copy of this parser — keep them in sync.
+  const parseDeadlineDate = (deadline) => {
+    if (!deadline || typeof deadline !== "string") return null;
+    const raw = deadline.trim();
+    if (!raw || /^(varies|rolling|ongoing|nomination only|n\/?a|tbd|none|open)$/i.test(raw)) return null;
+
+    // ISO YYYY-MM-DD: build from parts so it lands on local midnight. `new
+    // Date("2026-09-15")` parses as UTC and reads as the 14th west of Greenwich.
+    const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) return new Date(+iso[1], +iso[2] - 1, +iso[3]);
+
+    // Year-less "Mar 1" / "March 1st": a recurring annual deadline. Resolve to the
+    // next occurrence rather than to whatever year the Date constructor invents.
+    if (!/\d{4}/.test(raw)) {
+      const probe = new Date(`${raw.replace(/(\d+)(st|nd|rd|th)\b/i, "$1")} 2000`);
+      if (!isNaN(probe)) {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        let next = new Date(now.getFullYear(), probe.getMonth(), probe.getDate());
+        if (next < today) next = new Date(now.getFullYear() + 1, probe.getMonth(), probe.getDate());
+        return next;
+      }
+    }
+
+    const d = new Date(raw);
+    return isNaN(d) ? null : d;
   };
+
+  // Returns { date, days, label, color }. Always an object, never null.
+  const parseDeadline = (deadline) => {
+    const d = parseDeadlineDate(deadline);
+    if (!d) return { date: null, days: null, label: (deadline || "").trim() || "Varies", color: COLORS.textDim };
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const days = Math.round((d - today) / 86400000);
+    if (days < 0) return { date: d, days, label: "Expired", color: COLORS.pink };
+    if (days === 0) return { date: d, days, label: "Due today", color: COLORS.pink };
+    if (days <= 14) return { date: d, days, label: `${days}d left`, color: COLORS.pink };
+    if (days <= 60) return { date: d, days, label: `${days}d left`, color: COLORS.orange };
+    return { date: d, days, label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }), color: COLORS.teal };
+  };
+
+  const getDeadlineStatus = (deadline) => parseDeadline(deadline);
+
+  // Deadline-aware ordering + expiry filter. Defined here (not with the other
+  // filters above) because it depends on the deadline parsers declared just above.
+  // Order: soonest live deadline first, then undated ("Varies"/"Rolling"), then
+  // expired last — an expired listing should never be the first thing a student sees.
+  const expiredCount = matchedScholarships.filter(s => {
+    const days = parseDeadline(s.deadline).days;
+    return days !== null && days < 0;
+  }).length;
+
+  const filteredScholarships = matchedScholarships
+    .filter(s => {
+      if (showExpired) return true;
+      const days = parseDeadline(s.deadline).days;
+      return days === null || days >= 0;
+    })
+    .sort((a, b) => {
+      const da = parseDeadline(a.deadline).days;
+      const db = parseDeadline(b.deadline).days;
+      const rank = (d) => (d === null ? 1 : d < 0 ? 2 : 0);
+      const ra = rank(da), rb = rank(db);
+      if (ra !== rb) return ra - rb;
+      if (ra === 1) return 0;          // undated: keep catalog order
+      if (ra === 2) return db - da;    // expired: most recently expired first
+      return da - db;                  // live: soonest deadline first
+    });
 
   const navItems = [
     {id:"home",icon:"◇",label:"Dashboard"},
@@ -2383,7 +2494,7 @@ ${profileSummary}`;
               <div>
                 <SectionHeader
                   title="Browse Scholarships"
-                  subtitle={`${filteredScholarships.length} of ${scholarshipDB.length} scholarships shown`}
+                  subtitle={`${filteredScholarships.length} of ${scholarshipDB.length} scholarships shown${!showExpired && expiredCount > 0 ? ` • ${expiredCount} expired hidden` : ""}`}
                 />
 
                 {/* Disclaimer Banner */}
@@ -2506,6 +2617,17 @@ ${profileSummary}`;
                     <option value="need">Need-Based</option>
                     <option value="merit">Merit-Based</option>
                   </select>
+                  <button
+                    onClick={() => setShowExpired(v => !v)}
+                    title={showExpired ? "Hide scholarships whose deadline has passed" : "Also show scholarships whose deadline has passed"}
+                    style={{
+                      padding: "12px 16px", background: showExpired ? COLORS.pinkDim : COLORS.surface,
+                      border: `1px solid ${showExpired ? COLORS.pink : COLORS.border}`, borderRadius: 10,
+                      color: showExpired ? COLORS.pink : COLORS.textDim,
+                      fontSize: 13, fontFamily: FONTS.body, cursor: "pointer", whiteSpace: "nowrap",
+                    }}>
+                    {showExpired ? "◉" : "○"} Expired{expiredCount > 0 ? ` (${expiredCount})` : ""}
+                  </button>
                   {availableStates.length > 0 && (
                     <select value={filterState} onChange={e => setFilterState(e.target.value)}
                       title="Show national scholarships plus those for a state you're considering"
@@ -2827,7 +2949,7 @@ ${profileSummary}`;
                   </div>
                 </div>
 
-                <Button onClick={generateLetter}
+                <Button onClick={() => generateLetter()}
                   disabled={generatingLetter || (scholarshipInputMode === "database" ? !selectedScholarship : !customScholarshipText.trim())}
                   style={{ fontSize: 15, padding: "14px 40px", marginBottom: 28 }}>
                   {generatingLetter ? "◉ Crafting your letter..." : "Generate Scholarship Letter"}
@@ -2853,21 +2975,46 @@ ${profileSummary}`;
                             <div style={{ fontSize: 12, fontFamily: FONTS.body, color: "#b0a89a" }}>Matching your voice to the scholarship requirements</div>
                           </div>
                         )}
-                        <div style={{
-                          whiteSpace: "pre-wrap", fontSize: 15, lineHeight: 1.85,
-                          color: "#2a2722", fontFamily: "Georgia, 'Times New Roman', serif",
-                        }}>
-                          {generatedLetter}
-                          {generatingLetter && generatedLetter && (
-                            <span style={{
-                              display: "inline-block", width: 2, height: 18,
-                              background: COLORS.gold, marginLeft: 2,
-                              animation: "blink 0.8s infinite",
-                            }} />
-                          )}
-                        </div>
+                        {/* While streaming, render read-only so the typing effect and
+                            cursor aren't fighting a controlled input. Once it's done,
+                            swap to a textarea — this is a draft the student edits and
+                            signs, not a finished artifact handed to them. */}
+                        {generatingLetter ? (
+                          <div style={{
+                            whiteSpace: "pre-wrap", fontSize: 15, lineHeight: 1.85,
+                            color: "#2a2722", fontFamily: "Georgia, 'Times New Roman', serif",
+                          }}>
+                            {generatedLetter}
+                            {generatedLetter && (
+                              <span style={{
+                                display: "inline-block", width: 2, height: 18,
+                                background: COLORS.gold, marginLeft: 2,
+                                animation: "blink 0.8s infinite",
+                              }} />
+                            )}
+                          </div>
+                        ) : (
+                          <textarea
+                            value={generatedLetter}
+                            onChange={e => setGeneratedLetter(e.target.value)}
+                            spellCheck
+                            aria-label="Your letter — edit before saving"
+                            style={{
+                              width: "100%", minHeight: 480, boxSizing: "border-box",
+                              whiteSpace: "pre-wrap", fontSize: 15, lineHeight: 1.85,
+                              color: "#2a2722", fontFamily: "Georgia, 'Times New Roman', serif",
+                              background: "transparent", border: "none", outline: "none",
+                              padding: 0, resize: "vertical", display: "block",
+                            }}
+                          />
+                        )}
                       </div>
                     </GlowCard>
+                    {!generatingLetter && generatedLetter && (
+                      <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim, marginBottom: 12 }}>
+                        This is a draft in your voice. Click into it and edit anything before you save or send it — you stay the author.
+                      </div>
+                    )}
                     {!generatingLetter && generatedLetter && (
                       <div style={{ display: "flex", gap: 12 }}>
                         <Button onClick={() => {
@@ -2875,7 +3022,7 @@ ${profileSummary}`;
                           saveLetter({ content: generatedLetter, scholarshipName: label, template: selectedTemplate?.name, scholarshipId: selectedScholarship?.id });
                         }}>Save Letter</Button>
                         <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(generatedLetter); notify("Copied!", "success"); }}>Copy to Clipboard</Button>
-                        <Button variant="ghost" onClick={generateLetter}>Regenerate</Button>
+                        <Button variant="ghost" onClick={() => generateLetter({ isRegenerate: true })}>Regenerate</Button>
                       </div>
                     )}
                   </div>
@@ -3002,10 +3149,13 @@ ${profileSummary}`;
 
                     {/* Application list */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                      {trackedApps.sort((a, b) => {
-                        // Sort by deadline urgency
-                        const da = new Date(a.deadline), db = new Date(b.deadline);
-                        if (isNaN(da)) return 1; if (isNaN(db)) return -1;
+                      {/* Copy before sorting — .sort() mutates, and trackedApps is state. */}
+                      {[...trackedApps].sort((a, b) => {
+                        // Sort by deadline urgency; undated entries sink to the bottom.
+                        const da = parseDeadlineDate(a.deadline), db = parseDeadlineDate(b.deadline);
+                        if (!da && !db) return 0;
+                        if (!da) return 1;
+                        if (!db) return -1;
                         return da - db;
                       }).map(app => {
                         const deadlineInfo = parseDeadline(app.deadline);

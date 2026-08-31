@@ -41,6 +41,34 @@ function buildDigestHtml(name, items) {
   </div>`;
 }
 
+// Deadlines arrive as ISO dates ("2026-09-15"), recurring year-less dates
+// ("Mar 1"), or free text ("Varies", "Rolling"). `new Date("Mar 1")` resolves to
+// the year 2001, so those rows produced a hugely negative daysUntil and never
+// fired a reminder — every recurring-deadline scholarship was silently skipped.
+// NOTE: src/App.jsx carries a copy of this parser — keep them in sync.
+function parseDeadlineDate(deadline) {
+  if (!deadline || typeof deadline !== "string") return null;
+  const raw = deadline.trim();
+  if (!raw || /^(varies|rolling|ongoing|nomination only|n\/?a|tbd|none|open)$/i.test(raw)) return null;
+
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return new Date(+iso[1], +iso[2] - 1, +iso[3]);
+
+  if (!/\d{4}/.test(raw)) {
+    const probe = new Date(`${raw.replace(/(\d+)(st|nd|rd|th)\b/i, "$1")} 2000`);
+    if (!isNaN(probe)) {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      let next = new Date(now.getFullYear(), probe.getMonth(), probe.getDate());
+      if (next < today) next = new Date(now.getFullYear() + 1, probe.getMonth(), probe.getDate());
+      return next;
+    }
+  }
+
+  const d = new Date(raw);
+  return isNaN(d) ? null : d;
+}
+
 export default async function handler(req, res) {
   const authHeader = req.headers.authorization;
   const cronSecret = process.env.CRON_SECRET;
@@ -75,9 +103,10 @@ export default async function handler(req, res) {
     for (const app of apps) {
       const scholarship = deadlineMap[app.scholarship_id];
       if (!scholarship || !scholarship.deadline) continue;
-      const deadline = new Date(scholarship.deadline);
-      if (isNaN(deadline.getTime())) continue;
-      const daysUntil = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+      const deadline = parseDeadlineDate(scholarship.deadline);
+      if (!deadline) continue;
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const daysUntil = Math.round((deadline - today) / 86400000);
       if (daysUntil >= 0 && daysUntil <= 7) {
         alerts.push({
           userId: app.user_id,
