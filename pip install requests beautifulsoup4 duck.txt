@@ -1,5 +1,5 @@
 pip install requests beautifulsoup4 duckduckgo-search python-dotenv google-genai
-export GEMINI_API_KEY=AIzaSyBdrHRsfd9juSmbu9S3TyEKmwaASDpDhsY
+export GEMINI_API_KEY=your-rotated-key-here   # was a live key committed in plaintext — rotate in Google AI Studio, never re-paste the real value here
 python scholarship_hunter.py                    # Full run
 python scholarship_hunter.py --dry-run          # Search only, no API cost
 python scholarship_hunter.py --categories stem minority  # Targeted

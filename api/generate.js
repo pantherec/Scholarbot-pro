@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   const { user, error: authError } = await verifyAuth(req);
   if (!user) return res.status(401).json({ error: authError || "Authentication required" });
 
-  const rl = checkRateLimit(`gen:${user.id}`, 30, 3600000);
+  const rl = await checkRateLimit(`gen:${user.id}`, 30, 3600000);
   if (!rl.allowed) return res.status(429).json({ error: "Rate limit exceeded. Please try again later." });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;

@@ -27,6 +27,7 @@ export default async function handler(req, res) {
 
   const sig = req.headers["stripe-signature"];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const isDeployed = !!process.env.VERCEL;
 
   let event;
 
@@ -34,8 +35,13 @@ export default async function handler(req, res) {
     const rawBody = await buffer(req);
     if (webhookSecret) {
       event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
+    } else if (isDeployed) {
+      // Never trust an unsigned payload once this is actually deployed —
+      // anyone could POST a fake "payment completed" event.
+      console.error("STRIPE_WEBHOOK_SECRET is not set — refusing unverified webhook payload.");
+      return res.status(500).json({ error: "Webhook not configured" });
     } else {
-      // Fallback for testing without webhook secret
+      // Local dev only: no signature secret configured yet, skip verification.
       event = JSON.parse(rawBody.toString());
     }
   } catch (err) {
@@ -65,9 +71,11 @@ export default async function handler(req, res) {
             updated_at: new Date().toISOString(),
           }).eq("id", userId);
         } else if (session.mode === "payment") {
-          // Seasonal one-time payment — set expiry 6 months out
+          // Seasonal one-time payment — expiry matches the marketed product:
+          // the pricing page sells "$29.99 / 4 months" ("4 months of full
+          // access"), so write exactly that. (Was +6, an unadvertised bonus.)
           const expiresAt = new Date();
-          expiresAt.setMonth(expiresAt.getMonth() + 6);
+          expiresAt.setMonth(expiresAt.getMonth() + 4);
 
           await supabase.from("user_profiles").update({
             subscription_status: "seasonal",
