@@ -279,7 +279,17 @@ const US_STATE_NAMES = {
 // ============================================================
 // PROFILE QUESTIONS
 // ============================================================
+// COPPA neutral age screen: plain question, honest year range (young years included
+// so kids answer truthfully), and the under-13 block enforced in saveProfile + the wizard.
+const CURRENT_YEAR = new Date().getFullYear();
+const BIRTH_YEARS = Array.from({ length: 31 }, (_, i) => String(CURRENT_YEAR - 10 - i));
+const isUnder13 = (birthYear) => {
+  const y = parseInt(birthYear, 10);
+  return !!birthYear && !isNaN(y) && CURRENT_YEAR - y < 13;
+};
+
 const PROFILE_QUESTIONS = [
+  {id:"birthYear",q:"What year were you born?",type:"select",options:BIRTH_YEARS,step:0},
   {id:"name",q:"What is your full name?",type:"text",placeholder:"First Last",step:0},
   {id:"email",q:"Email address?",type:"text",placeholder:"you@email.com",step:0},
   {id:"phone",q:"Phone number?",type:"text",placeholder:"(555) 123-4567",step:0},
@@ -416,6 +426,85 @@ function Badge({ children, color = COLORS.gold, style }) {
     }}>
       {children}
     </span>
+  );
+}
+
+// Custom stroke icon set — replaces the unicode glyphs (◇ ◈ ⬡ ◆ …) that used to
+// carry the app chrome, so weight, caps, and color stay uniform everywhere.
+const ICON_PATHS = {
+  home: <><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-5.5h5V21"/></>,
+  profile: <><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20.5c0-3.6 3.3-6 7.5-6s7.5 2.4 7.5 6"/></>,
+  search: <><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></>,
+  matches: <><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 11.6v.8"/></>,
+  apply: <><rect x="6" y="4.5" width="12" height="16.5" rx="2"/><path d="M9.5 4.5a2.5 2.5 0 0 1 5 0"/><path d="m9 13.5 2 2 4-4.5"/></>,
+  generate: <><path d="M4 20l1.2-4.2L16.7 4.3a2 2 0 0 1 2.9 2.9L8.2 18.7 4 20z"/><path d="m14.5 6.5 3 3"/></>,
+  templates: <><path d="m12 3.5 8.5 4.7L12 13 3.5 8.2 12 3.5z"/><path d="M3.5 12.5 12 17.3l8.5-4.8"/><path d="M3.5 16.5 12 21.3l8.5-4.8"/></>,
+  saved: <path d="M6.5 3.5h11V21L12 16.7 6.5 21V3.5z"/>,
+  tracker: <><rect x="3.5" y="4" width="4.6" height="12" rx="1"/><rect x="9.7" y="4" width="4.6" height="16.5" rx="1"/><rect x="15.9" y="4" width="4.6" height="8" rx="1"/></>,
+};
+function AppIcon({ name, size = 18, color = "currentColor", strokeWidth = 1.7, style }) {
+  const paths = ICON_PATHS[name];
+  if (!paths) return null;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+      strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
+      style={{ display: "block", flexShrink: 0, ...style }} aria-hidden="true">
+      {paths}
+    </svg>
+  );
+}
+
+// Landing letter demo — surfaces the product's signature streaming-letter moment
+// on the marketing page as a short scripted loop over a labeled sample profile.
+// Renders the full text statically when the visitor prefers reduced motion.
+const DEMO_LETTER = "The first thing I ever fixed was a grain auger. Nine at night, rain coming, flashlight in my teeth.\n\nMy robotics coach says I engineer like a farmer. He means I fix things with whatever is on hand. I want to study agricultural engineering so that next time, the fix starts before the bolt shears.";
+function LetterDemo() {
+  const [chars, setChars] = useState(0);
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setChars(DEMO_LETTER.length);
+      return;
+    }
+    let i = 0, timer;
+    const tick = () => {
+      i += 1;
+      setChars(i);
+      if (i < DEMO_LETTER.length) {
+        timer = setTimeout(tick, 26 + (".!?\n".includes(DEMO_LETTER[i - 1]) ? 180 : 0));
+      } else {
+        timer = setTimeout(() => { i = 0; setChars(0); timer = setTimeout(tick, 400); }, 4200);
+      }
+    };
+    timer = setTimeout(tick, 800);
+    return () => clearTimeout(timer);
+  }, []);
+  const done = chars >= DEMO_LETTER.length;
+  return (
+    <div style={{
+      maxWidth: 640, margin: "0 auto", background: COLORS.card,
+      border: `1px solid ${COLORS.border}`, borderRadius: 14, overflow: "hidden",
+      textAlign: "left",
+    }}>
+      <div style={{
+        padding: "12px 20px", borderBottom: `1px solid ${COLORS.border}`,
+        fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, letterSpacing: 0.5,
+        display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap",
+      }}>
+        <span style={{ color: COLORS.teal }}>SAMPLE PROFILE</span>
+        <span>FFA vice president · robotics captain · first-gen · Hartley, IA</span>
+      </div>
+      <div style={{
+        padding: "26px 28px", fontFamily: FONTS.heading, fontSize: 19, lineHeight: 1.65,
+        color: COLORS.text, whiteSpace: "pre-wrap", minHeight: 178,
+      }}>
+        {DEMO_LETTER.slice(0, chars)}
+        <span style={{
+          display: "inline-block", width: 2, height: "1.05em", background: COLORS.gold,
+          verticalAlign: "text-bottom", marginLeft: 2,
+          animation: done ? "blink 1.1s step-end infinite" : "none",
+        }} />
+      </div>
+    </div>
   );
 }
 
@@ -573,6 +662,9 @@ export default function MeritLaunch() {
   const [view, setView] = useState("landing");
   const [profile, setProfile] = useState({});
   const [bragSheet, setBragSheet] = useState("");
+  // Letter Gen scholarship picker (searchable combobox over the full database)
+  const [scholarshipQuery, setScholarshipQuery] = useState("");
+  const [scholarshipPickerOpen, setScholarshipPickerOpen] = useState(false);
   const [scholarshipDB, setScholarshipDB] = useState(DEFAULT_SCHOLARSHIP_DB);
   const [dbLastUpdated, setDbLastUpdated] = useState("2026-02-11");
   const [dbSource, setDbSource] = useState("built-in");
@@ -1135,6 +1227,14 @@ export default function MeritLaunch() {
   };
 
   const saveProfile = (p) => {
+    // COPPA: under-13 answers are never collected — keep only the year (so the
+    // block screen persists), drop everything else, and never sync to the cloud.
+    if (isUnder13(p.birthYear)) {
+      const minimal = { birthYear: p.birthYear };
+      setProfile(minimal);
+      store.set("scholarbot-profile", minimal);
+      return;
+    }
     setProfile(p);
     store.set("scholarbot-profile", p);
     // Sync to cloud if logged in
@@ -1445,7 +1545,10 @@ Silently re-read your draft once and fix any violation of the rules above — a 
   });
 
   // States that actually have scholarships in the DB (auto-grows as data is added)
-  const availableStates = [...new Set(scholarshipDB.map(s => s.state).filter(Boolean))].sort();
+  // Restrict the state filter to real US jurisdictions — the data also carries
+  // Canadian province codes (e.g. "ON") that must not leak into "All States".
+  const US_STATE_CODES = new Set(["AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"]);
+  const availableStates = [...new Set(scholarshipDB.map(s => s.state).filter(s => s && US_STATE_CODES.has(s)))].sort();
 
   // Country flag helper — uses Flagpedia CDN for crisp flag images
   const CountryFlag = ({ country }) => {
@@ -1547,15 +1650,15 @@ Silently re-read your draft once and fix any violation of the rules above — a 
     });
 
   const navItems = [
-    {id:"home",icon:"◇",label:"Dashboard"},
-    {id:"profile",icon:"◈",label:"Build Profile"},
-    {id:"search",icon:"⬡",label:"Scholarships"},
-    {id:"matches",icon:"◆",label:"My Matches"},
-    {id:"apply",icon:"▣",label:"App Prep"},
-    {id:"generate",icon:"◉",label:"Letter Gen"},
-    {id:"templates",icon:"▤",label:"Templates"},
-    {id:"saved",icon:"▫",label:"Saved"},
-    {id:"tracker",icon:"▦",label:"Tracker"},
+    {id:"home",icon:"home",label:"Dashboard"},
+    {id:"profile",icon:"profile",label:"Build Profile"},
+    {id:"search",icon:"search",label:"Scholarships"},
+    {id:"matches",icon:"matches",label:"My Matches"},
+    {id:"apply",icon:"apply",label:"App Prep"},
+    {id:"generate",icon:"generate",label:"Letter Gen"},
+    {id:"templates",icon:"templates",label:"Templates"},
+    {id:"saved",icon:"saved",label:"Saved"},
+    {id:"tracker",icon:"tracker",label:"Tracker"},
   ];
 
   const isLanding = view === "landing";
@@ -1856,6 +1959,7 @@ Silently re-read your draft once and fix any violation of the rules above — a 
           }}>
             {/* Background Video */}
             <video
+              className="hero-video"
               autoPlay muted loop playsInline
               poster="/hero-poster.jpg"
               style={{
@@ -1863,8 +1967,15 @@ Silently re-read your draft once and fix any violation of the rules above — a 
                 objectFit: "cover", zIndex: 0, opacity: 0.35,
               }}
             >
-              <source src="/hero-bg-compressed.mp4" type="video/mp4" />
+              <source src="/hero-bg-small.mp4" type="video/mp4" />
             </video>
+            {/* Below 768px the video is hidden (CSS) and this still takes its place —
+                phones on school Wi-Fi get the mood without the megabytes. */}
+            <div className="hero-poster-mobile" style={{
+              position: "absolute", top: 0, left: 0, width: "100%", height: "100%",
+              backgroundImage: "url(/hero-poster.jpg)", backgroundSize: "cover", backgroundPosition: "center",
+              opacity: 0.35, zIndex: 0, display: "none",
+            }} />
             {/* Dark gradient overlay for text readability */}
             <div style={{
               position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1,
@@ -1912,10 +2023,12 @@ Silently re-read your draft once and fix any violation of the rules above — a 
             flexWrap: "wrap",
           }}>
             {[
-              { val: `${scholarshipDB.length}+`, label: "Scholarships" },
-              { val: "$2.3M+", label: "In Opportunities" },
-              { val: "4", label: "Writing Styles" },
-              { val: "Built by a Parent", label: "Who Gets It" },
+              // Real, checkable numbers only — the parent story has its own section.
+              // $11.5M+ = each scholarship counted once at its largest single-award
+              // dollar value (912 of the listings publish an explicit amount).
+              { val: `${scholarshipDB.length}+`, label: "Scholarships Tracked" },
+              { val: "$11.5M+", label: "In Listed Awards" },
+              { val: (() => { const d = new Date(dbLastUpdated + "T00:00:00"); return isNaN(d) ? "Weekly" : d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); })(), label: "Last Database Refresh" },
             ].map((s, i) => (
               <div key={i} style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 28, fontWeight: 400, color: COLORS.gold, fontFamily: FONTS.heading }}>{s.val}</div>
@@ -1932,12 +2045,12 @@ Silently re-read your draft once and fix any violation of the rules above — a 
             </div>
             <div className="landing-steps-grid reveal" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
               {[
-                { icon: "◈", title: "Build Your Profile", desc: "Answer guided questions or upload your brag sheet. MeritLaunch learns your story, strengths, and goals.", color: COLORS.gold },
-                { icon: "◆", title: "Get Matched", desc: "Our scoring engine analyzes eligibility, heritage, GPA, need, and field to rank your best-fit scholarships.", color: COLORS.teal },
-                { icon: "◉", title: "Generate Letters", desc: "Choose a writing style. Draft application letters in your own authentic voice, grounded in your real story - you stay the author.", color: COLORS.teal },
+                { icon: "profile", title: "Build Your Profile", desc: "Answer guided questions or upload your brag sheet. MeritLaunch learns your story, strengths, and goals.", color: COLORS.gold },
+                { icon: "matches", title: "Get Matched", desc: "Our scoring engine analyzes eligibility, heritage, GPA, need, and field to rank your best-fit scholarships.", color: COLORS.teal },
+                { icon: "generate", title: "Generate Letters", desc: "Choose a writing style. Draft application letters in your own authentic voice, grounded in your real story - you stay the author.", color: COLORS.teal },
               ].map((f, i) => (
                 <GlowCard key={i} glow={f.color} style={{ textAlign: "center", padding: "40px 28px" }}>
-                  <div style={{ fontSize: 40, marginBottom: 16, color: f.color }}>{f.icon}</div>
+                  <AppIcon name={f.icon} size={38} color={f.color} strokeWidth={1.4} style={{ margin: "0 auto 16px" }} />
                   <div style={{ fontSize: 12, fontFamily: FONTS.body, color: f.color, letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 }}>Step {i + 1}</div>
                   <h3 style={{ fontSize: 20, fontWeight: 400, marginBottom: 10 }}>{f.title}</h3>
                   <p style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6 }}>{f.desc}</p>
@@ -1946,12 +2059,38 @@ Silently re-read your draft once and fix any violation of the rules above — a 
             </div>
           </div>
 
-          {/* Origin Story — Real Testimonial */}
+          {/* Live letter demo — the product's signature moment, on the marketing page */}
+          <div style={{ padding: "80px 40px", textAlign: "center" }}>
+            <h2 style={{ fontSize: 30, fontWeight: 400, marginBottom: 8 }}>You Stay the Author</h2>
+            <p style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 36, maxWidth: 520, marginLeft: "auto", marginRight: "auto" }}>
+              Watch a draft take shape from one student's real details. No stock phrases, no robot voice — their story, their words, faster.
+            </p>
+            <div className="reveal"><LetterDemo /></div>
+          </div>
+
+          {/* Origin Story — editorial spread */}
           <div style={{ padding: "80px 40px", background: COLORS.surface }}>
-            <div style={{ maxWidth: 800, margin: "0 auto" }}>
+            <div style={{ maxWidth: 1040, margin: "0 auto" }}>
               <h2 style={{ fontSize: 30, fontWeight: 400, textAlign: "center", marginBottom: 12 }}>We've Been Where You Are</h2>
               <p style={{ textAlign: "center", fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim, marginBottom: 40 }}>A real story from the parent who built this tool</p>
-              <GlowCard hover={false} glow={COLORS.gold} style={{ padding: "40px 36px", borderLeft: `3px solid ${COLORS.gold}` }}>
+              <div className="landing-story-grid reveal" style={{ display: "grid", gridTemplateColumns: "5fr 7fr", alignItems: "stretch" }}>
+                <div className="landing-story-image" style={{ position: "relative", minHeight: 340 }}>
+                  <img src="/story-still.jpg" alt="A student working at a kitchen table in the evening" loading="lazy" style={{
+                    position: "absolute", inset: 0, width: "100%", height: "100%",
+                    objectFit: "cover", borderRadius: "14px 0 0 14px", filter: "saturate(0.85)",
+                  }} />
+                  <div style={{
+                    position: "absolute", inset: 0, borderRadius: "14px 0 0 14px",
+                    background: "linear-gradient(200deg, rgba(8,8,13,0.15) 0%, rgba(8,8,13,0.82) 100%)",
+                  }} />
+                  <div style={{
+                    position: "absolute", left: 26, right: 26, bottom: 26,
+                    fontFamily: FONTS.heading, fontStyle: "italic", fontSize: 27, lineHeight: 1.35, color: COLORS.text,
+                  }}>
+                    "It was like applying to college 40 more times."
+                  </div>
+                </div>
+              <GlowCard hover={false} glow={COLORS.gold} style={{ padding: "40px 36px", borderRadius: "0 14px 14px 0" }}>
                 <div style={{ fontSize: 17, fontFamily: FONTS.heading, color: COLORS.textMuted, lineHeight: 1.7, fontStyle: "italic" }}>
                   <p style={{ marginBottom: 16 }}>
                     "It was the fall of their senior year, and my kids were running on fumes. They were carrying full loads of advanced coursework. Multiple AP classes, college-level engineering. Just about honors everything."
@@ -1979,6 +2118,7 @@ Silently re-read your draft once and fix any violation of the rules above — a 
                   </div>
                 </div>
               </GlowCard>
+              </div>
             </div>
           </div>
 
@@ -2080,7 +2220,7 @@ Silently re-read your draft once and fix any violation of the rules above — a 
               <span style={{ margin: "0 8px" }}>·</span>
               <span style={{ cursor: "pointer" }} onClick={() => setLegalModal("terms")}>Terms</span>
             </span>
-            <span>{scholarshipDB.length} scholarships | $2.3M+ in opportunities</span>
+            <span>{scholarshipDB.length} scholarships | $11.5M+ in listed awards</span>
           </footer>
         </div>
       )}
@@ -2126,7 +2266,7 @@ Silently re-read your draft once and fix any violation of the rules above — a 
                     borderLeft: active ? `2px solid ${COLORS.gold}` : "2px solid transparent",
                     transition: "all 0.2s",
                   }}>
-                    <span style={{ fontSize: 14, opacity: 0.7, width: 20, textAlign: "center" }}>{item.icon}</span>
+                    <span style={{ opacity: active ? 1 : 0.7, width: 20, display: "flex", justifyContent: "center" }}><AppIcon name={item.icon} size={16} /></span>
                     {item.label}
                   </button>
                 );
@@ -2228,15 +2368,22 @@ Silently re-read your draft once and fix any violation of the rules above — a 
                 {/* Stats */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
                   {[
-                    { label: "Scholarships", value: scholarshipDB.length, color: COLORS.gold, icon: "⬡" },
-                    { label: "Profile", value: profileCompletion + "%", color: COLORS.teal, icon: "◈" },
-                    { label: "Matches", value: matchResults.length || "—", color: COLORS.pink, icon: "◆" },
-                    { label: "Letters Saved", value: savedLetters.length, color: COLORS.purple, icon: "▫" },
+                    // Empty tiles coach toward their full state instead of shrugging "0".
+                    { label: "Scholarships", value: scholarshipDB.length, color: COLORS.gold, icon: "search", go: () => setView("search") },
+                    { label: "Profile", value: profileCompletion + "%", color: COLORS.teal, icon: "profile", go: () => setView("profile"),
+                      hint: profileCompletion === 0 ? "10 minutes unlocks matching" : profileCompletion < 100 ? "Finish to sharpen your matches" : null },
+                    { label: "Matches", value: matchResults.length || "—", color: COLORS.pink, icon: "matches", go: () => setView(matchResults.length ? "matches" : "profile"),
+                      hint: matchResults.length === 0 ? "Run your first match" : null },
+                    { label: "Letters Saved", value: savedLetters.length, color: COLORS.purple, icon: "saved", go: () => setView(savedLetters.length ? "saved" : "generate"),
+                      hint: savedLetters.length === 0 ? "Your first draft is one click away" : null },
                   ].map((stat, i) => (
-                    <GlowCard key={i} glow={stat.color} style={{ padding: "22px 20px", position: "relative", overflow: "hidden" }}>
-                      <div style={{ position: "absolute", top: 12, right: 14, fontSize: 28, opacity: 0.08, color: stat.color }}>{stat.icon}</div>
+                    <GlowCard key={i} glow={stat.color} onClick={stat.go} style={{ padding: "22px 20px", position: "relative", overflow: "hidden", cursor: "pointer" }}>
+                      <div style={{ position: "absolute", top: 14, right: 14, opacity: 0.14 }}><AppIcon name={stat.icon} size={28} color={stat.color} /></div>
                       <div style={{ fontSize: 32, fontWeight: 300, color: stat.color, marginBottom: 2 }}>{stat.value}</div>
                       <div style={{ fontSize: 11, fontFamily: FONTS.body, color: COLORS.textDim, letterSpacing: 1, textTransform: "uppercase" }}>{stat.label}</div>
+                      {stat.hint && (
+                        <div style={{ fontSize: 12, fontFamily: FONTS.body, color: stat.color, marginTop: 8 }}>{stat.hint} →</div>
+                      )}
                     </GlowCard>
                   ))}
                 </div>
@@ -2284,13 +2431,13 @@ Silently re-read your draft once and fix any violation of the rules above — a 
                 <h2 style={{ fontSize: 18, fontWeight: 400, marginBottom: 16, color: COLORS.textMuted, fontFamily: FONTS.heading }}>Quick Actions</h2>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
                   {[
-                    { label: "Build Your Profile", desc: "Answer questions to create your scholarship persona.", action: () => setView("profile"), color: COLORS.gold, icon: "◈" },
-                    { label: "Find Matches", desc: "AI matches you to best-fit scholarships.", action: () => { if (profile.name) runMatching(); else setView("profile"); }, color: COLORS.teal, icon: "◆" },
-                    { label: "Generate a Letter", desc: "Draft a letter in your own authentic voice.", action: () => setView("generate"), color: COLORS.teal, icon: "◉" },
-                    { label: "Track Applications", desc: `${trackedApps.length} scholarships in your pipeline.`, action: () => setView("tracker"), color: "#8B5CF6", icon: "▦" },
+                    { label: "Build Your Profile", desc: "Answer questions to create your scholarship persona.", action: () => setView("profile"), color: COLORS.gold, icon: "profile" },
+                    { label: "Find Matches", desc: "AI matches you to best-fit scholarships.", action: () => { if (profile.name) runMatching(); else setView("profile"); }, color: COLORS.teal, icon: "matches" },
+                    { label: "Generate a Letter", desc: "Draft a letter in your own authentic voice.", action: () => setView("generate"), color: COLORS.teal, icon: "generate" },
+                    { label: "Track Applications", desc: trackedApps.length ? `${trackedApps.length} scholarships in your pipeline.` : "Save a scholarship to start your pipeline.", action: () => setView("tracker"), color: "#8B5CF6", icon: "tracker" },
                   ].map((a, i) => (
                     <GlowCard key={i} onClick={a.action} glow={a.color} style={{ padding: "28px 24px", cursor: "pointer" }}>
-                      <div style={{ fontSize: 28, marginBottom: 12, color: a.color, opacity: 0.6 }}>{a.icon}</div>
+                      <AppIcon name={a.icon} size={26} color={a.color} style={{ marginBottom: 12, opacity: 0.75 }} />
                       <div style={{ fontSize: 17, fontWeight: 400, marginBottom: 6 }}>{a.label}</div>
                       <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5 }}>{a.desc}</div>
                     </GlowCard>
@@ -2299,8 +2446,25 @@ Silently re-read your draft once and fix any violation of the rules above — a 
               </div>
             )}
 
+            {/* ====== PROFILE BUILDER — COPPA block for under-13 visitors ====== */}
+            {view === "profile" && isUnder13(profile.birthYear) && (
+              <div style={{ maxWidth: 560, margin: "60px auto", textAlign: "center" }}>
+                <GlowCard hover={false} style={{ padding: "44px 36px" }}>
+                  <AppIcon name="profile" size={40} color={COLORS.gold} style={{ margin: "0 auto 18px" }} />
+                  <h2 style={{ fontSize: 26, fontWeight: 400, marginBottom: 12 }}>MeritLaunch is for students 13 and up</h2>
+                  <p style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.textMuted, lineHeight: 1.7, marginBottom: 10 }}>
+                    We didn't save anything you entered. Come back when you're 13, and we'll be ready for your story.
+                  </p>
+                  <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.7, marginBottom: 24 }}>
+                    A parent exploring ahead of time? You're welcome to browse the scholarship database — no account or profile needed.
+                  </p>
+                  <Button variant="secondary" onClick={() => setView("search")}>Browse Scholarships</Button>
+                </GlowCard>
+              </div>
+            )}
+
             {/* ====== PROFILE BUILDER (Stepped Wizard) ====== */}
-            {view === "profile" && (
+            {view === "profile" && !isUnder13(profile.birthYear) && (
               <div>
                 <SectionHeader title="Build Your Profile" subtitle="Answer these questions to create your scholarship candidate profile." />
 
@@ -2817,17 +2981,71 @@ Silently re-read your draft once and fix any violation of the rules above — a 
 
                     {scholarshipInputMode === "database" && (
                       <div>
-                        <select value={selectedScholarship?.id || ""} onChange={e => {
-                          const s = scholarshipDB.find(x => x.id === e.target.value);
-                          setSelectedScholarship(s || null); setCustomScholarshipText(""); setCustomScholarshipName("");
-                        }} style={{
-                          width: "100%", padding: "12px 16px", background: COLORS.surface,
-                          border: `1px solid ${COLORS.border}`, borderRadius: 10,
-                          color: COLORS.text, fontSize: 14, fontFamily: FONTS.body, outline: "none",
-                        }}>
-                          <option value="">Select from database...</option>
-                          {scholarshipDB.map(s => <option key={s.id} value={s.id}>{s.name} ({s.amount})</option>)}
-                        </select>
+                        {/* Searchable combobox — a native select over 1,297 unsorted
+                            options made specific scholarships effectively unfindable. */}
+                        <div style={{ position: "relative" }}>
+                          <input
+                            type="text"
+                            role="combobox"
+                            aria-expanded={scholarshipPickerOpen}
+                            value={scholarshipPickerOpen ? scholarshipQuery : (selectedScholarship?.name || scholarshipQuery)}
+                            placeholder={`Search ${scholarshipDB.length} scholarships by name or criteria...`}
+                            onFocus={() => { setScholarshipPickerOpen(true); setScholarshipQuery(""); }}
+                            onBlur={() => setTimeout(() => setScholarshipPickerOpen(false), 150)}
+                            onChange={e => { setScholarshipQuery(e.target.value); setScholarshipPickerOpen(true); }}
+                            onKeyDown={e => { if (e.key === "Escape") setScholarshipPickerOpen(false); }}
+                            style={{
+                              width: "100%", padding: "12px 16px", background: COLORS.surface,
+                              border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                              color: COLORS.text, fontSize: 14, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box",
+                            }}
+                          />
+                          {scholarshipPickerOpen && (
+                            <div style={{
+                              position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, zIndex: 50,
+                              maxHeight: 320, overflowY: "auto", background: COLORS.card,
+                              border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                              boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
+                            }}>
+                              {(() => {
+                                const q = scholarshipQuery.trim().toLowerCase();
+                                const list = scholarshipDB
+                                  .filter(s => !q || (s.name || "").toLowerCase().includes(q) || (s.criteria || "").toLowerCase().includes(q))
+                                  .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+                                  .slice(0, 60);
+                                if (list.length === 0) return (
+                                  <div style={{ padding: "14px 16px", fontSize: 13, fontFamily: FONTS.body, color: COLORS.textDim }}>
+                                    No scholarships match "{scholarshipQuery}". Try a broader term, or paste the scholarship in the Paste tab.
+                                  </div>
+                                );
+                                return list.map(s => {
+                                  const dl = parseDeadline(s.deadline);
+                                  return (
+                                    <div key={s.id}
+                                      onMouseDown={() => {
+                                        setSelectedScholarship(s); setCustomScholarshipText(""); setCustomScholarshipName("");
+                                        setScholarshipQuery(s.name); setScholarshipPickerOpen(false);
+                                      }}
+                                      style={{
+                                        padding: "10px 16px", cursor: "pointer", fontFamily: FONTS.body,
+                                        borderBottom: `1px solid ${COLORS.border}`,
+                                        background: selectedScholarship?.id === s.id ? COLORS.goldDim : "transparent",
+                                      }}
+                                      onMouseEnter={e => { e.currentTarget.style.background = COLORS.goldDim; }}
+                                      onMouseLeave={e => { e.currentTarget.style.background = selectedScholarship?.id === s.id ? COLORS.goldDim : "transparent"; }}
+                                    >
+                                      <div style={{ fontSize: 13.5, color: COLORS.text }}>{s.name}</div>
+                                      <div style={{ fontSize: 11.5, color: COLORS.textDim, display: "flex", gap: 10, marginTop: 2 }}>
+                                        <span>{(s.amount || "").trim() || "Amount varies"}</span>
+                                        <span style={{ color: dl.color }}>{dl.label}</span>
+                                      </div>
+                                    </div>
+                                  );
+                                });
+                              })()}
+                            </div>
+                          )}
+                        </div>
                         {selectedScholarship && (
                           <div style={{
                             marginTop: 12, padding: 14, background: COLORS.bg,
@@ -3258,7 +3476,17 @@ Silently re-read your draft once and fix any violation of the rules above — a 
           .landing-pricing-grid { grid-template-columns: 1fr !important; max-width: 380px !important; }
           .landing-nav { padding: 12px 16px !important; }
           .landing-nav-buttons { gap: 6px !important; }
-          .landing-nav-buttons button { font-size: 11px !important; padding: 6px 12px !important; }
+          /* 44px minimum touch target — small type is fine, small hit areas are not */
+          .landing-nav-buttons button { font-size: 12px !important; padding: 10px 14px !important; min-height: 44px; }
+
+          /* Phones get the poster still instead of the video download */
+          .hero-video { display: none !important; }
+          .hero-poster-mobile { display: block !important; }
+
+          /* Editorial story spread stacks on small screens */
+          .landing-story-grid { grid-template-columns: 1fr !important; }
+          .landing-story-grid .landing-story-image { min-height: 260px !important; }
+          .landing-story-grid img, .landing-story-image > div:first-of-type { border-radius: 14px 14px 0 0 !important; }
 
           /* App shell */
           .mobile-menu-btn { display: block !important; }
