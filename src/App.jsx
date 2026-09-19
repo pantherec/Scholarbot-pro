@@ -279,7 +279,17 @@ const US_STATE_NAMES = {
 // ============================================================
 // PROFILE QUESTIONS
 // ============================================================
+// COPPA neutral age screen: plain question, honest year range (young years included
+// so kids answer truthfully), and the under-13 block enforced in saveProfile + the wizard.
+const CURRENT_YEAR = new Date().getFullYear();
+const BIRTH_YEARS = Array.from({ length: 31 }, (_, i) => String(CURRENT_YEAR - 10 - i));
+const isUnder13 = (birthYear) => {
+  const y = parseInt(birthYear, 10);
+  return !!birthYear && !isNaN(y) && CURRENT_YEAR - y < 13;
+};
+
 const PROFILE_QUESTIONS = [
+  {id:"birthYear",q:"What year were you born?",type:"select",options:BIRTH_YEARS,step:0},
   {id:"name",q:"What is your full name?",type:"text",placeholder:"First Last",step:0},
   {id:"email",q:"Email address?",type:"text",placeholder:"you@email.com",step:0},
   {id:"phone",q:"Phone number?",type:"text",placeholder:"(555) 123-4567",step:0},
@@ -311,9 +321,9 @@ const PROFILE_STEPS = [
 // STYLE TEMPLATES
 // ============================================================
 const DEFAULT_TEMPLATES = [
-  {id:"narrative",name:"The Storyteller",description:"Opens with a personal anecdote, weaves narrative throughout. Best for scholarships that value personal journey.",rules:"1. Open with a specific moment or memory. 2. Use I-statements. 3. Connect personal story to scholarship mission. 4. Close with forward-looking vision. 5. NO AI-isms: avoid 'delve','foster','landscape','cutting-edge'.",icon:"✍"},
+  {id:"narrative",name:"The Storyteller",description:"Opens with a personal anecdote, weaves narrative throughout. Best for scholarships that value personal journey.",rules:"1. Open with a specific moment or memory. 2. Use I-statements. 3. Connect personal story to scholarship mission. 4. Close with forward-looking vision. 5. Ground every claim in a scene the reader can picture.",icon:"✍"},
   {id:"evidence",name:"The Scientist",description:"Lead with evidence and accomplishments. Data-driven. Best for STEM and merit-based scholarships.",rules:"1. Open with a concrete achievement or metric. 2. Use specific numbers and outcomes. 3. Frame experiences as evidence of capability. 4. Connect technical skills to broader impact. 5. NO fluff: replace 'I am passionate about' with 'My work in X demonstrated...'",icon:"🔬"},
-  {id:"mission",name:"The Mission Matcher",description:"Deeply aligns candidate values with the scholarship’s stated mission. Best for foundation and organization scholarships.",rules:"1. Reference the scholarship's mission statement directly. 2. Mirror their language naturally. 3. Show how your goals amplify their mission. 4. Provide specific examples of aligned work. 5. Keep tone collaborative, not sycophantic.",icon:"🎯"},
+  {id:"mission",name:"The Mission Matcher",description:"Deeply aligns candidate values with the scholarship’s stated mission. Best for foundation and organization scholarships.",rules:"1. Reference the scholarship's mission statement directly. 2. Mirror their language naturally. 3. Show how your goals advance the same work they fund. 4. Provide specific examples of aligned work. 5. Keep tone collaborative, not sycophantic.",icon:"🎯"},
   {id:"underdog",name:"The Overcomer",description:"Emphasizes resilience, challenges overcome, and growth. Best for need-based and adversity scholarships.",rules:"1. Be honest about challenges without being pitiful. 2. Show agency — what YOU did about it. 3. Frame hardship as fuel, not excuse. 4. Demonstrate growth trajectory. 5. End with strength and vision, not gratitude alone.",icon:"💪"},
 ];
 
@@ -416,6 +426,85 @@ function Badge({ children, color = COLORS.gold, style }) {
     }}>
       {children}
     </span>
+  );
+}
+
+// Custom stroke icon set — replaces the unicode glyphs (◇ ◈ ⬡ ◆ …) that used to
+// carry the app chrome, so weight, caps, and color stay uniform everywhere.
+const ICON_PATHS = {
+  home: <><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-5.5h5V21"/></>,
+  profile: <><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20.5c0-3.6 3.3-6 7.5-6s7.5 2.4 7.5 6"/></>,
+  search: <><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></>,
+  matches: <><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 11.6v.8"/></>,
+  apply: <><rect x="6" y="4.5" width="12" height="16.5" rx="2"/><path d="M9.5 4.5a2.5 2.5 0 0 1 5 0"/><path d="m9 13.5 2 2 4-4.5"/></>,
+  generate: <><path d="M4 20l1.2-4.2L16.7 4.3a2 2 0 0 1 2.9 2.9L8.2 18.7 4 20z"/><path d="m14.5 6.5 3 3"/></>,
+  templates: <><path d="m12 3.5 8.5 4.7L12 13 3.5 8.2 12 3.5z"/><path d="M3.5 12.5 12 17.3l8.5-4.8"/><path d="M3.5 16.5 12 21.3l8.5-4.8"/></>,
+  saved: <path d="M6.5 3.5h11V21L12 16.7 6.5 21V3.5z"/>,
+  tracker: <><rect x="3.5" y="4" width="4.6" height="12" rx="1"/><rect x="9.7" y="4" width="4.6" height="16.5" rx="1"/><rect x="15.9" y="4" width="4.6" height="8" rx="1"/></>,
+};
+function AppIcon({ name, size = 18, color = "currentColor", strokeWidth = 1.7, style }) {
+  const paths = ICON_PATHS[name];
+  if (!paths) return null;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+      strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
+      style={{ display: "block", flexShrink: 0, ...style }} aria-hidden="true">
+      {paths}
+    </svg>
+  );
+}
+
+// Landing letter demo — surfaces the product's signature streaming-letter moment
+// on the marketing page as a short scripted loop over a labeled sample profile.
+// Renders the full text statically when the visitor prefers reduced motion.
+const DEMO_LETTER = "The first thing I ever fixed was a grain auger. Nine at night, rain coming, flashlight in my teeth.\n\nMy robotics coach says I engineer like a farmer. He means I fix things with whatever is on hand. I want to study agricultural engineering so that next time, the fix starts before the bolt shears.";
+function LetterDemo() {
+  const [chars, setChars] = useState(0);
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setChars(DEMO_LETTER.length);
+      return;
+    }
+    let i = 0, timer;
+    const tick = () => {
+      i += 1;
+      setChars(i);
+      if (i < DEMO_LETTER.length) {
+        timer = setTimeout(tick, 26 + (".!?\n".includes(DEMO_LETTER[i - 1]) ? 180 : 0));
+      } else {
+        timer = setTimeout(() => { i = 0; setChars(0); timer = setTimeout(tick, 400); }, 4200);
+      }
+    };
+    timer = setTimeout(tick, 800);
+    return () => clearTimeout(timer);
+  }, []);
+  const done = chars >= DEMO_LETTER.length;
+  return (
+    <div style={{
+      maxWidth: 640, margin: "0 auto", background: COLORS.card,
+      border: `1px solid ${COLORS.border}`, borderRadius: 14, overflow: "hidden",
+      textAlign: "left",
+    }}>
+      <div style={{
+        padding: "12px 20px", borderBottom: `1px solid ${COLORS.border}`,
+        fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, letterSpacing: 0.5,
+        display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap",
+      }}>
+        <span style={{ color: COLORS.teal }}>SAMPLE PROFILE</span>
+        <span>FFA vice president · robotics captain · first-gen · Hartley, IA</span>
+      </div>
+      <div style={{
+        padding: "26px 28px", fontFamily: FONTS.heading, fontSize: 19, lineHeight: 1.65,
+        color: COLORS.text, whiteSpace: "pre-wrap", minHeight: 178,
+      }}>
+        {DEMO_LETTER.slice(0, chars)}
+        <span style={{
+          display: "inline-block", width: 2, height: "1.05em", background: COLORS.gold,
+          verticalAlign: "text-bottom", marginLeft: 2,
+          animation: done ? "blink 1.1s step-end infinite" : "none",
+        }} />
+      </div>
+    </div>
   );
 }
 
@@ -573,6 +662,9 @@ export default function MeritLaunch() {
   const [view, setView] = useState("landing");
   const [profile, setProfile] = useState({});
   const [bragSheet, setBragSheet] = useState("");
+  // Letter Gen scholarship picker (searchable combobox over the full database)
+  const [scholarshipQuery, setScholarshipQuery] = useState("");
+  const [scholarshipPickerOpen, setScholarshipPickerOpen] = useState(false);
   const [scholarshipDB, setScholarshipDB] = useState(DEFAULT_SCHOLARSHIP_DB);
   const [dbLastUpdated, setDbLastUpdated] = useState("2026-02-11");
   const [dbSource, setDbSource] = useState("built-in");
@@ -582,6 +674,9 @@ export default function MeritLaunch() {
   const [filterNeedBased, setFilterNeedBased] = useState("all");
   const [filterCountry, setFilterCountry] = useState("all");
   const [filterState, setFilterState] = useState("all");
+  // Expired scholarships are hidden by default — a dead listing is never actionable.
+  // The toggle brings them back for students researching next year's cycle.
+  const [showExpired, setShowExpired] = useState(false);
   const [matchResults, setMatchResults] = useState([]);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATES[0]);
@@ -945,6 +1040,9 @@ export default function MeritLaunch() {
     const l = store.get("scholarbot-letters"); if (l) setSavedLetters(l);
     const t = store.get("scholarbot-templates"); if (t) setTemplates(t);
     const a = store.get("scholarbot-answers"); if (a) setAppAnswers(a);
+    // Voice scaffold is fed into every letter's system prompt, so it has to
+    // survive a reload — otherwise it only helps within the session that made it.
+    const vp = store.get("scholarbot-voice-profile"); if (vp) setGeneratedProfile(vp);
 
     // Fetch scholarships from Supabase — retry with backoff so a transient
     // failure self-heals instead of stranding the app on the 30 built-ins.
@@ -973,11 +1071,29 @@ export default function MeritLaunch() {
     const loadAccountData = async (user) => {
       const { data: prof } = await supabase
         .from("user_profiles")
-        .select("subscription_status, letters_used_this_month, matches_used_this_month, usage_reset_at")
+        .select("subscription_status, seasonal_expires_at, letters_used_this_month, matches_used_this_month, usage_reset_at")
         .eq("id", user.id)
         .single();
       if (prof) {
-        setUserSubscription(prof.subscription_status || "free");
+        // Seasonal Pass is a one-time payment with a fixed window. The webhook
+        // only ever WRITES seasonal_expires_at (one-time payments have no
+        // renewal/cancel events to flip the status later, unlike
+        // subscriptions), so expiry must be enforced here at read time —
+        // otherwise seasonal is effectively lifetime access. Self-heals the
+        // row to 'free' on first load after the window ends.
+        let status = prof.subscription_status || "free";
+        if (
+          status === "seasonal" &&
+          prof.seasonal_expires_at &&
+          new Date(prof.seasonal_expires_at) < new Date()
+        ) {
+          status = "free";
+          supabase.from("user_profiles").update({
+            subscription_status: "free",
+            updated_at: new Date().toISOString(),
+          }).eq("id", user.id);
+        }
+        setUserSubscription(status);
         const resetAt = prof.usage_reset_at ? new Date(prof.usage_reset_at) : new Date(0);
         const now = new Date();
         const monthsSinceReset = (now.getFullYear() - resetAt.getFullYear()) * 12 + now.getMonth() - resetAt.getMonth();
@@ -1111,6 +1227,14 @@ export default function MeritLaunch() {
   };
 
   const saveProfile = (p) => {
+    // COPPA: under-13 answers are never collected — keep only the year (so the
+    // block screen persists), drop everything else, and never sync to the cloud.
+    if (isUnder13(p.birthYear)) {
+      const minimal = { birthYear: p.birthYear };
+      setProfile(minimal);
+      store.set("scholarbot-profile", minimal);
+      return;
+    }
     setProfile(p);
     store.set("scholarbot-profile", p);
     // Sync to cloud if logged in
@@ -1202,7 +1326,9 @@ export default function MeritLaunch() {
   }, [profile, scholarshipDB, canMatch]);
 
   // Letter generation
-  const generateLetter = async () => {
+  // isRegenerate only affects the confirm prompt below — a regenerate is a real
+  // API call, so it still costs a letter. Usage is charged on success only.
+  const generateLetter = async ({ isRegenerate = false } = {}) => {
     if (!authUser) { setAuthMode("signup"); setShowAuthModal(true); notify("Create a free account to generate letters.", "info"); return; }
     const hasDbSelection = scholarshipInputMode === "database" && selectedScholarship;
     const hasCustomInput = scholarshipInputMode !== "database" && customScholarshipText.trim();
@@ -1219,11 +1345,18 @@ export default function MeritLaunch() {
       }
       return;
     }
+    // Regenerating burns another letter. Free users only get a couple, so don't
+    // spend one silently on a button they may have clicked out of curiosity.
+    if (isRegenerate && !isPremium) {
+      const left = Math.max(0, FREE_LIMITS.lettersPerMonth - monthlyLettersUsed);
+      const ok = window.confirm(
+        `Regenerating writes a brand new letter and uses one of your ${left} remaining free letter${left === 1 ? "" : "s"} this month.\n\nGenerate a new version?`
+      );
+      if (!ok) return;
+    }
 
     setGeneratingLetter(true);
     setGeneratedLetter("");
-    setMonthlyLettersUsed(prev => prev + 1);
-    syncUsageToSupabase("letters");
 
     let scholarshipDetails, scholarshipLabel;
     if (hasDbSelection) {
@@ -1234,7 +1367,7 @@ export default function MeritLaunch() {
       scholarshipDetails = `SCHOLARSHIP DETAILS (provided by user):\n- Name: ${customScholarshipName || "Not specified"}\n${scholarshipUrl ? `- URL: ${scholarshipUrl}\n` : ""}- Full Description:\n${customScholarshipText.slice(0, 8000)}`;
     }
 
-    const profileSummary = `CANDIDATE: ${profile.name}\nLOCATION: ${profile.location || "N/A"}\nCITIZENSHIP: ${profile.citizenship || "N/A"}\nHERITAGE: ${(Array.isArray(profile.ethnicity) ? profile.ethnicity : (profile.ethnicity ? [profile.ethnicity] : [])).join(", ")}\nGPA: ${profile.gpa || "N/A"} | TEST SCORES: ${profile.satact || "N/A"}\nINTENDED MAJOR: ${profile.intendedMajor || "N/A"}\nGRADUATION: ${profile.gradYear || "N/A"}\nFINANCIAL NEED: ${profile.financialNeed || "N/A"}\nACTIVITIES: ${profile.activities || "N/A"}\nAWARDS: ${profile.awards || "N/A"}\nCOMMUNITY SERVICE: ${profile.communityService || "N/A"}\nPERSONAL STORY: ${profile.personalStory || "N/A"}\nCAREER GOAL: ${profile.careerGoal || "N/A"}\nWRITING VOICE: ${profile.writingStyle || "Warm and narrative"}\nBRAG SHEET: ${bragSheet || "None"}\nAPP ANSWERS: ${JSON.stringify(appAnswers)}`;
+    const profileSummary = `CANDIDATE: ${profile.name}\nLOCATION: ${profile.location || "N/A"}\nCITIZENSHIP: ${profile.citizenship || "N/A"}\nHERITAGE: ${(Array.isArray(profile.ethnicity) ? profile.ethnicity : (profile.ethnicity ? [profile.ethnicity] : [])).join(", ")}\nGPA: ${profile.gpa || "N/A"} | TEST SCORES: ${profile.satact || "N/A"}\nINTENDED MAJOR: ${profile.intendedMajor || "N/A"}\nGRADUATION: ${profile.gradYear || "N/A"}\nFINANCIAL NEED: ${profile.financialNeed || "N/A"}\nACTIVITIES: ${profile.activities || "N/A"}\nAWARDS: ${profile.awards || "N/A"}\nCOMMUNITY SERVICE: ${profile.communityService || "N/A"}\nPERSONAL STORY: ${profile.personalStory || "N/A"}\nCAREER GOAL: ${profile.careerGoal || "N/A"}\nWRITING VOICE: ${profile.writingStyle || "Warm and narrative"}${generatedProfile ? `\n\nVOICE SCAFFOLD (built from this student's own answers — match this voice exactly):\n${generatedProfile}` : ""}\nBRAG SHEET: ${bragSheet || "None"}\nAPP ANSWERS: ${JSON.stringify(appAnswers)}`;
 
     const systemPrompt = `You are a scholarship letter writer. Your job is not to write a generic impressive letter. Write a letter that sounds unmistakably like THIS student wrote it — with their specific experiences, their particular details, and their real voice. A scholarship committee member should finish the letter and think: "I know who this person is." Not: "This applicant has strong qualifications."
 
@@ -1254,10 +1387,20 @@ EMOTION — ONE REAL ONE:
 Pick one emotion this student probably feels: pride, determination, quiet resolve, frustration turned to growth. Show it through a specific action or memory. Never write "I am passionate about" — show what the passion made them actually do.
 
 BANNED WORDS — NEVER USE ANY OF THESE:
-delve, bolster, harness (abstract sense), unlock, unleash, empower (self-referential), underscore, illuminate, elucidate, embark, unravel, reimagine, revolutionize, transcend, resonate, reverberate, grapple (abstract), intertwine, garner, amplify (abstract), glean, maximize, unveil (abstract), champion (self-referential), spearhead, multifaceted, seamless, cutting-edge, holistic, meticulous, innovative, vibrant (abstract), compelling, invaluable, paramount, enduring, indelible, poignant, timeless, relentless, tireless, noteworthy, commendable, exemplary, unprecedented, captivating, nuanced (standalone), unparalleled, unwavering, ever-evolving, game-changing, tapestry, beacon (metaphor), synergy, paradigm shift, catalyst (abstract), interplay, plethora, trajectory (abstract), landscape, foster, testament, thrilled, elevate
+VERBS: delve, bolster, harness (abstract), unlock, unleash, empower (self-referential), underscore, illuminate, elucidate, embark, unravel, reimagine, revolutionize, transcend, resonate, reverberate, grapple (abstract), intertwine, entwine, weave (abstract), garner, espouse, evoke, exacerbate, amplify, augment, glean, maximize, unveil (abstract), uncover (abstract), champion (self-referential), spearhead, foster, elevate
+ADJECTIVES: multifaceted, layered, intricate (unless a literal object), seamless, cutting-edge, holistic, meticulous, innovative, vibrant (abstract), compelling, invaluable, paramount, enduring, indelible, poignant, timeless, relentless, tireless, noteworthy, commendable, exemplary, versatile, unprecedented, captivating, daunting, bustling, burgeoning, flourishing, nuanced (standalone), unparalleled, unwavering, ever-evolving, state-of-the-art, game-changing
+NOUNS: tapestry, beacon (metaphor), symphony (metaphor), intricacies, underpinnings, synergy, toolkit, quest (of education or career), nexus, bedrock, cornerstone, foundation (abstract), pinnacle, crucible, enigma, epicenter, linchpin, plethora, treasure trove, paradigm shift, trajectory (abstract), catalyst (abstract), interplay, roadmap (abstract), landscape, testament
+ADVERBS: meticulously, profoundly, indelibly, tirelessly, relentlessly, remarkably, effortlessly, holistically, undoubtedly, broadly speaking, generally speaking
+HYPE AND FILLER: "exciting possibilities lie ahead", "represents a significant milestone", "paving the way for", "pushing the boundaries", "revolutionizing the way", "a game-changer", "redefine the future", "reaching new heights", thrilled
 
 BANNED SENTENCE STARTERS — NEVER OPEN A SENTENCE OR PARAGRAPH WITH:
-"In today's world," / "Now more than ever," / "As technology continues to evolve," / "Furthermore," / "Moreover," / "Additionally," / "Notably," / "Crucially," / "It is important to note" / "One of the most important" / "I have always been passionate about" / "Ever since I was a child" / "I want to make a difference"
+"In today's world," / "In today's fast-paced world," / "In today's digital age," / "Now more than ever," / "As technology continues to evolve," / "As we navigate," / "When it comes to," / "Furthermore," / "Moreover," / "Additionally," / "Notably," / "Crucially," / "Consequently," / "Subsequently," / "It is important to note" / "One of the most important" / "I have always been passionate about" / "Ever since I was a child" / "From a young age" / "I want to make a difference"
+
+BANNED SCHOLARSHIP CLICHÉS — these read as both AI-written and badly written:
+"I am committed to giving back to my community" / "I have overcome many obstacles" (show them, never label them) / "My journey has been defined by" / "I am uniquely qualified because" / "I believe I am the ideal candidate" / "I am driven by a desire to" / "This scholarship would mean the world to me". If the student is a first-generation college student, state it as a fact inside a sentence, never as an opening line.
+
+BANNED BOT VOICE — you are writing AS the student, not assisting them. Never produce:
+"Let's delve into" / "Let's explore" / "Sure! Here's" / "Certainly!" / "Great question!" / "Here's a comprehensive overview" / "I would be happy to" / any meta-commentary about the letter itself.
 
 BANNED CLOSING PHRASES — NEVER END THE LETTER WITH:
 "In conclusion," / "To summarize," / "Overall," / "Ultimately," / "I would be honored to be selected" / "I am a strong candidate" / "This scholarship would mean the world to me" / "I am passionate about" (as a claim — show it instead)
@@ -1266,12 +1409,27 @@ PUNCTUATION RULES:
 No em-dashes (—). Replace with a comma and conjunction, a period, parentheses, or a colon.
 Always use Oxford commas: "biology, chemistry, and math" not "biology, chemistry and math."
 Open the letter with a scene, a fact, a question, or an action in progress. Never open with "My name is" or "I am applying for."
+Semicolons: at most two in the entire letter.
+Use three literal periods for an ellipsis (...). No Unicode ellipsis, no curly quotes.
+
+STRUCTURAL PATTERNS — NEVER DO THESE:
+Do not end a paragraph with a summary of that paragraph. Let ideas hang, develop, or pivot.
+Do not use mechanical parallelism ("I am a student. I am a leader. I am a scientist.").
+Do not ask a question and immediately answer it ("What drives me? A love of learning."). That is blog structure, not student writing.
+Do not use fake-suspense phrases: "Here's the thing", "The best part?", "Here's where it gets interesting", "But here's the truth".
+Do not open two consecutive sentences with an adverb ("Interestingly, ... Importantly, ...").
+
+ADDRESS THE CRITERIA:
+The scholarship's stated criteria appear in the user message. At least one paragraph must show — through a specific experience, not a claim — why this student meets the criterion that matters most. Do not restate the criteria back at the committee, and do not claim eligibility the profile does not support. If the profile is silent on a criterion, write around it rather than inventing.
 
 FORMAT:
 350–450 words. Narrative prose only — no bullet points, no headers, no bold text in the letter body. Standard paragraph breaks.
 
 CANDIDATE PROFILE:
-${profileSummary}`;
+${profileSummary}
+
+BEFORE YOU OUTPUT:
+Silently re-read your draft once and fix any violation of the rules above — a banned word or phrase, an em-dash, three consecutive sentences of similar length, a paragraph with no concrete detail from the profile, a summary-style closing, a word count outside 350–450. Output only the corrected final letter. Never show this review, never explain your edits, never add a preamble or a sign-off note.`;
 
     try {
       const response = await authFetch("/api/generate-stream", {
@@ -1325,6 +1483,10 @@ ${profileSummary}`;
       if (!fullText) {
         setGeneratedLetter("Error: Empty response from AI service.");
       } else {
+        // Charge the letter only once we actually have one — a failed or empty
+        // generation used to still burn the user's monthly allowance.
+        setMonthlyLettersUsed(prev => prev + 1);
+        syncUsageToSupabase("letters");
         // Analytics: fire after successful letter generation
         trackLetterGenerated({
           scholarshipName: scholarshipLabel,
@@ -1352,7 +1514,10 @@ ${profileSummary}`;
         })
       });
       const data = await response.json();
-      setGeneratedProfile(data.content?.map(b => b.text || "").join("\n") || "Error.");
+      const text = data.content?.map(b => b.text || "").join("\n") || "";
+      if (!text) { notify("Error generating profile.", "error"); setGeneratingLetter(false); return; }
+      setGeneratedProfile(text);
+      store.set("scholarbot-voice-profile", text);
       setView("profileResult");
     } catch(e) { notify("Error generating profile.", "error"); }
     setGeneratingLetter(false);
@@ -1366,7 +1531,7 @@ ${profileSummary}`;
     "Why should you be selected for this scholarship? (100-200 words)"
   ];
 
-  const filteredScholarships = scholarshipDB.filter(s => {
+  const matchedScholarships = scholarshipDB.filter(s => {
     const q = searchQuery.toLowerCase();
     const matchesSearch = !q || s.name.toLowerCase().includes(q) || s.criteria.toLowerCase().includes(q) || (s.amount||"").toLowerCase().includes(q);
     const matchesNeed = filterNeedBased === "all" || (filterNeedBased === "need" && s.needBased === "Y") || (filterNeedBased === "merit" && s.needBased !== "Y");
@@ -1386,7 +1551,10 @@ ${profileSummary}`;
   });
 
   // States that actually have scholarships in the DB (auto-grows as data is added)
-  const availableStates = [...new Set(scholarshipDB.map(s => s.state).filter(Boolean))].sort();
+  // Restrict the state filter to real US jurisdictions — the data also carries
+  // Canadian province codes (e.g. "ON") that must not leak into "All States".
+  const US_STATE_CODES = new Set(["AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"]);
+  const availableStates = [...new Set(scholarshipDB.map(s => s.state).filter(s => s && US_STATE_CODES.has(s)))].sort();
 
   // Country flag helper — uses Flagpedia CDN for crisp flag images
   const CountryFlag = ({ country }) => {
@@ -1412,27 +1580,91 @@ ${profileSummary}`;
   };
 
   // Deadline helpers
-  const getDeadlineStatus = (deadline) => {
-    if (!deadline || deadline === "Varies" || deadline === "Nomination Only") return { label: deadline || "Varies", color: COLORS.textDim };
-    const d = new Date(deadline);
-    const now = new Date();
-    const days = Math.ceil((d - now) / (1000 * 60 * 60 * 24));
-    if (days < 0) return { label: "Expired", color: COLORS.pink };
-    if (days <= 14) return { label: `${days}d left`, color: COLORS.pink };
-    if (days <= 60) return { label: `${days}d left`, color: COLORS.orange };
-    return { label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }), color: COLORS.teal };
+  // Deadlines in the catalog come in three shapes: ISO dates ("2026-09-15"),
+  // recurring year-less dates ("Mar 1", "December 31"), and free text ("Varies",
+  // "Rolling"). A bare `new Date("Mar 1")` resolves to the year 2001, which made
+  // every recurring scholarship render as "Expired" and made the deadline-alert
+  // cron skip it. Parse deliberately instead.
+  // NOTE: api/deadline-alerts.js carries a copy of this parser — keep them in sync.
+  const parseDeadlineDate = (deadline) => {
+    if (!deadline || typeof deadline !== "string") return null;
+    const raw = deadline.trim();
+    if (!raw || /^(varies|rolling|ongoing|nomination only|n\/?a|tbd|none|open)$/i.test(raw)) return null;
+
+    // ISO YYYY-MM-DD: build from parts so it lands on local midnight. `new
+    // Date("2026-09-15")` parses as UTC and reads as the 14th west of Greenwich.
+    const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) return new Date(+iso[1], +iso[2] - 1, +iso[3]);
+
+    // Year-less "Mar 1" / "March 1st": a recurring annual deadline. Resolve to the
+    // next occurrence rather than to whatever year the Date constructor invents.
+    if (!/\d{4}/.test(raw)) {
+      const probe = new Date(`${raw.replace(/(\d+)(st|nd|rd|th)\b/i, "$1")} 2000`);
+      if (!isNaN(probe)) {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        let next = new Date(now.getFullYear(), probe.getMonth(), probe.getDate());
+        if (next < today) next = new Date(now.getFullYear() + 1, probe.getMonth(), probe.getDate());
+        return next;
+      }
+    }
+
+    const d = new Date(raw);
+    return isNaN(d) ? null : d;
   };
 
+  // Returns { date, days, label, color }. Always an object, never null.
+  const parseDeadline = (deadline) => {
+    const d = parseDeadlineDate(deadline);
+    if (!d) return { date: null, days: null, label: (deadline || "").trim() || "Varies", color: COLORS.textDim };
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const days = Math.round((d - today) / 86400000);
+    if (days < 0) return { date: d, days, label: "Expired", color: COLORS.pink };
+    if (days === 0) return { date: d, days, label: "Due today", color: COLORS.pink };
+    if (days <= 14) return { date: d, days, label: `${days}d left`, color: COLORS.pink };
+    if (days <= 60) return { date: d, days, label: `${days}d left`, color: COLORS.orange };
+    return { date: d, days, label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }), color: COLORS.teal };
+  };
+
+  const getDeadlineStatus = (deadline) => parseDeadline(deadline);
+
+  // Deadline-aware ordering + expiry filter. Defined here (not with the other
+  // filters above) because it depends on the deadline parsers declared just above.
+  // Order: soonest live deadline first, then undated ("Varies"/"Rolling"), then
+  // expired last — an expired listing should never be the first thing a student sees.
+  const expiredCount = matchedScholarships.filter(s => {
+    const days = parseDeadline(s.deadline).days;
+    return days !== null && days < 0;
+  }).length;
+
+  const filteredScholarships = matchedScholarships
+    .filter(s => {
+      if (showExpired) return true;
+      const days = parseDeadline(s.deadline).days;
+      return days === null || days >= 0;
+    })
+    .sort((a, b) => {
+      const da = parseDeadline(a.deadline).days;
+      const db = parseDeadline(b.deadline).days;
+      const rank = (d) => (d === null ? 1 : d < 0 ? 2 : 0);
+      const ra = rank(da), rb = rank(db);
+      if (ra !== rb) return ra - rb;
+      if (ra === 1) return 0;          // undated: keep catalog order
+      if (ra === 2) return db - da;    // expired: most recently expired first
+      return da - db;                  // live: soonest deadline first
+    });
+
   const navItems = [
-    {id:"home",icon:"◇",label:"Dashboard"},
-    {id:"profile",icon:"◈",label:"Build Profile"},
-    {id:"search",icon:"⬡",label:"Scholarships"},
-    {id:"matches",icon:"◆",label:"My Matches"},
-    {id:"apply",icon:"▣",label:"App Prep"},
-    {id:"generate",icon:"◉",label:"Letter Gen"},
-    {id:"templates",icon:"▤",label:"Templates"},
-    {id:"saved",icon:"▫",label:"Saved"},
-    {id:"tracker",icon:"▦",label:"Tracker"},
+    {id:"home",icon:"home",label:"Dashboard"},
+    {id:"profile",icon:"profile",label:"Build Profile"},
+    {id:"search",icon:"search",label:"Scholarships"},
+    {id:"matches",icon:"matches",label:"My Matches"},
+    {id:"apply",icon:"apply",label:"App Prep"},
+    {id:"generate",icon:"generate",label:"Letter Gen"},
+    {id:"templates",icon:"templates",label:"Templates"},
+    {id:"saved",icon:"saved",label:"Saved"},
+    {id:"tracker",icon:"tracker",label:"Tracker"},
   ];
 
   const isLanding = view === "landing";
@@ -1733,6 +1965,7 @@ ${profileSummary}`;
           }}>
             {/* Background Video */}
             <video
+              className="hero-video"
               autoPlay muted loop playsInline
               poster="/hero-poster.jpg"
               style={{
@@ -1740,8 +1973,15 @@ ${profileSummary}`;
                 objectFit: "cover", zIndex: 0, opacity: 0.35,
               }}
             >
-              <source src="/hero-bg-compressed.mp4" type="video/mp4" />
+              <source src="/hero-bg-small.mp4" type="video/mp4" />
             </video>
+            {/* Below 768px the video is hidden (CSS) and this still takes its place —
+                phones on school Wi-Fi get the mood without the megabytes. */}
+            <div className="hero-poster-mobile" style={{
+              position: "absolute", top: 0, left: 0, width: "100%", height: "100%",
+              backgroundImage: "url(/hero-poster.jpg)", backgroundSize: "cover", backgroundPosition: "center",
+              opacity: 0.35, zIndex: 0, display: "none",
+            }} />
             {/* Dark gradient overlay for text readability */}
             <div style={{
               position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1,
@@ -1789,10 +2029,12 @@ ${profileSummary}`;
             flexWrap: "wrap",
           }}>
             {[
-              { val: `${scholarshipDB.length}+`, label: "Scholarships" },
-              { val: "$2.3M+", label: "In Opportunities" },
-              { val: "4", label: "Writing Styles" },
-              { val: "Built by a Parent", label: "Who Gets It" },
+              // Real, checkable numbers only — the parent story has its own section.
+              // $11.5M+ = each scholarship counted once at its largest single-award
+              // dollar value (912 of the listings publish an explicit amount).
+              { val: `${scholarshipDB.length}+`, label: "Scholarships Tracked" },
+              { val: "$11.5M+", label: "In Listed Awards" },
+              { val: (() => { const d = new Date(dbLastUpdated + "T00:00:00"); return isNaN(d) ? "Weekly" : d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); })(), label: "Last Database Refresh" },
             ].map((s, i) => (
               <div key={i} style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 28, fontWeight: 400, color: COLORS.gold, fontFamily: FONTS.heading }}>{s.val}</div>
@@ -1809,12 +2051,12 @@ ${profileSummary}`;
             </div>
             <div className="landing-steps-grid reveal" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
               {[
-                { icon: "◈", title: "Build Your Profile", desc: "Answer guided questions or upload your brag sheet. MeritLaunch learns your story, strengths, and goals.", color: COLORS.gold },
-                { icon: "◆", title: "Get Matched", desc: "Our scoring engine analyzes eligibility, heritage, GPA, need, and field to rank your best-fit scholarships.", color: COLORS.teal },
-                { icon: "◉", title: "Generate Letters", desc: "Choose a writing style. Draft application letters in your own authentic voice, grounded in your real story - you stay the author.", color: COLORS.teal },
+                { icon: "profile", title: "Build Your Profile", desc: "Answer guided questions or upload your brag sheet. MeritLaunch learns your story, strengths, and goals.", color: COLORS.gold },
+                { icon: "matches", title: "Get Matched", desc: "Our scoring engine analyzes eligibility, heritage, GPA, need, and field to rank your best-fit scholarships.", color: COLORS.teal },
+                { icon: "generate", title: "Generate Letters", desc: "Choose a writing style. Draft application letters in your own authentic voice, grounded in your real story - you stay the author.", color: COLORS.teal },
               ].map((f, i) => (
                 <GlowCard key={i} glow={f.color} style={{ textAlign: "center", padding: "40px 28px" }}>
-                  <div style={{ fontSize: 40, marginBottom: 16, color: f.color }}>{f.icon}</div>
+                  <AppIcon name={f.icon} size={38} color={f.color} strokeWidth={1.4} style={{ margin: "0 auto 16px" }} />
                   <div style={{ fontSize: 12, fontFamily: FONTS.body, color: f.color, letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 }}>Step {i + 1}</div>
                   <h3 style={{ fontSize: 20, fontWeight: 400, marginBottom: 10 }}>{f.title}</h3>
                   <p style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6 }}>{f.desc}</p>
@@ -1823,12 +2065,38 @@ ${profileSummary}`;
             </div>
           </div>
 
-          {/* Origin Story — Real Testimonial */}
+          {/* Live letter demo — the product's signature moment, on the marketing page */}
+          <div style={{ padding: "80px 40px", textAlign: "center" }}>
+            <h2 style={{ fontSize: 30, fontWeight: 400, marginBottom: 8 }}>You Stay the Author</h2>
+            <p style={{ fontSize: 14, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 36, maxWidth: 520, marginLeft: "auto", marginRight: "auto" }}>
+              Watch a draft take shape from one student's real details. No stock phrases, no robot voice — their story, their words, faster.
+            </p>
+            <div className="reveal"><LetterDemo /></div>
+          </div>
+
+          {/* Origin Story — editorial spread */}
           <div style={{ padding: "80px 40px", background: COLORS.surface }}>
-            <div style={{ maxWidth: 800, margin: "0 auto" }}>
+            <div style={{ maxWidth: 1040, margin: "0 auto" }}>
               <h2 style={{ fontSize: 30, fontWeight: 400, textAlign: "center", marginBottom: 12 }}>We've Been Where You Are</h2>
               <p style={{ textAlign: "center", fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim, marginBottom: 40 }}>A real story from the parent who built this tool</p>
-              <GlowCard hover={false} glow={COLORS.gold} style={{ padding: "40px 36px", borderLeft: `3px solid ${COLORS.gold}` }}>
+              <div className="landing-story-grid reveal" style={{ display: "grid", gridTemplateColumns: "5fr 7fr", alignItems: "stretch" }}>
+                <div className="landing-story-image" style={{ position: "relative", minHeight: 340 }}>
+                  <img src="/story-still.jpg" alt="A student working at a kitchen table in the evening" loading="lazy" style={{
+                    position: "absolute", inset: 0, width: "100%", height: "100%",
+                    objectFit: "cover", borderRadius: "14px 0 0 14px", filter: "saturate(0.85)",
+                  }} />
+                  <div style={{
+                    position: "absolute", inset: 0, borderRadius: "14px 0 0 14px",
+                    background: "linear-gradient(200deg, rgba(8,8,13,0.15) 0%, rgba(8,8,13,0.82) 100%)",
+                  }} />
+                  <div style={{
+                    position: "absolute", left: 26, right: 26, bottom: 26,
+                    fontFamily: FONTS.heading, fontStyle: "italic", fontSize: 27, lineHeight: 1.35, color: COLORS.text,
+                  }}>
+                    "It was like applying to college 40 more times."
+                  </div>
+                </div>
+              <GlowCard hover={false} glow={COLORS.gold} style={{ padding: "40px 36px", borderRadius: "0 14px 14px 0" }}>
                 <div style={{ fontSize: 17, fontFamily: FONTS.heading, color: COLORS.textMuted, lineHeight: 1.7, fontStyle: "italic" }}>
                   <p style={{ marginBottom: 16 }}>
                     "It was the fall of their senior year, and my kids were running on fumes. They were carrying full loads of advanced coursework. Multiple AP classes, college-level engineering. Just about honors everything."
@@ -1856,6 +2124,7 @@ ${profileSummary}`;
                   </div>
                 </div>
               </GlowCard>
+              </div>
             </div>
           </div>
 
@@ -1957,7 +2226,7 @@ ${profileSummary}`;
               <span style={{ margin: "0 8px" }}>·</span>
               <span style={{ cursor: "pointer" }} onClick={() => setLegalModal("terms")}>Terms</span>
             </span>
-            <span>{scholarshipDB.length} scholarships | $2.3M+ in opportunities</span>
+            <span>{scholarshipDB.length} scholarships | $11.5M+ in listed awards</span>
           </footer>
         </div>
       )}
@@ -2003,7 +2272,7 @@ ${profileSummary}`;
                     borderLeft: active ? `2px solid ${COLORS.gold}` : "2px solid transparent",
                     transition: "all 0.2s",
                   }}>
-                    <span style={{ fontSize: 14, opacity: 0.7, width: 20, textAlign: "center" }}>{item.icon}</span>
+                    <span style={{ opacity: active ? 1 : 0.7, width: 20, display: "flex", justifyContent: "center" }}><AppIcon name={item.icon} size={16} /></span>
                     {item.label}
                   </button>
                 );
@@ -2105,15 +2374,22 @@ ${profileSummary}`;
                 {/* Stats */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
                   {[
-                    { label: "Scholarships", value: scholarshipDB.length, color: COLORS.gold, icon: "⬡" },
-                    { label: "Profile", value: profileCompletion + "%", color: COLORS.teal, icon: "◈" },
-                    { label: "Matches", value: matchResults.length || "—", color: COLORS.pink, icon: "◆" },
-                    { label: "Letters Saved", value: savedLetters.length, color: COLORS.purple, icon: "▫" },
+                    // Empty tiles coach toward their full state instead of shrugging "0".
+                    { label: "Scholarships", value: scholarshipDB.length, color: COLORS.gold, icon: "search", go: () => setView("search") },
+                    { label: "Profile", value: profileCompletion + "%", color: COLORS.teal, icon: "profile", go: () => setView("profile"),
+                      hint: profileCompletion === 0 ? "10 minutes unlocks matching" : profileCompletion < 100 ? "Finish to sharpen your matches" : null },
+                    { label: "Matches", value: matchResults.length || "—", color: COLORS.pink, icon: "matches", go: () => setView(matchResults.length ? "matches" : "profile"),
+                      hint: matchResults.length === 0 ? "Run your first match" : null },
+                    { label: "Letters Saved", value: savedLetters.length, color: COLORS.purple, icon: "saved", go: () => setView(savedLetters.length ? "saved" : "generate"),
+                      hint: savedLetters.length === 0 ? "Your first draft is one click away" : null },
                   ].map((stat, i) => (
-                    <GlowCard key={i} glow={stat.color} style={{ padding: "22px 20px", position: "relative", overflow: "hidden" }}>
-                      <div style={{ position: "absolute", top: 12, right: 14, fontSize: 28, opacity: 0.08, color: stat.color }}>{stat.icon}</div>
+                    <GlowCard key={i} glow={stat.color} onClick={stat.go} style={{ padding: "22px 20px", position: "relative", overflow: "hidden", cursor: "pointer" }}>
+                      <div style={{ position: "absolute", top: 14, right: 14, opacity: 0.14 }}><AppIcon name={stat.icon} size={28} color={stat.color} /></div>
                       <div style={{ fontSize: 32, fontWeight: 300, color: stat.color, marginBottom: 2 }}>{stat.value}</div>
                       <div style={{ fontSize: 11, fontFamily: FONTS.body, color: COLORS.textDim, letterSpacing: 1, textTransform: "uppercase" }}>{stat.label}</div>
+                      {stat.hint && (
+                        <div style={{ fontSize: 12, fontFamily: FONTS.body, color: stat.color, marginTop: 8 }}>{stat.hint} →</div>
+                      )}
                     </GlowCard>
                   ))}
                 </div>
@@ -2161,13 +2437,13 @@ ${profileSummary}`;
                 <h2 style={{ fontSize: 18, fontWeight: 400, marginBottom: 16, color: COLORS.textMuted, fontFamily: FONTS.heading }}>Quick Actions</h2>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
                   {[
-                    { label: "Build Your Profile", desc: "Answer questions to create your scholarship persona.", action: () => setView("profile"), color: COLORS.gold, icon: "◈" },
-                    { label: "Find Matches", desc: "AI matches you to best-fit scholarships.", action: () => { if (profile.name) runMatching(); else setView("profile"); }, color: COLORS.teal, icon: "◆" },
-                    { label: "Generate a Letter", desc: "Draft a letter in your own authentic voice.", action: () => setView("generate"), color: COLORS.teal, icon: "◉" },
-                    { label: "Track Applications", desc: `${trackedApps.length} scholarships in your pipeline.`, action: () => setView("tracker"), color: "#8B5CF6", icon: "▦" },
+                    { label: "Build Your Profile", desc: "Answer questions to create your scholarship persona.", action: () => setView("profile"), color: COLORS.gold, icon: "profile" },
+                    { label: "Find Matches", desc: "AI matches you to best-fit scholarships.", action: () => { if (profile.name) runMatching(); else setView("profile"); }, color: COLORS.teal, icon: "matches" },
+                    { label: "Generate a Letter", desc: "Draft a letter in your own authentic voice.", action: () => setView("generate"), color: COLORS.teal, icon: "generate" },
+                    { label: "Track Applications", desc: trackedApps.length ? `${trackedApps.length} scholarships in your pipeline.` : "Save a scholarship to start your pipeline.", action: () => setView("tracker"), color: "#8B5CF6", icon: "tracker" },
                   ].map((a, i) => (
                     <GlowCard key={i} onClick={a.action} glow={a.color} style={{ padding: "28px 24px", cursor: "pointer" }}>
-                      <div style={{ fontSize: 28, marginBottom: 12, color: a.color, opacity: 0.6 }}>{a.icon}</div>
+                      <AppIcon name={a.icon} size={26} color={a.color} style={{ marginBottom: 12, opacity: 0.75 }} />
                       <div style={{ fontSize: 17, fontWeight: 400, marginBottom: 6 }}>{a.label}</div>
                       <div style={{ fontSize: 13, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5 }}>{a.desc}</div>
                     </GlowCard>
@@ -2176,8 +2452,25 @@ ${profileSummary}`;
               </div>
             )}
 
+            {/* ====== PROFILE BUILDER — COPPA block for under-13 visitors ====== */}
+            {view === "profile" && isUnder13(profile.birthYear) && (
+              <div style={{ maxWidth: 560, margin: "60px auto", textAlign: "center" }}>
+                <GlowCard hover={false} style={{ padding: "44px 36px" }}>
+                  <AppIcon name="profile" size={40} color={COLORS.gold} style={{ margin: "0 auto 18px" }} />
+                  <h2 style={{ fontSize: 26, fontWeight: 400, marginBottom: 12 }}>MeritLaunch is for students 13 and up</h2>
+                  <p style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.textMuted, lineHeight: 1.7, marginBottom: 10 }}>
+                    We didn't save anything you entered. Come back when you're 13, and we'll be ready for your story.
+                  </p>
+                  <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.7, marginBottom: 24 }}>
+                    A parent exploring ahead of time? You're welcome to browse the scholarship database — no account or profile needed.
+                  </p>
+                  <Button variant="secondary" onClick={() => setView("search")}>Browse Scholarships</Button>
+                </GlowCard>
+              </div>
+            )}
+
             {/* ====== PROFILE BUILDER (Stepped Wizard) ====== */}
-            {view === "profile" && (
+            {view === "profile" && !isUnder13(profile.birthYear) && (
               <div>
                 <SectionHeader title="Build Your Profile" subtitle="Answer these questions to create your scholarship candidate profile." />
 
@@ -2371,7 +2664,7 @@ ${profileSummary}`;
               <div>
                 <SectionHeader
                   title="Browse Scholarships"
-                  subtitle={`${filteredScholarships.length} of ${scholarshipDB.length} scholarships shown`}
+                  subtitle={`${filteredScholarships.length} of ${scholarshipDB.length} scholarships shown${!showExpired && expiredCount > 0 ? ` • ${expiredCount} expired hidden` : ""}`}
                 />
 
                 {/* Disclaimer Banner */}
@@ -2494,6 +2787,17 @@ ${profileSummary}`;
                     <option value="need">Need-Based</option>
                     <option value="merit">Merit-Based</option>
                   </select>
+                  <button
+                    onClick={() => setShowExpired(v => !v)}
+                    title={showExpired ? "Hide scholarships whose deadline has passed" : "Also show scholarships whose deadline has passed"}
+                    style={{
+                      padding: "12px 16px", background: showExpired ? COLORS.pinkDim : COLORS.surface,
+                      border: `1px solid ${showExpired ? COLORS.pink : COLORS.border}`, borderRadius: 10,
+                      color: showExpired ? COLORS.pink : COLORS.textDim,
+                      fontSize: 13, fontFamily: FONTS.body, cursor: "pointer", whiteSpace: "nowrap",
+                    }}>
+                    {showExpired ? "◉" : "○"} Expired{expiredCount > 0 ? ` (${expiredCount})` : ""}
+                  </button>
                   {availableStates.length > 0 && (
                     <select value={filterState} onChange={e => setFilterState(e.target.value)}
                       title="Show national scholarships plus those for a state you're considering"
@@ -2683,17 +2987,71 @@ ${profileSummary}`;
 
                     {scholarshipInputMode === "database" && (
                       <div>
-                        <select value={selectedScholarship?.id || ""} onChange={e => {
-                          const s = scholarshipDB.find(x => x.id === e.target.value);
-                          setSelectedScholarship(s || null); setCustomScholarshipText(""); setCustomScholarshipName("");
-                        }} style={{
-                          width: "100%", padding: "12px 16px", background: COLORS.surface,
-                          border: `1px solid ${COLORS.border}`, borderRadius: 10,
-                          color: COLORS.text, fontSize: 14, fontFamily: FONTS.body, outline: "none",
-                        }}>
-                          <option value="">Select from database...</option>
-                          {scholarshipDB.map(s => <option key={s.id} value={s.id}>{s.name} ({s.amount})</option>)}
-                        </select>
+                        {/* Searchable combobox — a native select over 1,297 unsorted
+                            options made specific scholarships effectively unfindable. */}
+                        <div style={{ position: "relative" }}>
+                          <input
+                            type="text"
+                            role="combobox"
+                            aria-expanded={scholarshipPickerOpen}
+                            value={scholarshipPickerOpen ? scholarshipQuery : (selectedScholarship?.name || scholarshipQuery)}
+                            placeholder={`Search ${scholarshipDB.length} scholarships by name or criteria...`}
+                            onFocus={() => { setScholarshipPickerOpen(true); setScholarshipQuery(""); }}
+                            onBlur={() => setTimeout(() => setScholarshipPickerOpen(false), 150)}
+                            onChange={e => { setScholarshipQuery(e.target.value); setScholarshipPickerOpen(true); }}
+                            onKeyDown={e => { if (e.key === "Escape") setScholarshipPickerOpen(false); }}
+                            style={{
+                              width: "100%", padding: "12px 16px", background: COLORS.surface,
+                              border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                              color: COLORS.text, fontSize: 14, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box",
+                            }}
+                          />
+                          {scholarshipPickerOpen && (
+                            <div style={{
+                              position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, zIndex: 50,
+                              maxHeight: 320, overflowY: "auto", background: COLORS.card,
+                              border: `1px solid ${COLORS.border}`, borderRadius: 10,
+                              boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
+                            }}>
+                              {(() => {
+                                const q = scholarshipQuery.trim().toLowerCase();
+                                const list = scholarshipDB
+                                  .filter(s => !q || (s.name || "").toLowerCase().includes(q) || (s.criteria || "").toLowerCase().includes(q))
+                                  .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+                                  .slice(0, 60);
+                                if (list.length === 0) return (
+                                  <div style={{ padding: "14px 16px", fontSize: 13, fontFamily: FONTS.body, color: COLORS.textDim }}>
+                                    No scholarships match "{scholarshipQuery}". Try a broader term, or paste the scholarship in the Paste tab.
+                                  </div>
+                                );
+                                return list.map(s => {
+                                  const dl = parseDeadline(s.deadline);
+                                  return (
+                                    <div key={s.id}
+                                      onMouseDown={() => {
+                                        setSelectedScholarship(s); setCustomScholarshipText(""); setCustomScholarshipName("");
+                                        setScholarshipQuery(s.name); setScholarshipPickerOpen(false);
+                                      }}
+                                      style={{
+                                        padding: "10px 16px", cursor: "pointer", fontFamily: FONTS.body,
+                                        borderBottom: `1px solid ${COLORS.border}`,
+                                        background: selectedScholarship?.id === s.id ? COLORS.goldDim : "transparent",
+                                      }}
+                                      onMouseEnter={e => { e.currentTarget.style.background = COLORS.goldDim; }}
+                                      onMouseLeave={e => { e.currentTarget.style.background = selectedScholarship?.id === s.id ? COLORS.goldDim : "transparent"; }}
+                                    >
+                                      <div style={{ fontSize: 13.5, color: COLORS.text }}>{s.name}</div>
+                                      <div style={{ fontSize: 11.5, color: COLORS.textDim, display: "flex", gap: 10, marginTop: 2 }}>
+                                        <span>{(s.amount || "").trim() || "Amount varies"}</span>
+                                        <span style={{ color: dl.color }}>{dl.label}</span>
+                                      </div>
+                                    </div>
+                                  );
+                                });
+                              })()}
+                            </div>
+                          )}
+                        </div>
                         {selectedScholarship && (
                           <div style={{
                             marginTop: 12, padding: 14, background: COLORS.bg,
@@ -2815,7 +3173,7 @@ ${profileSummary}`;
                   </div>
                 </div>
 
-                <Button onClick={generateLetter}
+                <Button onClick={() => generateLetter()}
                   disabled={generatingLetter || (scholarshipInputMode === "database" ? !selectedScholarship : !customScholarshipText.trim())}
                   style={{ fontSize: 15, padding: "14px 40px", marginBottom: 28 }}>
                   {generatingLetter ? "◉ Crafting your letter..." : "Generate Scholarship Letter"}
@@ -2841,21 +3199,46 @@ ${profileSummary}`;
                             <div style={{ fontSize: 12, fontFamily: FONTS.body, color: "#b0a89a" }}>Matching your voice to the scholarship requirements</div>
                           </div>
                         )}
-                        <div style={{
-                          whiteSpace: "pre-wrap", fontSize: 15, lineHeight: 1.85,
-                          color: "#2a2722", fontFamily: "Georgia, 'Times New Roman', serif",
-                        }}>
-                          {generatedLetter}
-                          {generatingLetter && generatedLetter && (
-                            <span style={{
-                              display: "inline-block", width: 2, height: 18,
-                              background: COLORS.gold, marginLeft: 2,
-                              animation: "blink 0.8s infinite",
-                            }} />
-                          )}
-                        </div>
+                        {/* While streaming, render read-only so the typing effect and
+                            cursor aren't fighting a controlled input. Once it's done,
+                            swap to a textarea — this is a draft the student edits and
+                            signs, not a finished artifact handed to them. */}
+                        {generatingLetter ? (
+                          <div style={{
+                            whiteSpace: "pre-wrap", fontSize: 15, lineHeight: 1.85,
+                            color: "#2a2722", fontFamily: "Georgia, 'Times New Roman', serif",
+                          }}>
+                            {generatedLetter}
+                            {generatedLetter && (
+                              <span style={{
+                                display: "inline-block", width: 2, height: 18,
+                                background: COLORS.gold, marginLeft: 2,
+                                animation: "blink 0.8s infinite",
+                              }} />
+                            )}
+                          </div>
+                        ) : (
+                          <textarea
+                            value={generatedLetter}
+                            onChange={e => setGeneratedLetter(e.target.value)}
+                            spellCheck
+                            aria-label="Your letter — edit before saving"
+                            style={{
+                              width: "100%", minHeight: 480, boxSizing: "border-box",
+                              whiteSpace: "pre-wrap", fontSize: 15, lineHeight: 1.85,
+                              color: "#2a2722", fontFamily: "Georgia, 'Times New Roman', serif",
+                              background: "transparent", border: "none", outline: "none",
+                              padding: 0, resize: "vertical", display: "block",
+                            }}
+                          />
+                        )}
                       </div>
                     </GlowCard>
+                    {!generatingLetter && generatedLetter && (
+                      <div style={{ fontSize: 12, fontFamily: FONTS.body, color: COLORS.textDim, marginBottom: 12 }}>
+                        This is a draft in your voice. Click into it and edit anything before you save or send it — you stay the author.
+                      </div>
+                    )}
                     {!generatingLetter && generatedLetter && (
                       <div style={{ display: "flex", gap: 12 }}>
                         <Button onClick={() => {
@@ -2863,7 +3246,7 @@ ${profileSummary}`;
                           saveLetter({ content: generatedLetter, scholarshipName: label, template: selectedTemplate?.name, scholarshipId: selectedScholarship?.id });
                         }}>Save Letter</Button>
                         <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(generatedLetter); notify("Copied!", "success"); }}>Copy to Clipboard</Button>
-                        <Button variant="ghost" onClick={generateLetter}>Regenerate</Button>
+                        <Button variant="ghost" onClick={() => generateLetter({ isRegenerate: true })}>Regenerate</Button>
                       </div>
                     )}
                   </div>
@@ -2990,10 +3373,13 @@ ${profileSummary}`;
 
                     {/* Application list */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                      {trackedApps.sort((a, b) => {
-                        // Sort by deadline urgency
-                        const da = new Date(a.deadline), db = new Date(b.deadline);
-                        if (isNaN(da)) return 1; if (isNaN(db)) return -1;
+                      {/* Copy before sorting — .sort() mutates, and trackedApps is state. */}
+                      {[...trackedApps].sort((a, b) => {
+                        // Sort by deadline urgency; undated entries sink to the bottom.
+                        const da = parseDeadlineDate(a.deadline), db = parseDeadlineDate(b.deadline);
+                        if (!da && !db) return 0;
+                        if (!da) return 1;
+                        if (!db) return -1;
                         return da - db;
                       }).map(app => {
                         const deadlineInfo = parseDeadline(app.deadline);
@@ -3096,7 +3482,17 @@ ${profileSummary}`;
           .landing-pricing-grid { grid-template-columns: 1fr !important; max-width: 380px !important; }
           .landing-nav { padding: 12px 16px !important; }
           .landing-nav-buttons { gap: 6px !important; }
-          .landing-nav-buttons button { font-size: 11px !important; padding: 6px 12px !important; }
+          /* 44px minimum touch target — small type is fine, small hit areas are not */
+          .landing-nav-buttons button { font-size: 12px !important; padding: 10px 14px !important; min-height: 44px; }
+
+          /* Phones get the poster still instead of the video download */
+          .hero-video { display: none !important; }
+          .hero-poster-mobile { display: block !important; }
+
+          /* Editorial story spread stacks on small screens */
+          .landing-story-grid { grid-template-columns: 1fr !important; }
+          .landing-story-grid .landing-story-image { min-height: 260px !important; }
+          .landing-story-grid img, .landing-story-image > div:first-of-type { border-radius: 14px 14px 0 0 !important; }
 
           /* App shell */
           .mobile-menu-btn { display: block !important; }

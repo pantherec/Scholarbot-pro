@@ -71,9 +71,11 @@ export default async function handler(req, res) {
             updated_at: new Date().toISOString(),
           }).eq("id", userId);
         } else if (session.mode === "payment") {
-          // Seasonal one-time payment — set expiry 6 months out
+          // Seasonal one-time payment — expiry matches the marketed product:
+          // the pricing page sells "$29.99 / 4 months" ("4 months of full
+          // access"), so write exactly that. (Was +6, an unadvertised bonus.)
           const expiresAt = new Date();
-          expiresAt.setMonth(expiresAt.getMonth() + 6);
+          expiresAt.setMonth(expiresAt.getMonth() + 4);
 
           await supabase.from("user_profiles").update({
             subscription_status: "seasonal",
