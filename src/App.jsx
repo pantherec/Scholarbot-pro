@@ -674,9 +674,11 @@ export default function MeritLaunch() {
   const [filterNeedBased, setFilterNeedBased] = useState("all");
   const [filterCountry, setFilterCountry] = useState("all");
   const [filterState, setFilterState] = useState("all");
-  // Expired scholarships are hidden by default — a dead listing is never actionable.
-  // The toggle brings them back for students researching next year's cycle.
-  const [showExpired, setShowExpired] = useState(false);
+  // Expired scholarships stay in the catalog and are visible by default — most are
+  // annual and come back, and a monthly server job (api/refresh-expired.js) re-checks
+  // them for new deadlines. Sorting keeps them below live listings; the toggle hides
+  // them entirely for students who only want what's open right now.
+  const [showExpired, setShowExpired] = useState(true);
   const [matchResults, setMatchResults] = useState([]);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATES[0]);
@@ -2670,7 +2672,7 @@ Silently re-read your draft once and fix any violation of the rules above — a 
                 }}>
                   <span style={{ fontSize: 18, flexShrink: 0, marginTop: -1 }}>&#9432;</span>
                   <span>
-                    <strong style={{ color: COLORS.orange }}>Disclaimer:</strong> MeritLaunch aggregates scholarship information from public sources for your convenience. While we work to keep this data accurate, we cannot independently verify every listing. Always confirm eligibility, deadlines, and legitimacy directly with the scholarship provider before applying. <strong>Never pay an application fee for a legitimate scholarship.</strong>
+                    <strong style={{ color: COLORS.orange }}>Disclaimer:</strong> MeritLaunch aggregates scholarship information from public sources for your convenience. While we work to keep this data accurate, we cannot independently verify every listing. Always confirm eligibility, deadlines, and legitimacy directly with the scholarship provider before applying. <strong>Never pay an application fee for a legitimate scholarship.</strong> Expired listings stay in the catalog — most scholarships are annual, and we automatically re-check them each month for new deadlines.
                   </span>
                 </div>
 
@@ -2783,14 +2785,14 @@ Silently re-read your draft once and fix any violation of the rules above — a 
                   </select>
                   <button
                     onClick={() => setShowExpired(v => !v)}
-                    title={showExpired ? "Hide scholarships whose deadline has passed" : "Also show scholarships whose deadline has passed"}
+                    title={showExpired ? "Hide scholarships whose deadline has passed — they stay in the catalog and are re-checked monthly" : "Show scholarships whose deadline has passed"}
                     style={{
-                      padding: "12px 16px", background: showExpired ? COLORS.pinkDim : COLORS.surface,
-                      border: `1px solid ${showExpired ? COLORS.pink : COLORS.border}`, borderRadius: 10,
-                      color: showExpired ? COLORS.pink : COLORS.textDim,
+                      padding: "12px 16px", background: showExpired ? COLORS.surface : COLORS.pinkDim,
+                      border: `1px solid ${showExpired ? COLORS.border : COLORS.pink}`, borderRadius: 10,
+                      color: showExpired ? COLORS.textDim : COLORS.pink,
                       fontSize: 13, fontFamily: FONTS.body, cursor: "pointer", whiteSpace: "nowrap",
                     }}>
-                    {showExpired ? "◉" : "○"} Expired{expiredCount > 0 ? ` (${expiredCount})` : ""}
+                    {showExpired ? "Hide expired" : "Show expired"}{expiredCount > 0 ? ` (${expiredCount})` : ""}
                   </button>
                   {availableStates.length > 0 && (
                     <select value={filterState} onChange={e => setFilterState(e.target.value)}

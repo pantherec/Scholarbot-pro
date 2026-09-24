@@ -3,8 +3,17 @@
     {
       "path": "/api/deadline-alerts",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/refresh-expired",
+      "schedule": "30 7 * * *"
     }
   ],
+  "functions": {
+    "api/refresh-expired.js": {
+      "maxDuration": 60
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",

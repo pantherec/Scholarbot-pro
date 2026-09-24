@@ -10,6 +10,7 @@
     "coupon:tester": "node scripts/create-friendly-tester-coupon.js"
   },
   "dependencies": {
+    "@sentry/react": "^11.0.0",
     "@supabase/supabase-js": "^2.99.2",
     "@upstash/redis": "^1.38.0",
     "mammoth": "^1.12.0",
