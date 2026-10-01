@@ -37,6 +37,8 @@ const COLORS = {
   tealDim: "rgba(78,205,196,0.12)",
   pink: "#e04040",
   pinkDim: "rgba(224,64,64,0.12)",
+  // Readable red for text on dark/tinted grounds (#e04040 measures 4.3:1 there).
+  urgentText: "#f47a6f",
   purple: "#4ecdc4",
   purpleDim: "rgba(78,205,196,0.12)",
   orange: "#c9a227",
@@ -1592,7 +1594,7 @@ export default function MeritLaunch() {
 
   // Deadline helpers (shared logic in src/lib/deadline.js; colours mapped here).
   const parseDeadlineDate = (deadline) => parseDeadlineDateLib(deadline);
-  const TONE_COLORS = { closed: COLORS.textDim, urgent: COLORS.pink, soon: COLORS.gold, open: COLORS.teal, undated: COLORS.textDim };
+  const TONE_COLORS = { closed: COLORS.textDim, urgent: COLORS.urgentText, soon: COLORS.gold, open: COLORS.teal, undated: COLORS.textDim };
   const parseDeadline = (deadline) => {
     const info = deadlineInfo(deadline);
     return { ...info, color: TONE_COLORS[info.tone] };
@@ -1655,7 +1657,7 @@ export default function MeritLaunch() {
   // Source-link health from the monthly re-check (api/refresh-expired.js).
   const LinkCheck = ({ s }) => {
     const st = s.linkStatus || "";
-    if (st === "dead" || st === "invalid") return <Badge color={COLORS.pink}>Source page gone: verify first</Badge>;
+    if (st === "dead" || st === "invalid") return <Badge color={COLORS.urgentText}>Source page gone: verify first</Badge>;
     if (st.startsWith("unreachable")) return <Badge color={COLORS.gold}>Couldn't reach source: verify first</Badge>;
     if (s.linkVerifiedAt) return <Badge color={COLORS.textMuted}>Link checked {new Date(s.linkVerifiedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</Badge>;
     return null;
