@@ -1,4 +1,15 @@
-# MeritLaunch — Launch Tasks (updated 2026-09-23)
+# MeritLaunch — Launch Tasks (updated 2026-09-30)
+
+> **2026-09-30:** the critic review's 7 blockers are fixed and live (see
+> `docs/critic/PRODUCT_REVIEW_2026-09-30.md`, section 7). Added to your list below:
+> - **Signed-in smoke test (15 min, do this first):** sign in, run matching, draft one letter,
+>   try "Not sure / outline" mode, build a voice profile, and start (then cancel) a checkout.
+>   The AI request path was rebuilt server-side; I verified it refuses unauthenticated calls
+>   but couldn't sign in to exercise it.
+> - **Vercel → Domains:** change the `www` → apex redirect from 307 to 308 (permanent).
+> - **Optional:** set `UNSUBSCRIBE_SECRET` in Vercel (unsubscribe links fall back to `CRON_SECRET`).
+> - **Check** that `UPSTASH_REDIS_REST_URL`/`TOKEN` are set in Vercel production; without them
+>   rate limits reset on every cold start.
 
 The product is live and billing is proven (real charge → webhook → premium, validated 2026-07-10).
 Everything that can be done in code is done — including these, finished since the last version of
