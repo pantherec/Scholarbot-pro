@@ -1,4 +1,6 @@
 import { verifyAuth, checkRateLimit, isUrlSafe, applyCors } from "./_shared/auth.js";
+import { getUsage } from "./_shared/usage.js";
+import { LETTER_MODEL } from "./_shared/prompts.js";
 
 export default async function handler(req, res) {
   applyCors(req, res);
@@ -10,6 +12,14 @@ export default async function handler(req, res) {
 
   const rl = await checkRateLimit(`import:${user.id}`, 20, 3600000);
   if (!rl.allowed) return res.status(429).json({ error: "Rate limit exceeded. Please try again later." });
+
+  // URL import is a paid feature; enforce it here, not only in the browser.
+  try {
+    const usage = await getUsage(user.id);
+    if (!usage.paid) return res.status(402).json({ error: "Importing from a URL is part of Premium and the Season Pass.", code: "paid_feature" });
+  } catch (e) {
+    return res.status(500).json({ error: "Couldn't check your plan. Please try again." });
+  }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: "API key not configured" });
@@ -52,7 +62,7 @@ export default async function handler(req, res) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: LETTER_MODEL,
         max_tokens: 1000,
         messages: [{
           role: "user",

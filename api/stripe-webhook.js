@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
+import { sendEmail, emailFooter } from "./_shared/email.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const supabase = createClient(
@@ -97,8 +98,9 @@ export default async function handler(req, res) {
 
         const status = subscription.status;
         // Map Stripe status to our app status
-        const appStatus = status === "active" ? "premium" :
-                          status === "trialing" ? "premium" : "free";
+        // past_due keeps access while Stripe retries the card (the payment-failed
+        // email promises "nothing is lost"); only a terminal status downgrades.
+        const appStatus = ["active", "trialing", "past_due"].includes(status) ? "premium" : "free";
 
         await supabase.from("user_profiles").update({
           subscription_status: appStatus,
@@ -129,7 +131,28 @@ export default async function handler(req, res) {
       case "invoice.payment_failed": {
         const invoice = event.data.object;
         console.log(`Payment failed for customer ${invoice.customer}`);
-        // Could send an email notification here in the future
+        // Best-effort kind heads-up email; never lets the webhook fail.
+        try {
+          if (invoice.customer) {
+            const { data: prof } = await supabase
+              .from("user_profiles")
+              .select("id, email, name, email_alerts_opt_out")
+              .eq("stripe_customer_id", invoice.customer)
+              .maybeSingle();
+            if (prof && prof.email && !prof.email_alerts_opt_out) {
+              const html = `<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a;">
+    <h2 style="color:#c9a227;margin-bottom:4px;">A quick note about your payment</h2>
+    <p>Hi${prof.name ? " " + prof.name : ""}, your latest MeritLaunch payment didn't go through. This happens sometimes, and nothing is lost: your letters and tracker are all still there.</p>
+    <p>When you have a moment, you can update your card from "Manage billing" in your dashboard.</p>
+    <p><a href="https://meritlaunch.com/app" style="color:#c9a227;">Open MeritLaunch</a></p>
+    ${emailFooter(prof.id)}
+  </div>`;
+              await sendEmail(prof.email, "A quick note about your MeritLaunch payment", html);
+            }
+          }
+        } catch (mailErr) {
+          console.error("Payment-failed email error:", mailErr.message);
+        }
         break;
       }
 

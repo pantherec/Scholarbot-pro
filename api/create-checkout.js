@@ -3,6 +3,14 @@ import { verifyAuth, checkRateLimit, applyCors } from "./_shared/auth.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+// Pin Stripe redirect URLs to known origins; anything else falls back to production.
+const ALLOWED_ORIGINS = new Set([
+  "https://meritlaunch.com",
+  "https://www.meritlaunch.com",
+  "http://localhost:5173",
+]);
+const PREVIEW_ORIGIN_RE = /^https:\/\/scholarbot-pro-[a-z0-9-]+\.vercel\.app$/;
+
 export default async function handler(req, res) {
   applyCors(req, res);
   if (req.method === "OPTIONS") return res.status(200).end();
@@ -19,16 +27,22 @@ export default async function handler(req, res) {
     if (!priceId) return res.status(400).json({ error: "Missing priceId" });
 
     const checkoutMode = mode || "subscription";
-    const origin = req.headers.origin || "https://meritlaunch.com";
+    const reqOrigin = req.headers.origin;
+    const origin = ALLOWED_ORIGINS.has(reqOrigin) || PREVIEW_ORIGIN_RE.test(reqOrigin || "")
+      ? reqOrigin
+      : "https://meritlaunch.com";
 
     // Use the AUTHENTICATED user's id/email — never trust a client-supplied id.
     const sessionParams = {
       mode: checkoutMode,
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${origin}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}?checkout=cancelled`,
-      metadata: { supabase_user_id: user.id },
+      success_url: `${origin}/app?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/app?checkout=cancelled`,
+      metadata: {
+        supabase_user_id: user.id,
+        plan: checkoutMode === "subscription" ? "premium" : "seasonal",
+      },
       allow_promotion_codes: true,
     };
     if (user.email) sessionParams.customer_email = user.email;

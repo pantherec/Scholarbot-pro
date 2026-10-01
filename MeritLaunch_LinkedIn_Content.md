@@ -22,7 +22,7 @@ MeritLaunch was built by a parent who lived it. After watching his kids — AP s
 
 MeritLaunch matches students with scholarships that actually fit their profile, then helps them tell their authentic story in every application. Our AI writing assistant doesn't replace the student — it gives them back their time. Four writing style templates. Built-in authenticity scoring. Real biographical details woven into every letter.
 
-469+ scholarships. $925M+ in opportunities. One profile.
+1,297 scholarships. $11.5M+ in listed awards. One profile.
 
 Your story is the application. We just help you tell it.
 
@@ -46,7 +46,7 @@ MeritLaunch is an AI-powered scholarship platform that does three things:
 
 3. Tracks everything — deadlines, applications sent, results. So families can see the ROI on their effort.
 
-469+ scholarships. $925M+ in opportunities. Built by a parent. For the next family sitting at that kitchen table.
+1,297 scholarships. $11.5M+ in listed awards. Built by a parent. For the next family sitting at that kitchen table.
 
 We're in early development and I'd love feedback from educators, counselors, parents, and students. What would make this tool indispensable for your family or school?
 

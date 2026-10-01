@@ -1,27 +1,27 @@
 import { createClient } from "@supabase/supabase-js";
+import { sendEmail, emailFooter } from "./_shared/email.js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL || "https://zudczsepvkjbjgomgilz.supabase.co",
   process.env.SUPABASE_SERVICE_KEY
 );
 
-// Resend email. If RESEND_API_KEY is unset, email is skipped gracefully
-// (in-app notifications still work). RESEND_FROM must be a verified sender.
+// Email goes through the shared Resend helper. If RESEND_API_KEY is unset,
+// email is skipped gracefully (in-app notifications still work).
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const RESEND_FROM = process.env.RESEND_FROM || "MeritLaunch <alerts@meritlaunch.com>";
 
-async function sendEmail(to, subject, html) {
-  if (!RESEND_API_KEY) return { skipped: true };
-  const resp = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: RESEND_FROM, to, subject, html }),
-  });
-  if (!resp.ok) throw new Error(`Resend ${resp.status}: ${await resp.text()}`);
-  return resp.json();
+function buildSeasonEndingHtml(name, endDate, userId) {
+  return `<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a;">
+    <h2 style="color:#c9a227;margin-bottom:4px;">Your Season Pass ends ${endDate}</h2>
+    <p>Hi${name ? " " + name : ""}, just a friendly heads-up: your MeritLaunch Season Pass access ends on ${endDate}.</p>
+    <p>Your saved letters and your tracker stay available on the free plan, so nothing you've built goes away.</p>
+    <p>If you'd like more time with full access, you can renew anytime from your dashboard.</p>
+    <p><a href="https://meritlaunch.com/app" style="color:#c9a227;">Open MeritLaunch</a></p>
+    ${emailFooter(userId)}
+  </div>`;
 }
 
-function buildDigestHtml(name, items) {
+function buildDigestHtml(name, items, userId) {
   const rows = items
     .map(
       (a) =>
@@ -37,7 +37,7 @@ function buildDigestHtml(name, items) {
   } coming up in the next week:</p>
     <ul style="padding-left:18px;">${rows}</ul>
     <p style="margin-top:18px;">Open MeritLaunch to finish your application and generate a letter.</p>
-    <p style="color:#777;font-size:12px;margin-top:24px;">You're receiving this because you're tracking these scholarships in MeritLaunch.</p>
+    ${emailFooter(userId)}
   </div>`;
 }
 
@@ -144,7 +144,7 @@ export default async function handler(req, res) {
       const userIds = Object.keys(byUser);
       const { data: profiles } = await supabase
         .from("user_profiles")
-        .select("id, email, name")
+        .select("id, email, name, email_alerts_opt_out")
         .in("id", userIds);
       const profileMap = {};
       (profiles || []).forEach((p) => { profileMap[p.id] = p; });
@@ -152,12 +152,13 @@ export default async function handler(req, res) {
       for (const userId of userIds) {
         const profile = profileMap[userId];
         if (!profile || !profile.email) continue;
+        if (profile.email_alerts_opt_out) continue;
         const items = byUser[userId].sort((x, y) => x.daysUntil - y.daysUntil);
         const subject = items.length === 1
           ? `Deadline soon: ${items[0].scholarshipName}`
           : `${items.length} scholarship deadlines coming up`;
         try {
-          await sendEmail(profile.email, subject, buildDigestHtml(profile.name, items));
+          await sendEmail(profile.email, subject, buildDigestHtml(profile.name, items, userId));
           emailsSent++;
         } catch (e) {
           emailErrors++;
@@ -166,11 +167,68 @@ export default async function handler(req, res) {
       }
     }
 
+    // Job 2: Season Pass ending within 7 days.
+    let seasonEndingNotices = 0, seasonEndingEmails = 0;
+    try {
+      const weekOut = new Date(now.getTime() + 7 * 86400000);
+      const { data: ending, error: endErr } = await supabase
+        .from("user_profiles")
+        .select("id, email, name, seasonal_expires_at, email_alerts_opt_out")
+        .eq("subscription_status", "seasonal")
+        .gte("seasonal_expires_at", now.toISOString())
+        .lte("seasonal_expires_at", weekOut.toISOString());
+      if (endErr) throw endErr;
+
+      const rows = [];
+      for (const p of ending || []) {
+        const endDate = new Date(p.seasonal_expires_at).toLocaleDateString("en-US", {
+          month: "long", day: "numeric", year: "numeric", timeZone: "UTC",
+        });
+        rows.push({
+          user_id: p.id,
+          type: "season_ending",
+          title: `Your Season Pass ends ${endDate}`,
+          body: "Your saved letters and tracker stay available on the free plan. You can renew anytime from your dashboard.",
+          read: false,
+          created_at: new Date().toISOString(),
+        });
+        p._endDate = endDate;
+      }
+      if (rows.length > 0) {
+        await supabase.from("notifications").upsert(rows, {
+          onConflict: "user_id,title",
+          ignoreDuplicates: true,
+        });
+        seasonEndingNotices = rows.length;
+      }
+
+      if (RESEND_API_KEY) {
+        for (const p of ending || []) {
+          if (!p.email || p.email_alerts_opt_out) continue;
+          try {
+            await sendEmail(
+              p.email,
+              `Your Season Pass ends ${p._endDate}`,
+              buildSeasonEndingHtml(p.name, p._endDate, p.id)
+            );
+            seasonEndingEmails++;
+          } catch (e) {
+            emailErrors++;
+            console.error(`Season-ending email failed for user ${p.id}:`, e.message);
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Season-ending job error:", e.message || e);
+    }
+
     return res.status(200).json({
       success: true,
       alertsGenerated: alerts.length,
       emailsSent,
       emailErrors,
+      seasonEndingNotices,
+      seasonEndingEmails,
       emailEnabled: Boolean(RESEND_API_KEY),
       timestamp: now.toISOString(),
     });

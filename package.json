@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "coupon:tester": "node scripts/create-friendly-tester-coupon.js"
+    "coupon:tester": "node scripts/create-friendly-tester-coupon.js",
+    "test": "vitest run"
   },
   "dependencies": {
     "@sentry/react": "^11.0.0",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.0",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "vitest": "^2.1.9"
   }
 }
