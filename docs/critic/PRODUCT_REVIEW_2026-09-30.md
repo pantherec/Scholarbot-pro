@@ -253,3 +253,22 @@ every merge, and close a finding only when its measurement moves.
 (4), 6 performance (4), 7 conversion (4). B1 (the RLS self-upgrade) was found by Critic 7 as an open
 question and verified by the lead directly against `pg_policies` and
 `information_schema.column_privileges`.*
+
+
+---
+
+## 7. Build status (same day, commits `979c439` + `506333a`, live on meritlaunch.com)
+
+| Blocker | Status | Check that guards it |
+|---|---|---|
+| B1 self-upgrade to Premium | **Closed.** Column-level grants; migration `lock_billing_and_usage_columns` | Authenticated-role `UPDATE ... subscription_status` fails (verified in a rolled-back txn) |
+| B2 open Claude proxy, client-only limits | **Closed.** Server-built prompts, locked model, server usage + 402 | `core.test.js`: client model/system ignored; prod `/api/generate-stream` = 401 unauthenticated |
+| B3 ineligible matches | **Closed.** `src/lib/matching.js` eligibility pass | Tests over the 5 test profiles; live catalog: 91–126 eligible per profile, no Gates/Ron Brown for Jenna |
+| B4 false pricing | **Closed.** `src/lib/plans.js` drives cards + dialog | Test: card numbers equal `api/_shared/usage.js` limits |
+| B5 fabricated/unstable numbers | **Closed.** Computed from live data, skeletons while loading | Live: "1,297 / $11.5M+ / Listings last checked Sep 30" |
+| B6 keyboard picker + sign-up dialog | **Closed.** ARIA combobox, shared `Modal` | Browser check: type, ArrowDown, Enter selects; Escape closes; Terms is a button |
+| B7 privacy truth + minors' data | **Closed.** Policy rewritten, phone dropped, contact fields never sent to AI, birth year kept only as a 13+ flag | Test: no email/phone/surname in any prompt |
+
+**Re-measured on live (harness, both sizes):** landing, landing bottom and start-free pages: 0 low-contrast (was 18), 0 unlabelled (was 6), 0 small tap targets, 0 console errors. Browse: 24 to 0 after the urgent-badge fix (`506333a`); DOM 18,698 to 580 nodes (paging). Phone landing weight 1.0–1.2 MB to 299 KB.
+
+**Not done in this pass (deliberately):** full view-component extraction and `React.lazy` (logic is extracted to `src/lib` with tests; views still live in `App.jsx`); a type-scale token pass; real social proof (needs the first consented user outcomes); a token-based parent checkout page (shipped a no-data share link instead); season-recap counts in the Season Pass ending email.
