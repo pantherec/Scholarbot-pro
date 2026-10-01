@@ -1,15 +1,5 @@
-import Stripe from "stripe";
 import { verifyAuth, checkRateLimit, applyCors } from "./_shared/auth.js";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-// Pin Stripe redirect URLs to known origins; anything else falls back to production.
-const ALLOWED_ORIGINS = new Set([
-  "https://meritlaunch.com",
-  "https://www.meritlaunch.com",
-  "http://localhost:5173",
-]);
-const PREVIEW_ORIGIN_RE = /^https:\/\/scholarbot-pro-[a-z0-9-]+\.vercel\.app$/;
+import { createPlanCheckout, resolveOrigin, PLAN_PRICES } from "./_shared/billing.js";
 
 export default async function handler(req, res) {
   applyCors(req, res);
@@ -23,37 +13,25 @@ export default async function handler(req, res) {
   if (!rl.allowed) return res.status(429).json({ error: "Too many checkout attempts. Please wait a bit." });
 
   try {
-    const { priceId, mode } = req.body;
-    if (!priceId) return res.status(400).json({ error: "Missing priceId" });
-
-    const checkoutMode = mode || "subscription";
-    const reqOrigin = req.headers.origin;
-    const origin = ALLOWED_ORIGINS.has(reqOrigin) || PREVIEW_ORIGIN_RE.test(reqOrigin || "")
-      ? reqOrigin
-      : "https://meritlaunch.com";
-
-    // Use the AUTHENTICATED user's id/email — never trust a client-supplied id.
-    const sessionParams = {
-      mode: checkoutMode,
-      payment_method_types: ["card"],
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${origin}/app?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/app?checkout=cancelled`,
-      metadata: {
-        supabase_user_id: user.id,
-        plan: checkoutMode === "subscription" ? "premium" : "seasonal",
-      },
-      allow_promotion_codes: true,
-    };
-    if (user.email) sessionParams.customer_email = user.email;
-    if (checkoutMode === "subscription") {
-      sessionParams.subscription_data = { metadata: { supabase_user_id: user.id } };
+    // Accept a plan name. Older clients sent a priceId; map it back to a plan only
+    // if it is one of ours, so an arbitrary price can never be checked out.
+    let plan = req.body?.plan;
+    if (!plan && req.body?.priceId) {
+      plan = Object.keys(PLAN_PRICES).find((k) => PLAN_PRICES[k] === req.body.priceId);
     }
+    if (!PLAN_PRICES[plan]) return res.status(400).json({ error: "Unknown plan" });
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    const origin = resolveOrigin(req);
+    const session = await createPlanCheckout({
+      userId: user.id, // the AUTHENTICATED user — never a client-supplied id
+      plan,
+      email: user.email,
+      successUrl: `${origin}/app?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${origin}/app?checkout=cancelled`,
+    });
     return res.status(200).json({ url: session.url, sessionId: session.id });
   } catch (error) {
     console.error("Stripe checkout error:", error);
-    return res.status(500).json({ error: error.message });
+    return res.status(error.status || 500).json({ error: error.status ? error.message : "Couldn't start checkout. Please try again." });
   }
 }

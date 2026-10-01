@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 Disallow: /app/
+Disallow: /pay/
 Sitemap: https://meritlaunch.com/sitemap.xml

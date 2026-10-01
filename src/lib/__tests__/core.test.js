@@ -139,3 +139,17 @@ describe("SSE parser (stream word-drop fix)", () => {
     expect(out.join("")).toBe("Hello world");
   });
 });
+
+describe("billing and parent pay", async () => {
+  const { PLAN_PRICES, PLAN_MODES } = await import("../../../api/_shared/billing.js");
+  const { viewFromPath } = await import("../../routes.js");
+  it("only checks out the two MeritLaunch prices, with fixed modes", () => {
+    const paid = PLANS.filter((p) => p.id !== "free").map((p) => p.id).sort();
+    expect(Object.keys(PLAN_PRICES).sort()).toEqual(paid);
+    expect(PLAN_MODES).toEqual({ premium: "subscription", seasonal: "payment" });
+  });
+  it("routes /pay/<token> to the standalone parent page", () => {
+    expect(viewFromPath("/pay/abcDEF0123456789abcDEF0123456789")).toBe("parentPay");
+    expect(viewFromPath("/app/matches")).toBe("matches");
+  });
+});

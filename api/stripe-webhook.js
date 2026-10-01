@@ -86,6 +86,13 @@ export default async function handler(req, res) {
           }).eq("id", userId);
         }
 
+        // Paid through a parent link: mark it used so it can't start another checkout.
+        if (session.metadata?.parent_link_token) {
+          await supabase.from("parent_pay_links")
+            .update({ used_at: new Date().toISOString() })
+            .eq("token", session.metadata.parent_link_token);
+        }
+
         console.log(`Checkout completed for user ${userId}, mode: ${session.mode}`);
         break;
       }
