@@ -4,6 +4,8 @@
 > `docs/critic/PRODUCT_REVIEW_2026-09-30.md`, section 7). Added to your list below:
 > - **Signed-in smoke test (15 min, do this first):** sign in, run matching, draft one letter,
 >   try "Not sure / outline" mode, build a voice profile, and start (then cancel) a checkout.
+>   Also open the upgrade dialog, tap "Ask a parent to pay", open the link in a private
+>   window, and start (then cancel) checkout from the parent page.
 >   The AI request path was rebuilt server-side; I verified it refuses unauthenticated calls
 >   but couldn't sign in to exercise it.
 > - **Vercel → Domains:** change the `www` → apex redirect from 307 to 308 (permanent).
