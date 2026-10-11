@@ -25,29 +25,52 @@ export function withTimeout(promise, ms) {
 // sign out all share it), so clearing it is what lets the next attempt succeed.
 export function clearStaleSupabaseSession() {
   try {
-    const ref = SUPABASE_URL.replace("https://", "").split(".")[0];
-    localStorage.removeItem("sb-" + ref + "-auth-token");
+    localStorage.removeItem("sb-" + SUPABASE_URL.replace("https://", "").split(".")[0] + "-auth-token");
   } catch (e) { /* best effort */ }
 }
 
-// Get the current access token without ever hanging: try getSession() (3s cap),
-// then fall back to the session Supabase persists in localStorage.
+const AUTH_STORAGE_KEY = "sb-" + SUPABASE_URL.replace("https://", "").split(".")[0] + "-auth-token";
+
+// The session supabase-js persists in localStorage, read without touching the
+// client (so it can never wait on the client's auth lock).
+export function readStoredSession() {
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.access_token ? parsed : parsed?.currentSession || null;
+  } catch (e) { return null; }
+}
+
+// Get the current access token without ever hanging. A stored token with more
+// than a minute left is used directly; only a missing or expiring token goes
+// through getSession() (3s cap), which refreshes it.
 export async function getAccessTokenSafe() {
   if (!supabase) return null;
+  const stored = readStoredSession();
+  if (stored?.access_token && stored.expires_at && stored.expires_at * 1000 > Date.now() + 60000) {
+    return stored.access_token;
+  }
   try {
     const result = await withTimeout(supabase.auth.getSession(), 3000);
     const token = result?.data?.session?.access_token;
     if (token) return token;
-  } catch (e) { /* fall through to localStorage */ }
-  try {
-    const ref = SUPABASE_URL.replace("https://", "").split(".")[0];
-    const raw = localStorage.getItem("sb-" + ref + "-auth-token");
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      return parsed?.access_token || parsed?.currentSession?.access_token || null;
-    }
-  } catch (e) { /* proceed unauthenticated */ }
-  return null;
+  } catch (e) { /* fall through to the stored token */ }
+  return stored?.access_token || null;
+}
+
+// Every key the app keeps about the student in this browser. Cleared on sign-out
+// and when a different account signs in, so a shared Chromebook never carries
+// one student's profile, letters or tracker into another student's account.
+export const STUDENT_STORAGE_KEYS = [
+  "scholarbot-profile", "scholarbot-letters", "scholarbot-templates", "scholarbot-answers",
+  "scholarbot-voice-profile", "scholarbot-brag-sheet", "scholarbot-draft", "scholarbot-matches",
+  "scholarbot-tracked-apps", "scholarbot-owner",
+];
+export function clearStudentLocalData() {
+  for (const k of STUDENT_STORAGE_KEYS) {
+    try { localStorage.removeItem(k); } catch (e) { /* best effort */ }
+  }
 }
 
 // Attach the Supabase access token to API requests so server endpoints can verify the user.

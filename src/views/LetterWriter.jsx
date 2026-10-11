@@ -268,10 +268,15 @@ export default function LetterWriter() {
                 )}
 
                 <Button onClick={() => generateLetter()}
-                  disabled={generatingLetter || (scholarshipInputMode === "database" ? !selectedScholarship : !customScholarshipText.trim())}
+                  disabled={generatingLetter || !aiPolicy || (scholarshipInputMode === "database" ? !selectedScholarship : !customScholarshipText.trim())}
                   style={{ fontSize: TYPE.md, padding: "14px 40px", marginBottom: 28 }}>
                   {generatingLetter ? "Drafting from your details..." : aiPolicy === "unsure" ? "Make my outline" : "Draft my letter"}
                 </Button>
+                {!aiPolicy && !generatingLetter && (
+                  <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, margin: "-16px 0 28px" }}>
+                    Answer the AI-help question above first.
+                  </p>
+                )}
 
                 {(generatedLetter || generatingLetter) && (
                   <div>

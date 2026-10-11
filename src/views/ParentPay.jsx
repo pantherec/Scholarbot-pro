@@ -66,7 +66,8 @@ export default function ParentPay() {
             <h1 style={{ fontSize: TYPE["3xl"], fontWeight: 400, marginBottom: 10 }}>Thank you. The plan is on its way.</h1>
             <p style={{ ...text, fontSize: TYPE.base }}>
               It's added to your student's account within a minute or two. Stripe emails you a receipt.
-              They can manage or cancel billing anytime from their dashboard.
+              To cancel, your student can use Manage billing in their account, or you can email
+              support@meritlaunch.com with the receipt and we'll cancel it.
             </p>
           </GlowCard>
         )}
@@ -107,9 +108,10 @@ export default function ParentPay() {
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
                 {[
                   "Matches checked for eligibility first (state, citizenship, GPA, heritage), with every deadline tracked.",
-                  "Letter drafts built only from what they've told us. Nothing is invented, and they revise each one into their own words.",
+                  "Letter drafts built only from what they've told us. They check every line and revise each draft into their own words.",
                   "An outline-only option for scholarships that limit AI help. Students are responsible for following each scholarship's rules.",
-                  "Deadline reminder emails, with an unsubscribe link in every one.",
+                  // Say "emails" again once the Resend domain is verified and the weekly digest delivers.
+                  "Deadline reminders in their account, so nothing slips past.",
                 ].map(item => (
                   <li key={item} style={{ display: "flex", gap: 10, fontSize: TYPE.base, ...text }}>
                     <AppIcon name="check" size={16} color={COLORS.teal} style={{ marginTop: 3 }} />{item}

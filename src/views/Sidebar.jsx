@@ -1,6 +1,6 @@
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
-import { supabase, authFetch } from "../lib/api.js";
+import { authFetch } from "../lib/api.js";
 import { BrandMark, LinkButton, AppIcon } from "../ui/components.jsx";
 import { track } from "../analytics.js";
 
@@ -91,15 +91,12 @@ export default function Sidebar() {
                     <button type="button" onClick={async () => {
                       track("portal_opened");
                       try {
-                        const { data: prof } = await supabase.from("user_profiles").select("stripe_customer_id").eq("id", authUser.id).single();
-                        if (prof?.stripe_customer_id) {
-                          const resp = await authFetch("/api/customer-portal", {
-                            method: "POST", headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ customerId: prof.stripe_customer_id }),
-                          });
-                          const data = await resp.json();
-                          if (data.url) window.location.href = data.url;
-                        } else { notify("No billing account found.", "error"); }
+                        const resp = await authFetch("/api/customer-portal", {
+                          method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+                        });
+                        const data = await resp.json();
+                        if (data.url) window.location.href = data.url;
+                        else notify(data.error || "Could not open billing portal.", "error");
                       } catch { notify("Could not open billing portal.", "error"); }
                     }} style={{
                       background: "transparent", border: `1px solid ${COLORS.gold}44`, color: COLORS.gold,
