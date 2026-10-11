@@ -156,3 +156,8 @@ artifact page for Corey.
   Validated run (Wei, `--full --checkout`): 80 eligible matches, matching 7 s, draft 22 s at 392 words
   with no em dashes; outline, voice profile, parent link, a parent page with no student data, and a
   Stripe URL all OK.
+- 2026-10-11: Second review (in-repo skill, 3 merged critics). Composite 4.2 → 5.6; 7 new blockers.
+  Report: `docs/critic/PRODUCT_REVIEW_2026-10-11.md`. The reload sign-out is NOT a sandbox quirk:
+  `onAuthStateChange` awaits a Supabase query while `initialize()` holds the auth lock (deadlock).
+  Critic subagents can't write report files in a cloud session; have them return the report as
+  their final message. Lexi's cloud profile lacks `ageOk`, so her "See my matches" stays disabled.
