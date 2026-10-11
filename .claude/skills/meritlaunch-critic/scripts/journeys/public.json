@@ -1,0 +1,13 @@
+[
+  { "name": "landing", "path": "/" },
+  { "name": "landing_bottom", "path": "/", "steps": [{ "scroll": "bottom", "wait": 900 }] },
+  { "name": "browse", "path": "/scholarships", "steps": [{ "wait": 2500 }] },
+  { "name": "browse_search", "path": "/scholarships", "steps": [{ "wait": 2000 }, { "fill": ["input[type=search], input[placeholder*='Search']", "engineering"] }, { "wait": 900 }] },
+  { "name": "start_free", "path": "/", "steps": [{ "click": "text=Start Free", "wait": 900 }] },
+  { "name": "profile_after_age", "path": "/app/profile", "steps": [{ "select": ["#pq-birthYear", "2008"] }, { "wait": 700 }] },
+  { "name": "dashboard_guest", "path": "/app", "steps": [{ "wait": 1500 }] },
+  { "name": "letters_guest", "path": "/app/letters", "steps": [{ "wait": 1500 }] },
+  { "name": "styles", "path": "/app/styles" },
+  { "name": "deadlines_guest", "path": "/app/deadlines" },
+  { "name": "parent_bad_token", "path": "/pay/not-a-real-token", "steps": [{ "wait": 2500 }] }
+]
