@@ -17,7 +17,8 @@ export const PLANS = [
       `${FREE_LIMITS.matchesPerMonth} match runs per month`,
       `${FREE_LIMITS.lettersPerMonth} AI letter drafts per month`,
       "All 4 writing styles",
-      "Application tracker and deadline emails",
+      // Say "emails" again once the Resend domain is verified and the weekly digest delivers.
+      "Application tracker and deadline reminders",
     ],
     cta: "Start Free",
   },

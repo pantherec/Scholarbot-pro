@@ -16,8 +16,20 @@ const POSTHOG_HOST = "https://us.i.posthog.com";
 
 let ph = null;
 
+// Events fired before posthog-js finishes loading (e.g. checkout_completed on
+// the Stripe return URL) are held here and flushed once it's ready, instead of
+// being silently dropped.
+const pending = [];
+const MAX_PENDING = 50;
+
 function getPosthog() {
   return ph;
+}
+
+function capture(event, properties) {
+  if (ph) { ph.capture(event, properties); return; }
+  if (!POSTHOG_KEY) return;
+  if (pending.length < MAX_PENDING) pending.push([event, properties]);
 }
 
 // Initialize PostHog. Call once on app mount.
@@ -35,6 +47,10 @@ export function initAnalytics() {
       persistence: "localStorage+cookie",
     });
     ph = posthog;
+    while (pending.length) {
+      const [event, properties] = pending.shift();
+      posthog.capture(event, properties);
+    }
   }).catch(() => {
     // posthog-js not installed — graceful no-op
     // To install: npm install posthog-js
@@ -61,21 +77,15 @@ export function resetUser() {
 // ============================================================
 
 export function trackSignupStarted() {
-  const posthog = getPosthog();
-  if (!posthog) return;
-  posthog.capture("signup_started");
+  capture("signup_started");
 }
 
 export function trackSignupCompleted(userId) {
-  const posthog = getPosthog();
-  if (!posthog) return;
-  posthog.capture("signup_completed", { user_id: userId });
+  capture("signup_completed", { user_id: userId });
 }
 
 export function trackLetterGenerated({ scholarshipName, template }) {
-  const posthog = getPosthog();
-  if (!posthog) return;
-  posthog.capture("letter_generated", {
+  capture("letter_generated", {
     scholarship_name: scholarshipName,
     template,
   });
@@ -83,9 +93,7 @@ export function trackLetterGenerated({ scholarshipName, template }) {
 
 // Generic track for any future event
 export function track(event, properties = {}) {
-  const posthog = getPosthog();
-  if (!posthog) return;
-  posthog.capture(event, properties);
+  capture(event, properties);
 }
 
 // Report a client-side render/runtime error so a production crash tells us

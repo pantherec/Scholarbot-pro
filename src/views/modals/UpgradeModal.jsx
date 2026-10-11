@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useApp } from "../../AppContext.js";
 import { authFetch } from "../../lib/api.js";
 import { COLORS, FONTS, TYPE } from "../../ui/theme.js";
-import { Modal, Button } from "../../ui/components.jsx";
+import { Modal, Button, AppIcon } from "../../ui/components.jsx";
 import { track } from "../../analytics.js";
 import { PLANS, FREE_LIMITS } from "../../lib/plans.js";
 
@@ -67,7 +67,14 @@ export default function UpgradeModal() {
                   <div key={pl.id} style={{ background: COLORS.surface, borderRadius: 12, padding: "14px 12px", border: `1px solid ${pl.highlight ? COLORS.gold + "66" : COLORS.border}`, textAlign: "left" }}>
                     <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: pl.highlight ? COLORS.gold : COLORS.teal, fontWeight: 600 }}>{pl.name}</div>
                     <div style={{ fontSize: TYPE["2xl"], margin: "4px 0" }}>{pl.price}<span style={{ fontSize: TYPE.xs, color: COLORS.textMuted, fontFamily: FONTS.body }}>{pl.period}</span></div>
-                    <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5, marginBottom: 10 }}>{pl.tagline}</div>
+                    <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5, marginBottom: 8 }}>{pl.tagline}</div>
+                    <ul style={{ listStyle: "none", padding: 0, margin: "0 0 12px", display: "flex", flexDirection: "column", gap: 4 }}>
+                      {pl.features.filter(f => !f.endsWith(":")).slice(0, 3).map(f => (
+                        <li key={f} style={{ display: "flex", gap: 6, fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.text, lineHeight: 1.4 }}>
+                          <AppIcon name="check" size={12} color={COLORS.teal} style={{ marginTop: 2, flexShrink: 0 }} />{f}
+                        </li>
+                      ))}
+                    </ul>
                     <Button variant={pl.highlight ? "primary" : "secondary"} disabled={checkoutLoading}
                       onClick={() => { setShowUpgradeModal(false); handleCheckout(pl.id); }}
                       style={{ width: "100%", justifyContent: "center", fontSize: TYPE.sm, padding: "10px 12px" }}>

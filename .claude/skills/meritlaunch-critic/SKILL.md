@@ -161,3 +161,9 @@ artifact page for Corey.
   `onAuthStateChange` awaits a Supabase query while `initialize()` holds the auth lock (deadlock).
   Critic subagents can't write report files in a cloud session; have them return the report as
   their final message. Lexi's cloud profile lacks `ageOk`, so her "See my matches" stays disabled.
+- 2026-10-11 (fixes): Blockers 1–4 and 7 fixed on this branch. Sign-in now lands on `/app`, where
+  the sidebar calls the dashboard "Home". The age question needs a Continue click. The AI-policy
+  radio starts unanswered, so the harness checks "allowed" before drafting. `signed_in_flow.mjs` now
+  reports `signedInAfterReload`, and a reload no longer signs out in the sandbox. Lexi has since
+  answered the age question, so her profile has `ageOk`. Don't `pkill -f "vite preview"` in the
+  same shell command as other work: the pattern matches that shell and kills it.

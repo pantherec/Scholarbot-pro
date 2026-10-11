@@ -84,8 +84,11 @@ async function signIn(page, email) {
 // In-app navigation only after sign-in. A full page load (page.goto) re-runs getSession(), which
 // in the sandbox hangs and signs the student out at ~8 s (see SKILL.md Learnings).
 async function nav(page, label) {
-  if (label === 'Dashboard' && await page.getByRole('button', { name: 'Dashboard', exact: true }).count()) {
-    await page.getByRole('button', { name: 'Dashboard', exact: true }).click();
+  if (label === 'Dashboard') {
+    // Sign-in now lands on /app; the sidebar calls the dashboard "Home".
+    const side = page.locator('#app-sidebar').getByRole('button', { name: 'Home', exact: true });
+    if (await side.count()) await side.click();
+    else await page.getByRole('button', { name: 'Dashboard', exact: true }).first().click();
   } else {
     await page.locator('#app-sidebar').getByRole('button', { name: label, exact: true }).click();
   }
@@ -133,9 +136,13 @@ for (const key of picked) {
       await nav(page, 'My Profile');
       await page.waitForTimeout(1600);
       const t = await text(page);
-      r.cloudProfileOnSignIn = !t.includes('What year were you born') && /\d+% profile complete/.test(t);
+      r.cloudProfileOnSignIn = t.includes("you're all set") && /\d+% profile complete/.test(t) && !/\b0% profile complete/.test(t);
       r.signedIn = t.includes('Sign Out');
       await page.screenshot({ path: join(OUT, `${key}_after_signin_profile.png`) });
+      // Still signed in 15 s after a reload? (regression check for the auth-lock deadlock)
+      await page.reload({ waitUntil: 'load' });
+      await page.waitForTimeout(15000);
+      r.signedInAfterReload = (await text(page)).includes('Sign Out');
       await ctx.close();
     }
     // B. The flows, with the saved profile seeded locally (so A's result can't block B).
@@ -165,6 +172,7 @@ for (const key of picked) {
     await page.getByRole('button', { name: 'Paste', exact: true }).click();
     await page.locator('input[placeholder="Scholarship name"]').fill(SCH_NAME);
     await page.locator('textarea[placeholder="Paste the full scholarship description here..."]').fill(SCH_TEXT);
+    await page.locator('input[name="ai-policy"][value="allowed"]').check();
     const t0 = Date.now();
     await page.getByRole('button', { name: /Draft my letter/ }).click();
     const letter = await waitForNewDraft(page, '');

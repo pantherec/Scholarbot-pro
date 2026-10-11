@@ -9,7 +9,7 @@ export default function Deadlines() {
               <div>
                 <SectionHeader title="My Deadlines" subtitle="Everything you're tracking, soonest first. We email reminders a week before each one." />
                 {trackedApps.length === 0 ? (
-                  <EmptyState icon="calendar" title="Nothing tracked yet" desc="Track a scholarship from your matches and its deadline shows up here, with a reminder email."
+                  <EmptyState icon="calendar" title="Nothing tracked yet" desc="Track a scholarship from your matches and its deadline shows up here, with a reminder on your dashboard as it gets close."
                     action={() => setView("matches")} actionLabel="Go to my matches" />
                 ) : (
                   <div>
