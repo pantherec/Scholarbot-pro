@@ -3,6 +3,7 @@ import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { GlowCard, BrandMark, LinkButton, AppIcon, LetterDemo, Button } from "../ui/components.jsx";
 import { PLANS } from "../lib/plans.js";
 import { formatAwardTotal } from "../lib/catalogStats.js";
+import { track } from "../analytics.js";
 
 export default function Landing() {
   const { isMobile, reducedMotion, profile, authUser, setShowAuthModal, setAuthMode, setLegalModal, checkoutLoading, setView, handleCheckout, handleSignOut, catalogReady, catalogStats, catalogCount, lastCheckedLabel } = useApp();
@@ -66,7 +67,7 @@ export default function Landing() {
                 fontSize: TYPE.xs, fontFamily: FONTS.body, letterSpacing: 4, color: COLORS.gold,
                 textTransform: "uppercase", marginBottom: 20,
               }}>
-                AI-Powered Scholarship Matching
+                Eligibility-Checked Scholarship Matching
               </div>
               <h1 className="landing-hero-title" style={{
                 fontSize: TYPE.display, fontWeight: 400, lineHeight: 1.08, marginBottom: 20,
@@ -85,7 +86,7 @@ export default function Landing() {
                 Find scholarships you're actually eligible for, and draft letters from your real story that you revise and send as your own. Built by a parent who's been where you are.
               </p>
               <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-                <Button onClick={() => setView("profile")} style={{ fontSize: TYPE.md, padding: "16px 36px" }}>
+                <Button onClick={() => { track("start_free_clicked"); setView("profile"); }} style={{ fontSize: TYPE.md, padding: "16px 36px" }}>
                   Start Free
                 </Button>
                 <Button variant="secondary" onClick={() => setView("search")} style={{ fontSize: TYPE.md, padding: "16px 36px" }}>
@@ -104,7 +105,7 @@ export default function Landing() {
           }}>
             {[
               { val: catalogCount, label: "Scholarships tracked" },
-              { val: catalogStats ? formatAwardTotal(catalogStats.totalAwards) : null, label: "In listed award amounts" },
+              { val: catalogStats ? formatAwardTotal(catalogStats.openAwards) : null, label: "In open awards" },
               { val: catalogReady ? (lastCheckedLabel || "Monthly") : null, label: lastCheckedLabel ? "Listings last checked" : "Listing checks" },
             ].map((s, i) => (
               <div key={i} style={{ textAlign: "center", minWidth: 120 }}>
@@ -262,7 +263,7 @@ export default function Landing() {
               <LinkButton onClick={() => setLegalModal("privacy")} style={{ color: COLORS.textMuted, padding: "10px 4px" }}>Privacy</LinkButton>
               <LinkButton onClick={() => setLegalModal("terms")} style={{ color: COLORS.textMuted, padding: "10px 4px" }}>Terms</LinkButton>
             </span>
-            {catalogCount && <span>{catalogCount} scholarships · {formatAwardTotal(catalogStats.totalAwards)} in listed awards</span>}
+            {catalogCount && <span>{catalogCount} scholarships · {formatAwardTotal(catalogStats.openAwards)} in open awards</span>}
           </footer>
         </div>
   );

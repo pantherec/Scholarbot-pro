@@ -46,6 +46,10 @@ function buildDigestHtml(name, items, userId) {
 // the year 2001, so those rows produced a hugely negative daysUntil and never
 // fired a reminder — every recurring-deadline scholarship was silently skipped.
 // NOTE: src/App.jsx carries a copy of this parser — keep them in sync.
+// A year-less deadline needs a month name. "Annual", "Year-Round" or "Via
+// FAFSA" carry no date, and V8's lenient parser once read them as January 1.
+const MONTH = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\b/i;
+const NUMERIC_DATE = /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}\b/;
 function parseDeadlineDate(deadline) {
   if (!deadline || typeof deadline !== "string") return null;
   const raw = deadline.trim();
@@ -54,6 +58,7 @@ function parseDeadlineDate(deadline) {
   const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (iso) return new Date(+iso[1], +iso[2] - 1, +iso[3]);
 
+  if (!MONTH.test(raw) && !NUMERIC_DATE.test(raw)) return null;
   if (!/\d{4}/.test(raw)) {
     const probe = new Date(`${raw.replace(/(\d+)(st|nd|rd|th)\b/i, "$1")} 2000`);
     if (!isNaN(probe)) {
