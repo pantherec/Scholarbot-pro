@@ -185,7 +185,7 @@ export default function ProfileBuilder() {
                 </GlowCard>
 
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                  <Button onClick={runMatching} disabled={!profile.ageOk}>See my matches</Button>
+                  <Button onClick={() => { track("profile_completed", { completion: profileCompletion }); runMatching(); }} disabled={!profile.ageOk}>See my matches</Button>
                   <Button variant="ghost" onClick={generateCandidateProfile} disabled={generatingLetter || !profile.ageOk}>
                     {generatingLetter ? "Working..." : "Build my voice profile (optional)"}
                   </Button>

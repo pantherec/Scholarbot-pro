@@ -175,3 +175,13 @@ artifact page for Corey.
   `Deadlines.jsx`, the dashboard toggle and `legalContent.js`. Invented facts: 4/4 drafts across two
   reviews. To stop preview servers use `pgrep -f "[v]ite preview"`: a plain pattern matches the
   shell running it and exit code 144 kills your own command.
+- 2026-10-21 (fixes): Wave 1 and most of wave 2 shipped on the branch. Drafts now carry a fact
+  check (`src/lib/factcheck.js`): every number, age, weekday, time phrase and proper noun absent
+  from the profile is listed under the draft, and Save/Copy wait until each is marked true or
+  rewritten. Numbers compare as written (a 4.0 GPA doesn't vouch for "four"). Citizenship and
+  financial need reach the prompt only when the scholarship text asks or the student ticks the
+  toggle. Matches rebuild locally on sign-in (no run spent). `EMAIL_REMINDERS_LIVE` in
+  `src/lib/features.js` gates every email promise; flip it after the first delivered Resend send.
+  React detaches `<main>`'s ref while a lazy chunk loads, so route focus retries. Never put the
+  server start and a `pkill`/`pgrep -f` of it in the same shell command: the command line itself
+  matches and the shell dies (exit 144). Use `pgrep -f "[v]ite preview"` in its own call.

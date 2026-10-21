@@ -51,6 +51,19 @@ export default function UpgradeModal() {
               <p style={{ fontSize: TYPE.base, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6, marginBottom: 16 }}>
                 {resets ? `Your free allowance resets on ${resets}. ` : ""}Your profile, matches, drafts and tracker all stay put either way.
               </p>
+              {/* The parent option sits above the plans: on a phone it was below the
+                  fold of the dialog, with no cue that there was more to scroll. */}
+              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 14, textAlign: "left" }}>
+                <Button variant="ghost" onClick={sendToParent} disabled={linkBusy} style={{ fontSize: TYPE.sm }}>{linkBusy ? "Creating link..." : "Ask a parent to pay"}</Button>
+                <span style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted }}>A private link that shows nothing about you.</span>
+              </div>
+              {parentLink && (
+                <div style={{ marginBottom: 14, textAlign: "left", fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6 }}>
+                  <label htmlFor="parent-link">Your parent link (works for 7 days, shows nothing about you):</label>
+                  <input id="parent-link" readOnly value={parentLink} onFocus={e => e.target.select()}
+                    style={{ width: "100%", marginTop: 6, padding: "10px 12px", borderRadius: 8, border: `1px solid ${COLORS.fieldBorder}`, background: COLORS.surface, color: COLORS.text, fontFamily: FONTS.mono, fontSize: TYPE.xs, boxSizing: "border-box" }} />
+                </div>
+              )}
               {live.length > 0 && (
                 <div style={{ textAlign: "left", background: COLORS.surface, borderRadius: 12, padding: "14px 16px", marginBottom: 16, border: `1px solid ${COLORS.border}` }}>
                   <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 8 }}>Your next deadlines that still need a letter</div>
@@ -84,16 +97,8 @@ export default function UpgradeModal() {
                 ))}
               </div>
               <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-                <Button variant="ghost" onClick={sendToParent} disabled={linkBusy} style={{ fontSize: TYPE.sm }}>{linkBusy ? "Creating link..." : "Ask a parent to pay"}</Button>
                 <Button variant="ghost" onClick={() => setShowUpgradeModal(false)} style={{ fontSize: TYPE.sm }}>Not now</Button>
               </div>
-              {parentLink && (
-                <div style={{ marginTop: 14, textAlign: "left", fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6 }}>
-                  <label htmlFor="parent-link">Your parent link (works for 7 days, shows nothing about you):</label>
-                  <input id="parent-link" readOnly value={parentLink} onFocus={e => e.target.select()}
-                    style={{ width: "100%", marginTop: 6, padding: "10px 12px", borderRadius: 8, border: `1px solid ${COLORS.fieldBorder}`, background: COLORS.surface, color: COLORS.text, fontFamily: FONTS.mono, fontSize: TYPE.xs, boxSizing: "border-box" }} />
-                </div>
-              )}
             </>
           );
         })()}

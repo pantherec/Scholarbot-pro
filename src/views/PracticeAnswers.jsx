@@ -20,9 +20,9 @@ export default function PracticeAnswers() {
                       }}>
                         {appAnswers[`q${i}`] ? "✓" : i + 1}
                       </span>
-                      <label style={{ fontSize: TYPE.base, fontFamily: FONTS.body, color: COLORS.textMuted }}>{q}</label>
+                      <label htmlFor={`pa-q${i}`} style={{ fontSize: TYPE.base, fontFamily: FONTS.body, color: COLORS.textMuted }}>{q}</label>
                     </div>
-                    <textarea value={appAnswers[`q${i}`] || ""} onChange={e => {
+                    <textarea id={`pa-q${i}`} value={appAnswers[`q${i}`] || ""} onChange={e => {
                       const next = {...appAnswers, [`q${i}`]: e.target.value};
                       setAppAnswers(next); store.set("scholarbot-answers", next);
                     }} rows={5} style={{

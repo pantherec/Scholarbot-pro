@@ -1,4 +1,4 @@
-import { COLORS } from "./theme.js";
+import { COLORS, FONTS } from "./theme.js";
 
 // App-wide CSS: reset, focus rings, keyframes, and the responsive rules that
 // inline styles can't express (media queries, :focus-visible, ::placeholder).
@@ -47,6 +47,10 @@ export default function GlobalStyles() {
             .reveal { animation: revealUp linear both; animation-timeline: view(); animation-range: entry 5% cover 25%; }
           }
         }
+        /* Keyboard users jump past the sidebar; visible only while focused */
+        .skip-link { position: absolute; left: -9999px; top: 8px; z-index: 300; padding: 10px 14px; border-radius: 8px; background: ${COLORS.gold}; color: ${COLORS.bg}; font-family: ${FONTS.body}; font-weight: 600; }
+        .skip-link:focus { left: 8px; outline: 3px solid ${COLORS.text}; }
+
         @media (max-width: 1024px) {
           .landing-hero-title { font-size: clamp(40px, 6vw, 60px) !important; }
           .app-main { padding: 28px 28px !important; }
@@ -67,6 +71,13 @@ export default function GlobalStyles() {
 
           /* App grids stack on phones (inline grid styles need !important here) */
           .two-col { grid-template-columns: 1fr !important; }
+          /* Match cards: ring, text and buttons stack so the name gets the full width */
+          .match-card { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; padding: 16px !important; }
+          .match-card > [role="img"] { align-self: flex-start; }
+          .match-card .match-actions { flex-direction: row !important; flex-wrap: wrap; }
+          .match-card .match-actions > button { flex: 1 1 120px; }
+          .letter-card { padding: 14px !important; }
+          .letter-paper { padding: 20px 16px !important; }
           .dash-stats { grid-template-columns: 1fr 1fr !important; }
           .status-grid { grid-template-columns: repeat(3, 1fr) !important; }
           .step-tabs { overflow-x: auto; }

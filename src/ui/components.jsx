@@ -5,10 +5,12 @@ import { trackError } from "../analytics.js";
 // ============================================================
 // REUSABLE UI COMPONENTS
 // ============================================================
-export function GlowCard({ children, style, hover = true, onClick, glow = COLORS.gold }) {
+export function GlowCard({ children, style, hover = true, onClick, glow = COLORS.gold, className, ...rest }) {
   const [hovered, setHovered] = useState(false);
   return (
     <div
+      className={className}
+      {...rest}
       onClick={onClick}
       onMouseEnter={() => hover && setHovered(true)}
       onMouseLeave={() => hover && setHovered(false)}

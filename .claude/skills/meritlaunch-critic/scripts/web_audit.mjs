@@ -38,7 +38,8 @@ mkdirSync(out, { recursive: true });
 
 const pwDir = arg('pw', 'C:/Users/corey/Documents/Claude/Projects/AI supported Legal Repository Project/juripath-app');
 const req = createRequire(join(pwDir, 'package.json'));
-const { chromium } = req('playwright-core');
+let pw; try { pw = req('playwright-core'); } catch { pw = req('playwright'); }
+const { chromium } = pw;
 
 const viewports = arg('viewports', '390x844,1440x900').split(',').map((v) => {
   const [w, h] = v.split('x').map(Number); return { w, h, label: w < 800 ? 'phone' : 'desktop' };
