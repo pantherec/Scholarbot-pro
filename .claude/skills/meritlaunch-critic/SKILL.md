@@ -167,3 +167,11 @@ artifact page for Corey.
   reports `signedInAfterReload`, and a reload no longer signs out in the sandbox. Lexi has since
   answered the age question, so her profile has `ageOk`. Don't `pkill -f "vite preview"` in the
   same shell command as other work: the pattern matches that shell and kills it.
+- 2026-10-21: Third review (pre-launch, branch `f316a60`, live API = main). Composite 5.6 → 6.2.
+  All 10-11 session fixes held under measurement (reload 3/3, profile on sign-in 3/3, shared device
+  clean). Report: `docs/critic/PRODUCT_REVIEW_2026-10-21.md`. New: clearing local data on sign-out
+  means matches don't follow the student (results were only ever in localStorage); drafts volunteer
+  DACA status because CITIZENSHIP is always in the prompt; three more email promises hide in
+  `Deadlines.jsx`, the dashboard toggle and `legalContent.js`. Invented facts: 4/4 drafts across two
+  reviews. To stop preview servers use `pgrep -f "[v]ite preview"`: a plain pattern matches the
+  shell running it and exit code 144 kills your own command.
