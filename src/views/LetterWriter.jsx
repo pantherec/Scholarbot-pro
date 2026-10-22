@@ -1,10 +1,34 @@
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { GlowCard, ICON_PATHS, LinkButton, AppIcon, Button, SectionHeader } from "../ui/components.jsx";
 import { FREE_LIMITS } from "../lib/plans.js";
+import { findUnsupportedDetails, describeDetail } from "../lib/factcheck.js";
+import { track } from "../analytics.js";
 
 export default function LetterWriter() {
-  const { profile, scholarshipQuery, setScholarshipQuery, scholarshipPickerOpen, setScholarshipPickerOpen, scholarshipDB, matchResults, essayPrompt, setEssayPrompt, wordLimit, setWordLimit, aiPolicy, setAiPolicy, pickerActive, setPickerActive, selectedScholarship, setSelectedScholarship, selectedTemplate, setSelectedTemplate, templates, generatedLetter, setGeneratedLetter, generatingLetter, setProfileStep, scholarshipInputMode, setScholarshipInputMode, customScholarshipText, setCustomScholarshipText, customScholarshipName, setCustomScholarshipName, scholarshipUrl, setScholarshipUrl, fetchingUrl, uploadedScholarshipName, authUser, monthlyLettersUsed, setView, scholarshipFileRef, isPremium, openUpgrade, handleScholarshipUpload, fetchScholarshipFromUrl, notify, saveLetter, thinFields, generateLetter, parseDeadline, catalogCount } = useApp();
+  const { bragSheet, appAnswers, generatedProfile, includeSensitive, setIncludeSensitive, profile, scholarshipQuery, setScholarshipQuery, scholarshipPickerOpen, setScholarshipPickerOpen, scholarshipDB, matchResults, essayPrompt, setEssayPrompt, wordLimit, setWordLimit, aiPolicy, setAiPolicy, pickerActive, setPickerActive, selectedScholarship, setSelectedScholarship, selectedTemplate, setSelectedTemplate, templates, generatedLetter, setGeneratedLetter, generatingLetter, setProfileStep, scholarshipInputMode, setScholarshipInputMode, customScholarshipText, setCustomScholarshipText, customScholarshipName, setCustomScholarshipName, scholarshipUrl, setScholarshipUrl, fetchingUrl, uploadedScholarshipName, authUser, monthlyLettersUsed, setView, scholarshipFileRef, isPremium, openUpgrade, handleScholarshipUpload, fetchScholarshipFromUrl, notify, saveLetter, thinFields, generateLetter, parseDeadline, catalogCount } = useApp();
+
+  // Details the draft added that the student never gave us (an age, a count, a
+  // weekday, a name). Each one is listed until the student marks it true or
+  // rewrites it; Save and Copy wait until the list is empty.
+  const [kept, setKept] = useState(() => new Set());
+  const letterRef = useRef(null);
+  useEffect(() => { if (generatingLetter) setKept(new Set()); }, [generatingLetter]);
+  const flagged = useMemo(() => {
+    if (generatingLetter || !generatedLetter) return [];
+    const scholarship = scholarshipInputMode === "database" ? (selectedScholarship || {}) : { name: customScholarshipName, description: customScholarshipText };
+    return findUnsupportedDetails(generatedLetter, { profile, bragSheet, appAnswers, scholarship, essayPrompt, voiceProfile: generatedProfile });
+  }, [generatedLetter, generatingLetter, profile, bragSheet, appAnswers, scholarshipInputMode, selectedScholarship, customScholarshipName, customScholarshipText, essayPrompt, generatedProfile]);
+  const toCheck = flagged.filter(f => !kept.has(f.text.toLowerCase()));
+  const findInLetter = (f) => {
+    const el = letterRef.current;
+    const i = generatedLetter.indexOf(f.text);
+    if (!el || i < 0) return;
+    el.focus();
+    el.setSelectionRange(i, i + f.text.length);
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
   return (
               <div>
                 <SectionHeader title="Write a Letter" subtitle="Pick a scholarship and a style. You get a draft built from your real details, then you make it yours." />
@@ -260,6 +284,13 @@ export default function LetterWriter() {
                   </div>
                 </fieldset>
 
+                {(profile.citizenship || profile.financialNeed) && (
+                  <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, cursor: "pointer", maxWidth: 560, marginBottom: 16, lineHeight: 1.5 }}>
+                    <input type="checkbox" checked={includeSensitive} onChange={e => setIncludeSensitive(e.target.checked)} style={{ width: 18, height: 18, accentColor: COLORS.gold, marginTop: 1, flexShrink: 0 }} />
+                    <span>Let this draft mention my citizenship status and financial need. Off unless the scholarship asks about them, so you decide what a committee learns.</span>
+                  </label>
+                )}
+
                 {aiPolicy === "allowed" && profile.ageOk && thinFields().length > 0 && (
                   <div style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 16, lineHeight: 1.6 }}>
                     Your draft will be thinner without {thinFields().join(", ")}. Drafts only use what you've told us.{" "}
@@ -268,22 +299,28 @@ export default function LetterWriter() {
                 )}
 
                 <Button onClick={() => generateLetter()}
-                  disabled={generatingLetter || (scholarshipInputMode === "database" ? !selectedScholarship : !customScholarshipText.trim())}
+                  disabled={generatingLetter || !aiPolicy || (scholarshipInputMode === "database" ? !selectedScholarship : !customScholarshipText.trim())}
                   style={{ fontSize: TYPE.md, padding: "14px 40px", marginBottom: 28 }}>
                   {generatingLetter ? "Drafting from your details..." : aiPolicy === "unsure" ? "Make my outline" : "Draft my letter"}
                 </Button>
+                {!aiPolicy && !generatingLetter && (
+                  <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, margin: "-16px 0 28px" }}>
+                    Answer the AI-help question above first.
+                  </p>
+                )}
 
                 {(generatedLetter || generatingLetter) && (
                   <div>
-                    <GlowCard hover={false} style={{
+                    <GlowCard hover={false} className="letter-card" style={{
                       padding: 32, marginBottom: 16,
                       background: COLORS.card,
                       boxShadow: generatingLetter ? `0 0 30px ${COLORS.goldGlow}` : "none",
                       transition: "box-shadow 0.5s ease",
                     }}>
                       {/* Letter paper styling */}
-                      <div style={{
+                      <div className="letter-paper" style={{
                         background: "#fdfcf8", borderRadius: 8, padding: "36px 40px",
+                        maxWidth: 680, margin: "0 auto",
                         boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
                         minHeight: generatingLetter && !generatedLetter ? 200 : "auto",
                       }}>
@@ -313,6 +350,7 @@ export default function LetterWriter() {
                           </div>
                         ) : (
                           <textarea
+                            ref={letterRef}
                             value={generatedLetter}
                             onChange={e => setGeneratedLetter(e.target.value)}
                             spellCheck
@@ -333,13 +371,33 @@ export default function LetterWriter() {
                         This is a draft built from your details. Click into it and rewrite anything so it's fully yours before you save or send it.
                       </div>
                     )}
+                    {!generatingLetter && generatedLetter && toCheck.length > 0 && (
+                      <div role="region" aria-label="Details to check" style={{ marginBottom: 14, padding: "12px 14px", borderRadius: 10, background: COLORS.goldDim, border: `1px solid ${COLORS.gold}55` }}>
+                        <div style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.text, marginBottom: 8, lineHeight: 1.5 }}>
+                          <strong>{toCheck.length} detail{toCheck.length === 1 ? " isn't" : "s aren't"} in your profile.</strong> The draft added {toCheck.length === 1 ? "it" : "them"}. If it's true, keep it. If not, rewrite that line before you save.
+                        </div>
+                        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+                          {toCheck.map(f => (
+                            <li key={f.text} style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", fontSize: TYPE.sm, fontFamily: FONTS.body }}>
+                              <span style={{ background: COLORS.surface, border: `1px solid ${COLORS.border}`, padding: "3px 8px", borderRadius: 6, color: COLORS.text }}>“{f.text}”</span>
+                              <span style={{ color: COLORS.textMuted }}>{describeDetail(f)}</span>
+                              <LinkButton onClick={() => findInLetter(f)}>Find it</LinkButton>
+                              <LinkButton onClick={() => setKept(k => new Set([...k, f.text.toLowerCase()]))}>It's true</LinkButton>
+                            </li>
+                          ))}
+                        </ul>
+                        {toCheck.length > 1 && (
+                          <LinkButton onClick={() => setKept(new Set(flagged.map(f => f.text.toLowerCase())))} style={{ marginTop: 10 }}>All of these are true</LinkButton>
+                        )}
+                      </div>
+                    )}
                     {!generatingLetter && generatedLetter && (
-                      <div style={{ display: "flex", gap: 12 }}>
-                        <Button onClick={() => {
+                      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                        <Button disabled={toCheck.length > 0} title={toCheck.length ? "Check the details above first" : undefined} onClick={() => {
                           const label = scholarshipInputMode === "database" ? selectedScholarship?.name : (customScholarshipName || "Custom Scholarship");
                           saveLetter({ content: generatedLetter, scholarshipName: label, template: selectedTemplate?.name, scholarshipId: selectedScholarship?.id });
                         }}>Save Letter</Button>
-                        <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(generatedLetter); notify("Copied!", "success"); }}>Copy to Clipboard</Button>
+                        <Button variant="secondary" disabled={toCheck.length > 0} title={toCheck.length ? "Check the details above first" : undefined} onClick={() => { navigator.clipboard.writeText(generatedLetter); track("letter_copied"); notify("Copied!", "success"); }}>Copy to Clipboard</Button>
                         <Button variant="ghost" onClick={() => generateLetter({ isRegenerate: true })}>Regenerate</Button>
                       </div>
                     )}

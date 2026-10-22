@@ -49,13 +49,24 @@ const PROFILE_FIELDS = [
 
 const s = (v, n) => sanitizeForPrompt(Array.isArray(v) ? v.join(", ") : (v == null ? "" : String(v)), n);
 
+// Immigration status and family finances are the student's to disclose. They
+// reach the model only when the scholarship itself asks about them or the
+// student turns them on for this draft. A draft once told a committee about a
+// student's DACA status for an award that never asked.
+export const SENSITIVE_FIELDS = {
+  citizenship: /\b(citizen|citizenship|immigra\w*|daca|dreamer|undocu\w*|residen\w*|visa|international|refugee|asylum)\b/i,
+  financialNeed: /\b(need|income|pell|fafsa|financial|low[- ]income|first[- ]generation|hardship|socioeconomic)\b/i,
+};
+
 export function firstName(name) {
   return s(name, 60).split(/\s+/)[0] || "the student";
 }
 
-export function profileSummary(profile = {}) {
+export function profileSummary(profile = {}, { includeSensitive = false, scholarshipText = "" } = {}) {
   const lines = [`FIRST NAME: ${firstName(profile.name)}`];
   for (const [key, label] of PROFILE_FIELDS) {
+    const asks = SENSITIVE_FIELDS[key];
+    if (asks && !includeSensitive && !asks.test(scholarshipText)) continue;
     const v = s(profile[key], 2500);
     if (v) lines.push(`${label}: ${v}`);
   }
@@ -84,8 +95,9 @@ BANNED CLICHES: "I am committed to giving back to my community", "I have overcom
 export function buildLetterRequest(input = {}) {
   const {
     profile = {}, scholarship = {}, templateId, customTemplate, essayPrompt,
-    wordLimit, voiceProfile, bragSheet, appAnswers, mode,
+    wordLimit, voiceProfile, bragSheet, appAnswers, mode, includeSensitive,
   } = input;
+  const scholarshipText = [scholarship.name, scholarship.criteria, scholarship.description, essayPrompt].map((v) => s(v, 8000)).join(" ");
 
   const tpl = TEMPLATES[templateId] || (customTemplate && customTemplate.rules
     ? { name: s(customTemplate.name, 80) || "Custom style", rules: s(customTemplate.rules, 1500) }
@@ -106,7 +118,7 @@ export function buildLetterRequest(input = {}) {
 
   const facts = [
     "STUDENT PROFILE (the student's own answers):",
-    profileSummary(profile),
+    profileSummary(profile, { includeSensitive: includeSensitive === true, scholarshipText }),
     voiceProfile ? `\nVOICE NOTES (built from the student's own answers; match this voice):\n${s(voiceProfile, 4000)}` : "",
     bragSheet ? `\nBRAG SHEET (the student's own document):\n${s(bragSheet, 8000)}` : "",
     appAnswers && Object.keys(appAnswers).length ? `\nAPPLICATION-PREP ANSWERS:\n${s(JSON.stringify(appAnswers), 6000)}` : "",
@@ -140,6 +152,7 @@ HONESTY RULES (non-negotiable):
 - Use only facts from the profile, brag sheet, and answers below. Never invent experiences, names, numbers, awards, or feelings the student did not describe.
 - If a field is blank, leave that topic out rather than filling it with generic claims.
 - Do not claim eligibility the profile does not support. If the profile is silent on a criterion, write around it.
+- Never mention immigration or citizenship status, or the family's finances, unless they appear in the profile below. The student chooses when to share those.
 
 SPECIFICITY:
 Every paragraph needs at least one concrete detail from the student's material: a school, a specific activity, a real number, a place, a named person. Replace "I developed leadership skills" with what the leadership actually looked like.

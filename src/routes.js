@@ -14,3 +14,14 @@ export function viewFromPath(pathname) {
   if (clean.startsWith("/pay/")) return "parentPay";
   return PATH_VIEWS[clean] || (clean.startsWith("/app") ? "home" : "landing");
 }
+
+// Document titles per view, so a route change is announced and tabs are
+// tellable apart. The landing keeps the index.html title.
+export const VIEW_TITLES = {
+  search: "Find Scholarships", home: "Home", profile: "My Profile", profileResult: "Your Voice Profile",
+  matches: "My Matches", apply: "Practice Answers", generate: "Write a Letter", templates: "Writing Styles",
+  saved: "Saved Letters", tracker: "My Deadlines", parentPay: "For a parent or guardian",
+};
+export function titleFor(view) {
+  return VIEW_TITLES[view] ? `${VIEW_TITLES[view]} · MeritLaunch` : "MeritLaunch - Your Story Is the Application";
+}

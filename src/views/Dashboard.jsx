@@ -1,4 +1,5 @@
 import { useApp } from "../AppContext.js";
+import { EMAIL_REMINDERS_LIVE } from "../lib/features.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { supabase } from "../lib/api.js";
 import { GlowCard, AppIcon, Button, SectionHeader } from "../ui/components.jsx";
@@ -14,6 +15,11 @@ export default function Dashboard() {
                 .map(m => ({ ...m, dl: parseDeadline(m.deadline) }))
                 .filter(m => m.dl.days !== null && m.dl.days >= 0 && !trackedApps.some(a => a.scholarshipId === m.id))
                 .sort((a, b) => a.dl.days - b.dl.days);
+              // Among matches due this month, the best fit; otherwise the best fit
+              // overall. The nearest date alone once pointed at a fit-30 listing.
+              const soonMatches = liveMatches.filter(m => m.dl.days <= 30);
+              const bestMatch = (soonMatches.length ? soonMatches : liveMatches).slice().sort((a, b) => (b.matchScore - a.matchScore) || (a.dl.days - b.dl.days))[0];
+              const returning = savedLetters.length + trackedApps.length + matchResults.length > 0;
               const draftFor = (id) => {
                 const sch = scholarshipDB.find(x => x.id === id);
                 if (sch) { setSelectedScholarship(sch); setScholarshipInputMode("database"); }
@@ -25,13 +31,13 @@ export default function Dashboard() {
                 ? { title: "See the scholarships you're eligible for", desc: "We check eligibility first (state, citizenship, GPA, heritage), then rank what fits you.", cta: "See my matches", go: runMatching }
                 : liveTracked.length > 0
                 ? { title: `Next deadline: ${liveTracked[0].name}`, desc: `Due ${liveTracked[0].dl.date.toLocaleDateString("en-US", { month: "long", day: "numeric" })}, ${liveTracked[0].dl.days} days from now. Start the letter this week.`, cta: "Draft this letter", go: () => draftFor(liveTracked[0].scholarshipId) }
-                : liveMatches.length > 0
-                ? { title: `Track your nearest match: ${liveMatches[0].name}`, desc: `Due ${liveMatches[0].dl.date.toLocaleDateString("en-US", { month: "long", day: "numeric" })}. Tracking it adds deadline reminders.`, cta: "Track it", go: () => trackApplication(liveMatches[0]) }
+                : bestMatch
+                ? { title: `${soonMatches.length ? "Your best match due soon" : "Your best match"}: ${bestMatch.name}`, desc: `Due ${bestMatch.dl.date.toLocaleDateString("en-US", { month: "long", day: "numeric" })}, fit ${bestMatch.matchScore} of 100. Tracking it adds deadline reminders.`, cta: "Track it", go: () => trackApplication(bestMatch) }
                 : { title: "Draft your first letter", desc: "Pick any scholarship and get a draft built from your real details.", cta: "Write a letter", go: () => setView("generate") };
               return (
               <div>
                 <SectionHeader
-                  title={profile.name ? `Welcome back, ${profile.name.split(" ")[0]}` : "Your scholarship plan"}
+                  title={profile.name ? `${returning ? "Welcome back" : "Welcome"}, ${profile.name.split(" ")[0]}` : "Your scholarship plan"}
                   subtitle="Here's the most useful thing to do next."
                 />
 
@@ -117,8 +123,9 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                {/* Email reminders preference (the unsubscribe link in every email sets the same flag) */}
-                {authUser && (
+                {/* Email reminders preference (the unsubscribe link in every email sets the same
+                    flag). Hidden until the sending domain is verified: no toggle for emails that can't send. */}
+                {authUser && EMAIL_REMINDERS_LIVE && (
                   <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, cursor: "pointer" }}>
                     <input type="checkbox" checked={!emailOptOut} onChange={async (e) => {
                       const optOut = !e.target.checked;

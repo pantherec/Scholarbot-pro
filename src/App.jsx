@@ -17,11 +17,11 @@ import { PLANS, FREE_LIMITS, PAID_LIMITS } from "./lib/plans.js";
 import { computeCatalogStats, formatAwardTotal } from "./lib/catalogStats.js";
 import { createSseParser } from "./lib/sse.js";
 import { COLORS, FONTS, TYPE } from "./ui/theme.js";
-import { supabase, withTimeout, clearStaleSupabaseSession, authFetch, STRIPE_PRICES, fetchScholarshipsFromSupabase, saveProfileToSupabase, loadProfileFromSupabase, saveLetterToSupabase, loadLettersFromSupabase, store } from "./lib/api.js";
+import { supabase, withTimeout, clearStaleSupabaseSession, clearStudentLocalData, authFetch, STRIPE_PRICES, fetchScholarshipsFromSupabase, saveProfileToSupabase, loadProfileFromSupabase, saveLetterToSupabase, loadLettersFromSupabase, store } from "./lib/api.js";
 import { DEFAULT_SCHOLARSHIP_DB } from "./data/catalog.js";
 import { isUnder13, PROFILE_QUESTIONS, DEFAULT_TEMPLATES, normalizeProfile } from "./data/profile.js";
 import { Badge, AppIcon } from "./ui/components.jsx";
-import { VIEW_PATHS, viewFromPath } from "./routes.js";
+import { VIEW_PATHS, viewFromPath, titleFor } from "./routes.js";
 import { AppContext } from "./AppContext.js";
 import GlobalStyles from "./ui/GlobalStyles.jsx";
 import { readFileAsText } from "./lib/files.js";
@@ -49,6 +49,7 @@ export default function MeritLaunch() {
   const [view, setViewState] = useState(() => (typeof window !== "undefined" ? viewFromPath(window.location.pathname) : "landing"));
   const setView = useCallback((v) => {
     setViewState(v);
+    if (typeof document !== "undefined") document.title = titleFor(v);
     const path = VIEW_PATHS[v] || "/";
     if (typeof window !== "undefined" && window.location.pathname !== path) {
       window.history.pushState({ view: v }, "", path);
@@ -56,7 +57,7 @@ export default function MeritLaunch() {
     if (typeof window !== "undefined") window.scrollTo(0, 0);
   }, []);
   useEffect(() => {
-    const onPop = () => setViewState(viewFromPath(window.location.pathname));
+    const onPop = () => { const v = viewFromPath(window.location.pathname); setViewState(v); document.title = titleFor(v); };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
@@ -91,7 +92,10 @@ export default function MeritLaunch() {
   const [browseLimit, setBrowseLimit] = useState(24);
   const [essayPrompt, setEssayPrompt] = useState("");
   const [wordLimit, setWordLimit] = useState("");
-  const [aiPolicy, setAiPolicy] = useState("allowed"); // allowed | unsure
+  const [aiPolicy, setAiPolicy] = useState(""); // "" until the student answers | allowed | unsure
+  // Citizenship status and financial need reach a draft only when the student
+  // turns this on (or the scholarship itself asks). Off for every new draft.
+  const [includeSensitive, setIncludeSensitive] = useState(false);
   const [pickerActive, setPickerActive] = useState(0);
   const [upgradeReason, setUpgradeReason] = useState(null); // { kind, resetsOn }
   const [emailOptOut, setEmailOptOut] = useState(false);
@@ -124,6 +128,29 @@ export default function MeritLaunch() {
   // Auth state
   const [authUser, setAuthUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  // Which account's cloud profile has loaded (gates cloud profile saves), and
+  // which one is loading now (so duplicate session events don't reload it).
+  const cloudReadyRef = useRef(null);
+  const restoringRef = useRef(null);
+  // Which account's match list was rebuilt locally after sign-in (see below).
+  const autoMatchedRef = useRef(null);
+  // The page region; focused after each in-app route change so screen readers
+  // hear where they landed instead of staying on the sidebar button.
+  const mainRef = useRef(null);
+  const firstViewRef = useRef(true);
+  useEffect(() => {
+    if (firstViewRef.current) { firstViewRef.current = false; return; }
+    // While a lazy view's chunk loads, Suspense hides <main> and React detaches
+    // its ref, so the first try sees nothing; keep trying until it's back.
+    let tries = 12;
+    const focusMain = () => {
+      const el = mainRef.current;
+      if (el) el.focus({ preventScroll: true });
+      if ((!el || document.activeElement !== el) && --tries > 0) timer = setTimeout(focusMain, 150);
+    };
+    let timer = setTimeout(focusMain, 0);
+    return () => clearTimeout(timer);
+  }, [view]);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState("signin"); // signin | signup | forgot | reset
   const [legalModal, setLegalModal] = useState(null); // null | "privacy" | "terms"
@@ -189,6 +216,7 @@ export default function MeritLaunch() {
     }
     setCheckoutLoading(true);
     track("checkout_started", { plan });
+    store.set("scholarbot-checkout-plan", plan); // read back on the success URL
     try {
       const isSubscription = plan === "premium";
       const resp = await authFetch("/api/create-checkout", {
@@ -219,7 +247,7 @@ export default function MeritLaunch() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("checkout") === "success") {
       notify("Payment received. Activating your plan...", "success");
-      track("checkout_completed");
+      track("checkout_completed", { plan: store.get("scholarbot-checkout-plan") || "unknown" });
       window.history.replaceState({}, "", window.location.pathname);
       // The webhook flips the plan; poll the server briefly instead of guessing.
       let tries = 0;
@@ -356,6 +384,9 @@ export default function MeritLaunch() {
       else {
         setShowAuthModal(false); setAuthEmail(""); setAuthPassword("");
         notify("Welcome back!", "success");
+        track("signin_completed");
+        // A returning student lands on their dashboard, not the marketing page.
+        if (window.location.pathname === "/") setView("home");
         if (data?.user?.id) identifyUser(data.user.id);
       }
     } catch(e) { setAuthError("Something went wrong. Please try again."); }
@@ -416,7 +447,15 @@ export default function MeritLaunch() {
     const result = await withTimeout(supabase?.auth.signOut() ?? Promise.resolve(true), 3000);
     if (result === null) clearStaleSupabaseSession();
     resetUser(); // clear PostHog identity on sign-out
+    // Shared Chromebooks: nothing about this student stays in the browser.
+    clearStudentLocalData();
+    cloudReadyRef.current = null;
+    autoMatchedRef.current = null;
     setAuthUser(null);
+    setProfile({}); setSavedLetters([]); setTrackedApps([]); setMatchResults([]);
+    setGeneratedLetter(""); setAppAnswers({}); setGeneratedProfile(""); setBragSheet("");
+    setTemplates(DEFAULT_TEMPLATES); setSelectedScholarship(null); setEssayPrompt("");
+    setView("landing");
     notify("Signed out.", "info");
   };
 
@@ -456,10 +495,9 @@ export default function MeritLaunch() {
     }
 
     // Loads subscription status, usage counters, notifications, and tracked
-    // applications for a signed-in user. Called from BOTH the initial session
-    // check and onAuthStateChange below — onAuthStateChange alone can miss a
-    // session that's silently restored from localStorage on page load,
-    // which was leaving premium users showing as "Free" after a refresh.
+    // applications for a signed-in user. Called from restoreAccount on the first
+    // session event (INITIAL_SESSION on page load, SIGNED_IN on sign-in), and
+    // again on later SIGNED_IN events for the same account.
     const loadAccountData = async (user) => {
       // Plan, Season Pass expiry and the monthly reset are all applied on the
       // server (api/usage.js); the browser can no longer write those columns.
@@ -503,84 +541,95 @@ export default function MeritLaunch() {
           notes: a.notes || "",
         }));
         const localIds = new Set(merged.map(a => a.scholarshipId));
-        const localOnly = trackedApps.filter(a => !localIds.has(a.scholarshipId));
+        const localApps = store.get("scholarbot-tracked-apps") || [];
+        const localOnly = localApps.filter(a => !localIds.has(a.scholarshipId));
         const combined = [...merged, ...localOnly];
         setTrackedApps(combined);
         localStorage.setItem("scholarbot-tracked-apps", JSON.stringify(combined));
       }
     };
 
-    // Auth listener
-    if (supabase) {
-      // 8s cap — a stuck/corrupted session must never leave the app spinning on
-      // auth forever. On timeout, clear the bad session so the next sign-in
-      // attempt starts clean instead of inheriting the same deadlock.
-      withTimeout(supabase.auth.getSession(), 8000).then(result => {
-        if (result === null) {
-          clearStaleSupabaseSession();
-          setAuthUser(null);
-          setAuthLoading(false);
-          return;
-        }
-        const { data: { session } } = result;
-        setAuthUser(session?.user ?? null);
-        setAuthLoading(false);
-        // If logged in, try to load cloud profile
-        if (session?.user) {
-          loadProfileFromSupabase(session.user.id).then(cloudProfile => {
-            if (cloudProfile && Object.keys(cloudProfile).length > 0) {
-              const normalized = normalizeProfile(cloudProfile);
-              setProfile(normalized);
-              store.set("scholarbot-profile", normalized);
-            }
-          });
-          loadLettersFromSupabase(session.user.id).then(cloudLetters => {
-            if (cloudLetters && cloudLetters.length > 0) {
-              setSavedLetters(cloudLetters);
-            }
-          });
-          loadAccountData(session.user);
-        }
-      });
-
-      // Check URL for recovery flow on initial load
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const urlType = hashParams.get("type");
-      if (urlType === "recovery") {
-        // Supabase v2: recovery token is in the URL hash — wait for session, then show reset modal
-        const checkRecovery = setInterval(async () => {
-          const { data: { session: recoverySess } } = await supabase.auth.getSession();
-          if (recoverySess) {
-            clearInterval(checkRecovery);
-            setAuthUser(recoverySess.user);
-            setAuthMode("reset");
-            setShowAuthModal(true);
-            setNewPassword("");
-            setConfirmPassword("");
-            setAuthError("");
-            // Clean up the URL hash so refresh doesn't re-trigger
-            window.history.replaceState(null, "", window.location.pathname);
-          }
-        }, 300);
-        setTimeout(() => clearInterval(checkRecovery), 10000); // safety timeout
+    // Restores everything a signed-in student saved: profile, letters, then
+    // plan, usage and tracker (loadAccountData). Runs once per account, on the
+    // first session event for it (page load or a fresh sign-in alike).
+    const restoreAccount = async (user) => {
+      const owner = store.get("scholarbot-owner");
+      if (owner && owner !== user.id) {
+        // A different student used this browser last: drop their local data so
+        // none of it is shown to, or synced into, this account.
+        clearStudentLocalData();
+        setProfile({}); setSavedLetters([]); setTrackedApps([]); setMatchResults([]);
+        setGeneratedLetter(""); setAppAnswers({}); setGeneratedProfile(""); setBragSheet("");
+        setTemplates(DEFAULT_TEMPLATES);
       }
+      store.set("scholarbot-owner", user.id);
 
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const local = store.get("scholarbot-profile");
+      const cloudProfile = await loadProfileFromSupabase(user.id);
+      if (cloudProfile && Object.keys(cloudProfile).length > 0) {
+        const normalized = normalizeProfile(cloudProfile);
+        setProfile(normalized);
+        store.set("scholarbot-profile", normalized);
+        // Say so when guest edits in this browser were replaced by the saved copy.
+        const localKeys = Object.keys(local || {}).filter(k => !["ageOk", "under13"].includes(k));
+        if (localKeys.length > 0 && JSON.stringify(normalizeProfile(local)) !== JSON.stringify(normalized)) {
+          notify("We loaded your saved profile. Edits made before signing in weren't kept.", "info");
+        }
+      } else if (local && !local.under13 && Object.keys(local).length > 0) {
+        // New account: keep what they built as a guest and save it to the cloud.
+        saveProfileToSupabase(user.id, local);
+      }
+      // Profile saves go to the cloud only after the cloud copy has loaded, so an
+      // early edit can never overwrite the student's saved profile.
+      cloudReadyRef.current = user.id;
+
+      const cloudLetters = await loadLettersFromSupabase(user.id);
+      if (cloudLetters && cloudLetters.length > 0) {
+        setSavedLetters(cloudLetters);
+        store.set("scholarbot-letters", cloudLetters);
+      }
+      await loadAccountData(user);
+    };
+
+    if (supabase) {
+      // Password-reset links carry type=recovery in the URL hash. supabase-js
+      // normally emits PASSWORD_RECOVERY; the flag covers the case where that
+      // event fired before this listener was attached.
+      let recoveryLink = new URLSearchParams(window.location.hash.substring(1)).get("type") === "recovery";
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        // Keep this callback synchronous. supabase-js holds its auth lock while
+        // it runs, and any awaited Supabase call in here waits on that same lock
+        // forever, which used to sign students out on every reload. Deferred
+        // work runs after the lock is released.
         const user = session?.user ?? null;
         setAuthUser(user);
-        // If user arrived via password reset link, show the reset password modal
-        if (_event === "PASSWORD_RECOVERY") {
+        setAuthLoading(false);
+        if (event === "PASSWORD_RECOVERY" || (recoveryLink && user)) {
+          recoveryLink = false;
           setAuthMode("reset");
           setShowAuthModal(true);
           setNewPassword("");
           setConfirmPassword("");
           setAuthError("");
+          if (window.location.hash) window.history.replaceState(null, "", window.location.pathname);
           return;
         }
-        if (user && supabase) {
-          await loadAccountData(user);
+        if (!user) { cloudReadyRef.current = null; return; }
+        if (cloudReadyRef.current === user.id || restoringRef.current === user.id) {
+          // Same account (token refresh, tab focus): refresh plan and usage only.
+          if (event === "SIGNED_IN") setTimeout(() => loadAccountData(user), 0);
+          return;
         }
+        restoringRef.current = user.id;
+        setTimeout(() => {
+          restoreAccount(user).finally(() => { if (restoringRef.current === user.id) restoringRef.current = null; });
+        }, 0);
       });
+
+      // If supabase-js never reports a session (offline, blocked storage), stop
+      // the spinner. Never delete a stored session here: a slow start is not a
+      // bad token, and wiping it is what signed students out.
+      retryTimers.push(setTimeout(() => setAuthLoading(false), 8000));
 
       return () => { subscription?.unsubscribe(); retryTimers.forEach(clearTimeout); };
     } else {
@@ -605,14 +654,15 @@ export default function MeritLaunch() {
     }
     setProfile(p);
     store.set("scholarbot-profile", p);
-    // Sync to cloud if logged in
-    if (authUser) saveProfileToSupabase(authUser.id, p);
+    // Sync to cloud once this account's saved profile has loaded (see restoreAccount)
+    if (authUser && cloudReadyRef.current === authUser.id) saveProfileToSupabase(authUser.id, p);
   };
   const saveLetter = (letter) => {
     const updated = [...savedLetters, { ...letter, id: Date.now(), date: new Date().toLocaleDateString() }];
     setSavedLetters(updated); store.set("scholarbot-letters", updated);
     // Sync to cloud if logged in
     if (authUser) saveLetterToSupabase(authUser.id, letter);
+    track("letter_saved");
     notify("Letter saved!", "success");
   };
   const saveTemplates = (t) => { setTemplates(t); store.set("scholarbot-templates", t); };
@@ -648,12 +698,14 @@ export default function MeritLaunch() {
         notes: "",
       }).then(() => {});
     }
+    track("scholarship_tracked", { status });
     notify(`Tracking "${scholarship.name}"`, "success");
   };
 
   const updateAppStatus = (appId, newStatus) => {
     const updated = trackedApps.map(a => a.id === appId ? { ...a, status: newStatus } : a);
     setTrackedApps(updated);
+    if (newStatus === "submitted") track("application_submitted");
     localStorage.setItem("scholarbot-tracked-apps", JSON.stringify(updated));
     // Sync to Supabase
     const app = trackedApps.find(a => a.id === appId);
@@ -677,6 +729,20 @@ export default function MeritLaunch() {
   const answered = (q) => q.type === "age" ? !!profile.ageOk
     : Array.isArray(profile[q.id]) ? profile[q.id].length > 0 : !!profile[q.id];
   const profileCompletion = Math.round(PROFILE_QUESTIONS.filter(answered).length / PROFILE_QUESTIONS.length * 100);
+
+  // A student's match list lives only in this browser, and sign-out clears it.
+  // On a new device the dashboard used to say "Run your first match" to someone
+  // with a finished profile, and re-running spent a free run. Rebuild the list
+  // locally instead (matching is local; only the counter is on the server) once
+  // the saved profile and the catalog are both here.
+  useEffect(() => {
+    if (!authUser || !profile.ageOk || profileCompletion < 40 || dbSource !== "synced") return;
+    if (matchResults.length > 0 || autoMatchedRef.current === authUser.id) return;
+    if (cloudReadyRef.current !== authUser.id) return;
+    autoMatchedRef.current = authUser.id;
+    const results = rankMatches(profile, scholarshipDB);
+    if (results.length) { setMatchResults(results); store.set("scholarbot-matches", results.slice(0, 200)); }
+  }, [authUser, profile, profileCompletion, dbSource, matchResults.length, scholarshipDB]);
 
   // Matching
   const runMatching = async () => {
@@ -723,6 +789,7 @@ export default function MeritLaunch() {
       return;
     }
     if (!profile.ageOk) { setView("profile"); notify("Finish the first step of your profile first.", "info"); return; }
+    if (!aiPolicy) { notify("First tell us whether this scholarship allows AI help.", "info"); return; }
     const outline = aiPolicy === "unsure";
     if (!outline && !canGenerateLetter) {
       if (isPremium) notify(`You've used all ${PRO_LIMITS.lettersPerMonth} letters this month. Your limit resets next month.`, "error");
@@ -760,6 +827,7 @@ export default function MeritLaunch() {
           bragSheet: bragSheet || "",
           appAnswers,
           mode: outline ? "outline" : "draft",
+          includeSensitive,
         }),
       });
 
@@ -994,6 +1062,8 @@ export default function MeritLaunch() {
     wordLimit,
     setWordLimit,
     aiPolicy,
+    includeSensitive,
+    setIncludeSensitive,
     setAiPolicy,
     pickerActive,
     setPickerActive,
@@ -1176,6 +1246,7 @@ export default function MeritLaunch() {
 
       {!isLanding && !isStandalone && (
         <>
+          <a href="#main" className="skip-link">Skip to content</a>
           {/* Mobile hamburger */}
           <button type="button" className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Menu" aria-expanded={mobileMenuOpen} aria-controls="app-sidebar" style={{
@@ -1193,7 +1264,7 @@ export default function MeritLaunch() {
           }} />}
 
           <Suspense fallback={<div className="app-loading" aria-busy="true" />}>
-          <div className="app-main" style={{ marginLeft: 240, minHeight: "100vh", padding: "36px 44px" }}>
+          <main id="main" ref={mainRef} tabIndex={-1} className="app-main" style={{ marginLeft: 240, minHeight: "100vh", padding: "36px 44px", outline: "none" }}>
 
             {/* ====== DASHBOARD ====== */}
             {view === "home" && <Dashboard />}
@@ -1227,7 +1298,7 @@ export default function MeritLaunch() {
 
             {/* ====== APPLICATION TRACKER ====== */}
             {view === "tracker" && <Deadlines />}
-          </div>
+          </main>
           </Suspense>
         </>
       )}

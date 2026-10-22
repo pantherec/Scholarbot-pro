@@ -64,6 +64,10 @@ export default async function handler(req, res) {
       if (!PLAN_PRICES[plan]) return res.status(400).json({ error: "Pick a plan." });
       const link = await findLink(req.body?.token);
       if (!link) return res.status(404).json({ error: "This link has expired or isn't valid. Ask for a new one." });
+      // The page hides the plans when the student already has one; refuse here too
+      // so a stale tab or a second parent can't pay twice.
+      const usage = await getUsage(link.user_id).catch(() => null);
+      if (usage?.paid) return res.status(409).json({ error: "Your student already has a plan. Nothing more to pay." });
 
       const origin = resolveOrigin(req);
       const session = await createPlanCheckout({

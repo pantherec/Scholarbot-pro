@@ -48,6 +48,9 @@ export default function ParentPay() {
   };
 
   const paidPlans = PLANS.filter(p => p.id !== "free");
+  // The link check takes a few seconds on a cold server. The page is readable
+  // at once; only the checkout button waits for the token.
+  const showPlans = state === "ready" || state === "loading";
   const text = { fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.65 };
 
   return (
@@ -58,15 +61,14 @@ export default function ParentPay() {
       </header>
 
       <main style={{ maxWidth: 720, margin: "0 auto", padding: "48px 20px 80px" }}>
-        {state === "loading" && <p style={{ ...text, fontSize: TYPE.md }} aria-busy="true">Checking your link...</p>}
-
         {state === "paid" && (
           <GlowCard hover={false} glow={COLORS.teal} style={{ padding: "36px 32px", textAlign: "center" }}>
             <AppIcon name="check" size={40} color={COLORS.teal} style={{ margin: "0 auto 14px" }} />
             <h1 style={{ fontSize: TYPE["3xl"], fontWeight: 400, marginBottom: 10 }}>Thank you. The plan is on its way.</h1>
             <p style={{ ...text, fontSize: TYPE.base }}>
               It's added to your student's account within a minute or two. Stripe emails you a receipt.
-              They can manage or cancel billing anytime from their dashboard.
+              To cancel, your student can use Manage billing in their account, or you can email
+              support@meritlaunch.com with the receipt and we'll cancel it.
             </p>
           </GlowCard>
         )}
@@ -91,7 +93,7 @@ export default function ParentPay() {
           </GlowCard>
         )}
 
-        {state === "ready" && (
+        {showPlans && (
           <>
             <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, letterSpacing: 2, textTransform: "uppercase", color: COLORS.gold, marginBottom: 10 }}>For a parent or guardian</div>
             <h1 style={{ fontSize: TYPE["4xl"], fontWeight: 400, lineHeight: 1.15, marginBottom: 14, textWrap: "balance" }}>
@@ -107,9 +109,10 @@ export default function ParentPay() {
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
                 {[
                   "Matches checked for eligibility first (state, citizenship, GPA, heritage), with every deadline tracked.",
-                  "Letter drafts built only from what they've told us. Nothing is invented, and they revise each one into their own words.",
+                  "Letter drafts built only from what they've told us. They check every line and revise each draft into their own words.",
                   "An outline-only option for scholarships that limit AI help. Students are responsible for following each scholarship's rules.",
-                  "Deadline reminder emails, with an unsubscribe link in every one.",
+                  // Say "emails" again once the Resend domain is verified and the weekly digest delivers.
+                  "Deadline reminders in their account, so nothing slips past.",
                 ].map(item => (
                   <li key={item} style={{ display: "flex", gap: 10, fontSize: TYPE.base, ...text }}>
                     <AppIcon name="check" size={16} color={COLORS.teal} style={{ marginTop: 3 }} />{item}
@@ -146,8 +149,8 @@ export default function ParentPay() {
 
             {error && <div role="alert" style={{ padding: "10px 14px", borderRadius: 8, marginBottom: 14, fontSize: TYPE.sm, fontFamily: FONTS.body, background: COLORS.pinkDim, color: COLORS.text, border: `1px solid ${COLORS.pink}66` }}>{error}</div>}
 
-            <Button onClick={checkout} disabled={busy} style={{ fontSize: TYPE.md, padding: "14px 32px" }}>
-              {busy ? "Opening secure checkout..." : `Continue to secure checkout (${paidPlans.find(p => p.id === plan)?.price})`}
+            <Button onClick={checkout} disabled={busy || state === "loading"} aria-busy={state === "loading" || undefined} style={{ fontSize: TYPE.md, padding: "14px 32px" }}>
+              {state === "loading" ? "Checking your link..." : busy ? "Opening secure checkout..." : `Continue to secure checkout (${paidPlans.find(p => p.id === plan)?.price})`}
             </Button>
             <p style={{ ...text, fontSize: TYPE.sm, marginTop: 12 }}>
               Payment is handled by Stripe. Your card details never reach MeritLaunch.

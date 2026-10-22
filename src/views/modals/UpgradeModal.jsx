@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useApp } from "../../AppContext.js";
 import { authFetch } from "../../lib/api.js";
 import { COLORS, FONTS, TYPE } from "../../ui/theme.js";
-import { Modal, Button } from "../../ui/components.jsx";
+import { Modal, Button, AppIcon } from "../../ui/components.jsx";
 import { track } from "../../analytics.js";
 import { PLANS, FREE_LIMITS } from "../../lib/plans.js";
 
@@ -51,6 +51,19 @@ export default function UpgradeModal() {
               <p style={{ fontSize: TYPE.base, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6, marginBottom: 16 }}>
                 {resets ? `Your free allowance resets on ${resets}. ` : ""}Your profile, matches, drafts and tracker all stay put either way.
               </p>
+              {/* The parent option sits above the plans: on a phone it was below the
+                  fold of the dialog, with no cue that there was more to scroll. */}
+              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 14, textAlign: "left" }}>
+                <Button variant="ghost" onClick={sendToParent} disabled={linkBusy} style={{ fontSize: TYPE.sm }}>{linkBusy ? "Creating link..." : "Ask a parent to pay"}</Button>
+                <span style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted }}>A private link that shows nothing about you.</span>
+              </div>
+              {parentLink && (
+                <div style={{ marginBottom: 14, textAlign: "left", fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6 }}>
+                  <label htmlFor="parent-link">Your parent link (works for 7 days, shows nothing about you):</label>
+                  <input id="parent-link" readOnly value={parentLink} onFocus={e => e.target.select()}
+                    style={{ width: "100%", marginTop: 6, padding: "10px 12px", borderRadius: 8, border: `1px solid ${COLORS.fieldBorder}`, background: COLORS.surface, color: COLORS.text, fontFamily: FONTS.mono, fontSize: TYPE.xs, boxSizing: "border-box" }} />
+                </div>
+              )}
               {live.length > 0 && (
                 <div style={{ textAlign: "left", background: COLORS.surface, borderRadius: 12, padding: "14px 16px", marginBottom: 16, border: `1px solid ${COLORS.border}` }}>
                   <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 8 }}>Your next deadlines that still need a letter</div>
@@ -67,7 +80,14 @@ export default function UpgradeModal() {
                   <div key={pl.id} style={{ background: COLORS.surface, borderRadius: 12, padding: "14px 12px", border: `1px solid ${pl.highlight ? COLORS.gold + "66" : COLORS.border}`, textAlign: "left" }}>
                     <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: pl.highlight ? COLORS.gold : COLORS.teal, fontWeight: 600 }}>{pl.name}</div>
                     <div style={{ fontSize: TYPE["2xl"], margin: "4px 0" }}>{pl.price}<span style={{ fontSize: TYPE.xs, color: COLORS.textMuted, fontFamily: FONTS.body }}>{pl.period}</span></div>
-                    <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5, marginBottom: 10 }}>{pl.tagline}</div>
+                    <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5, marginBottom: 8 }}>{pl.tagline}</div>
+                    <ul style={{ listStyle: "none", padding: 0, margin: "0 0 12px", display: "flex", flexDirection: "column", gap: 4 }}>
+                      {pl.features.filter(f => !f.endsWith(":")).slice(0, 3).map(f => (
+                        <li key={f} style={{ display: "flex", gap: 6, fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.text, lineHeight: 1.4 }}>
+                          <AppIcon name="check" size={12} color={COLORS.teal} style={{ marginTop: 2, flexShrink: 0 }} />{f}
+                        </li>
+                      ))}
+                    </ul>
                     <Button variant={pl.highlight ? "primary" : "secondary"} disabled={checkoutLoading}
                       onClick={() => { setShowUpgradeModal(false); handleCheckout(pl.id); }}
                       style={{ width: "100%", justifyContent: "center", fontSize: TYPE.sm, padding: "10px 12px" }}>
@@ -77,16 +97,8 @@ export default function UpgradeModal() {
                 ))}
               </div>
               <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-                <Button variant="ghost" onClick={sendToParent} disabled={linkBusy} style={{ fontSize: TYPE.sm }}>{linkBusy ? "Creating link..." : "Ask a parent to pay"}</Button>
                 <Button variant="ghost" onClick={() => setShowUpgradeModal(false)} style={{ fontSize: TYPE.sm }}>Not now</Button>
               </div>
-              {parentLink && (
-                <div style={{ marginTop: 14, textAlign: "left", fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6 }}>
-                  <label htmlFor="parent-link">Your parent link (works for 7 days, shows nothing about you):</label>
-                  <input id="parent-link" readOnly value={parentLink} onFocus={e => e.target.select()}
-                    style={{ width: "100%", marginTop: 6, padding: "10px 12px", borderRadius: 8, border: `1px solid ${COLORS.fieldBorder}`, background: COLORS.surface, color: COLORS.text, fontFamily: FONTS.mono, fontSize: TYPE.xs, boxSizing: "border-box" }} />
-                </div>
-              )}
             </>
           );
         })()}

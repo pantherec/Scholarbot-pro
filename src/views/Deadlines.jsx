@@ -1,4 +1,5 @@
 import { useApp } from "../AppContext.js";
+import { EMAIL_REMINDERS_LIVE } from "../lib/features.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { GlowCard, AppIcon, Button, SectionHeader, EmptyState } from "../ui/components.jsx";
 import { deadlineInfo } from "../lib/deadline.js";
@@ -7,9 +8,9 @@ export default function Deadlines() {
   const { trackedApps, setView, updateAppStatus, removeTrackedApp, parseDeadlineDate, parseDeadline } = useApp();
   return (
               <div>
-                <SectionHeader title="My Deadlines" subtitle="Everything you're tracking, soonest first. We email reminders a week before each one." />
+                <SectionHeader title="My Deadlines" subtitle={EMAIL_REMINDERS_LIVE ? "Everything you're tracking, soonest first. We email reminders a week before each one." : "Everything you're tracking, soonest first. Reminders show here and on Home a week before each one."} />
                 {trackedApps.length === 0 ? (
-                  <EmptyState icon="calendar" title="Nothing tracked yet" desc="Track a scholarship from your matches and its deadline shows up here, with a reminder email."
+                  <EmptyState icon="calendar" title="Nothing tracked yet" desc="Track a scholarship from your matches and its deadline shows up here, with a reminder on your dashboard as it gets close."
                     action={() => setView("matches")} actionLabel="Go to my matches" />
                 ) : (
                   <div>

@@ -33,7 +33,13 @@ const HERITAGE_PATTERNS = {
   asian: /\b(asian|pacific islander|aapi|apia)\b/,
   native: /\b(native american|american indian|alaska native|indigenous|tribal|tribe|first nations|native hawaiian)\b/,
 };
-const MINORITY = /\b(minority|minorities|underrepresented|students of color)\b/;
+// "Underrepresented" alone is not a heritage term: women-in-STEM and first-gen
+// awards use it too, and were once labelled "heritage-specific" because of it.
+const MINORITY = /\b(minority|minorities|students of color|bipoc|underrepresented (?:racial|ethnic|minorit)\w*|racially underrepresented)\b/;
+// "U.S. citizen", "US citizens", "United States citizen", "American citizen".
+const CITIZEN = /\b(?:u\.?\s?s\.?a?\.?|united states|american) citizens?\b/;
+// Canadian locations, for awards the catalog tags with country "CA".
+const CANADA = /\b(canada|ontario|quebec|qu\u00e9bec|alberta|british columbia|manitoba|saskatchewan|nova scotia|new brunswick|newfoundland|prince edward island|yukon|nunavut)\b|,\s*(on|qc|ab|bc|mb|sk|ns|nb|nl|pe|yt|nt|nu)\b/;
 
 export function studentHeritage(profile) {
   const raw = Array.isArray(profile.ethnicity) ? profile.ethnicity : (profile.ethnicity ? [profile.ethnicity] : []);
@@ -46,6 +52,17 @@ export function studentHeritage(profile) {
   if (/\bwhite\b/.test(text)) groups.add("white");
   if (/multiracial/.test(text)) groups.add("multiracial");
   return groups;
+}
+
+// The country whose awards a student can hold. A US state or a US status means
+// US; a Canadian location means CA; international or unknown means no filter.
+export function studentCountry(profile) {
+  const loc = String(profile.location || "").toLowerCase();
+  if (stateFromLocation(loc)) return "US";
+  if (CANADA.test(loc)) return "CA";
+  const cit = (profile.citizenship || "").toLowerCase();
+  if (cit.startsWith("u.s.") || cit.startsWith("permanent") || cit.startsWith("daca")) return "US";
+  return null;
 }
 
 // Which heritage groups a scholarship is restricted to, if any.
@@ -97,29 +114,35 @@ export function checkEligibility(profile, s) {
   const heritage = scholarshipHeritage(s);
   if (heritage.restricted) {
     const mine = studentHeritage(profile);
+    const specific = [...mine].filter((g) => g !== "multiracial" && g !== "white");
     const declined = mine.size === 0;
-    if (!declined && !mine.has("multiracial")) {
+    // "Multiracial" with no group named says nothing about which groups, so only
+    // that case stays lenient. A student who named a group gets awards for that
+    // group (or for minorities generally), never for a group they didn't name.
+    const onlyMultiracial = mine.has("multiracial") && specific.length === 0 && !mine.has("white");
+    if (!declined && !onlyMultiracial) {
       const overlap = [...heritage.groups].some((g) => mine.has(g));
-      const minorityOk = heritage.minority && [...mine].some((g) => g !== "white");
+      const minorityOk = heritage.minority && (specific.length > 0 || mine.has("multiracial"));
       if (!overlap && !minorityOk) return { eligible: false, why: "heritage" };
     }
   }
 
   // Citizenship and residency.
-  const citizenOnly = /\bu\.?\s?s\.? citizens?\b/.test(text) &&
-    !/(permanent resident|eligible non-?citizen|green card|resident alien|legal resident|daca|dreamer|undocumented)/.test(text);
+  const citizenOnly = CITIZEN.test(text) &&
+    !/(permanent resident|eligible non-?citizen|green card|resident alien|legal resident|daca|dreamer|undocu\w*)/.test(text);
   if (cit.startsWith("international")) {
-    if (/\bu\.?\s?s\.? citizen|permanent resident|federal (financial )?aid|fafsa|pell/.test(text)) return { eligible: false, why: "citizenship" };
+    if (CITIZEN.test(text) || /permanent resident|federal (financial )?aid|fafsa|pell/.test(text)) return { eligible: false, why: "citizenship" };
     if ((s.country || "US") === "CA" && /canadian citizen|permanent resident/.test(text)) return { eligible: false, why: "citizenship" };
   }
   if (cit.startsWith("permanent resident") && citizenOnly) return { eligible: false, why: "citizenship" };
-  if (cit.startsWith("daca") && /\bu\.?\s?s\.? citizen|permanent resident/.test(text) && !/(daca|dreamer|undocumented)/.test(text)) {
+  if (cit.startsWith("daca") && (CITIZEN.test(text) || /permanent resident/.test(text)) && !/(daca|dreamer|undocu\w*)/.test(text)) {
     return { eligible: false, why: "citizenship" };
   }
   // Awards only for DACA/undocumented or international students (TheDream.US,
-  // Golden Door, CA Dream Act) are not for citizens or permanent residents.
-  const nonCitizenOnly = /(daca|undocumented|dreamer|ab ?540|\binternational\b)/.test(text) &&
-    !/(\bcitizens?\b|permanent resident|\blpr\b|incl\.? undocumented|including daca|any (high school )?senior|all students)/.test(text);
+  // Golden Door, "Undocu Students", CA Dream Act) are not for citizens or
+  // permanent residents.
+  const nonCitizenOnly = /(daca|undocu\w*|dreamer|ab ?540|\binternational\b)/.test(text) &&
+    !/(\bcitizens?\b|permanent resident|\blpr\b|incl\.? undocu\w*|including daca|any (high school )?senior|all students)/.test(text);
   if (nonCitizenOnly && (cit.startsWith("u.s.") || cit.startsWith("dual") || cit.startsWith("permanent"))) {
     return { eligible: false, why: "citizenship" };
   }
@@ -127,6 +150,11 @@ export function checkEligibility(profile, s) {
       (s.country || "US") === "CA" && /canadian citizen|permanent resident of canada|canadian permanent/.test(text)) {
     return { eligible: false, why: "citizenship" };
   }
+
+  // Another country's awards. A student in the US can't hold an Alberta or
+  // Ontario award however well the criteria fit.
+  const myCountry = studentCountry(profile);
+  if (myCountry && (s.country || "US") !== myCountry) return { eligible: false, why: "country" };
 
   // State-specific awards (the catalog tags these with a state code).
   const myState = stateFromLocation(profile.location);
@@ -189,7 +217,7 @@ export function scoreMatch(profile, s) {
 
   const req = parseGpaRequirement(text);
   const gpa = parseFloat(profile.gpa);
-  if (req && Number.isFinite(gpa) && gpa >= req) add(10, `Your ${gpa} GPA meets the ${req} minimum`);
+  if (req && Number.isFinite(gpa) && gpa >= req) add(10, `Your ${String(profile.gpa).trim()} GPA meets the ${req.toFixed(1)} minimum`);
 
   if (/(high school senior|graduating senior|graduating high school)/.test(text)) add(5, "For graduating seniors");
 

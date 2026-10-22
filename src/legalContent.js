@@ -1,3 +1,5 @@
+import { EMAIL_REMINDERS_LIVE } from "./lib/features.js";
+
 // Privacy Policy and Terms of Service content for MeritLaunch.
 //
 // This is a plain-language starting point written from what the app
@@ -42,7 +44,9 @@ export const PRIVACY_SECTIONS = [
     body: [
       "To match you with scholarships you may be eligible for.",
       "To draft application letters and a voice profile from your real profile details, in a style you choose. The draft is a starting point. You review it, edit it, and decide what to submit.",
-      "To send you emails: deadline reminders for scholarships you track, reminders that your Season Pass is ending, and payment notices.",
+      EMAIL_REMINDERS_LIVE
+        ? "To send you emails: deadline reminders for scholarships you track, reminders that your Season Pass is ending, and payment notices."
+        : "To show you deadline reminders in your account for scholarships you track. We don't send reminder emails yet; when we do, every one will have an unsubscribe link.",
       "To process payment if you upgrade to a paid plan.",
       "To understand which features are useful so we can improve the product.",
     ],
@@ -62,7 +66,9 @@ export const PRIVACY_SECTIONS = [
       "Anthropic (Claude AI): writes letter drafts and your voice profile. To do that, we send the profile details and brag sheet needed for that draft, plus your first name. We never send your email address.",
       "Vercel: hosting and the serverless functions that run our app.",
       "Stripe: payments. Card details go directly to Stripe and never touch our servers.",
-      "Resend: sends our deadline-alert and account emails.",
+      EMAIL_REMINDERS_LIVE
+        ? "Resend: sends our deadline-reminder and account emails."
+        : "Resend: the service we'll use for deadline-reminder emails once they launch. Nothing is sent through it today.",
       "PostHog: product analytics, only for signed-in users. You are identified by an internal user ID with no name or email. Automatic click capture is turned off.",
       "Sentry: error reports, only if enabled. It is set up not to collect personal information.",
       "We do not send your profile data to scholarship providers. You choose what to submit and where.",
@@ -70,9 +76,12 @@ export const PRIVACY_SECTIONS = [
   },
   {
     heading: "Emails",
-    body: [
+    body: EMAIL_REMINDERS_LIVE ? [
       "We send deadline reminders for scholarships you track, Season Pass ending reminders, and payment notices.",
       "Every email has an unsubscribe link. You can also turn email alerts off with the toggle on your dashboard.",
+    ] : [
+      "Today the only emails you get from us are the sign-in and password emails from our sign-in provider, and payment receipts from Stripe.",
+      "When deadline-reminder emails launch, every one will have an unsubscribe link and a toggle on your dashboard.",
     ],
   },
   {
@@ -132,7 +141,7 @@ export const TERMS_SECTIONS = [
   {
     heading: "Plans and billing",
     body: [
-      "Free: 5 match runs and 2 AI letters per month, all 4 writing styles, the tracker, and deadline alerts.",
+      `Free: 5 match runs and 2 AI letters per month, all 4 writing styles, the tracker, and ${EMAIL_REMINDERS_LIVE ? "deadline alerts" : "deadline reminders in your account"}.`,
       "Premium, $9.99 per month: unlimited match runs, 50 AI letters per month, and scholarship import from a URL.",
       "Season Pass, $29.99 one time: everything in Premium for 4 months. It does not auto-renew.",
       "Premium is a recurring monthly subscription and renews automatically until canceled. You can cancel or manage billing at any time. Cancellation takes effect at the end of the current billing period. Payments are processed by Stripe. Refunds are handled case-by-case. Contact support@meritlaunch.com if something went wrong with a charge.",

@@ -3,6 +3,10 @@
 // text ("Varies", "Rolling"). A bare `new Date("Mar 1")` resolves to the year 2001,
 // so parse deliberately. api/_shared/deadline.js carries the server copy.
 
+// A year-less deadline needs a month name. "Annual", "Year-Round" or "Via
+// FAFSA" carry no date, and V8's lenient parser once read them as January 1.
+const MONTH = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\b/i;
+const NUMERIC_DATE = /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}\b/;
 export function parseDeadlineDate(deadline, now = new Date()) {
   if (!deadline || typeof deadline !== "string") return null;
   const raw = deadline.trim();
@@ -14,6 +18,7 @@ export function parseDeadlineDate(deadline, now = new Date()) {
 
   // Year-less "Mar 1" / "March 1st": a recurring annual deadline, resolved to
   // its next occurrence.
+  if (!MONTH.test(raw) && !NUMERIC_DATE.test(raw)) return null;
   if (!/\d{4}/.test(raw)) {
     const probe = new Date(`${raw.replace(/(\d+)(st|nd|rd|th)\b/i, "$1")} 2000`);
     if (!isNaN(probe)) {

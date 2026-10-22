@@ -1,9 +1,14 @@
+import { useState } from "react";
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { GlowCard, Badge, AppIcon, Button, SectionHeader, EmptyState, ProgressRing } from "../ui/components.jsx";
 
 export default function Matches() {
   const { profile, matchResults, setSelectedScholarship, trackedApps, setScholarshipInputMode, setView, trackApplication, runMatching, parseDeadline, LinkCheck } = useApp();
+  // Five per group until the student asks for more; closed listings start
+  // folded. A guest list once ran to 137 cards and 48,000 px on a phone.
+  const [expanded, setExpanded] = useState({});
+  const PER_GROUP = 5;
   return (
               <div>
                 <SectionHeader
@@ -37,18 +42,21 @@ export default function Matches() {
                     ["soon", "Due in the next 30 days"], ["later", "Due later"],
                     ["undated", "Rolling or varies"], ["closed", "Closed this cycle (usually back next year)"],
                   ];
-                  return sections.filter(([k]) => groups[k].length).map(([k, title]) => (
+                  return sections.filter(([k]) => groups[k].length).map(([k, title]) => {
+                    const shown = expanded[k] ? groups[k] : groups[k].slice(0, k === "closed" ? 0 : PER_GROUP);
+                    const hidden = groups[k].length - shown.length;
+                    return (
                     <section key={k} style={{ marginBottom: 28 }}>
                       <h2 style={{ fontSize: TYPE.lg, fontWeight: 400, marginBottom: 12, color: k === "closed" ? COLORS.textMuted : COLORS.text }}>
                         {title} <span style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted }}>({groups[k].length})</span>
                       </h2>
                       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        {groups[k].map(s => {
+                        {shown.map(s => {
                           const scoreColor = s.matchScore >= 50 ? COLORS.teal : COLORS.gold;
                           const tracked = trackedApps.some(a => a.scholarshipId === s.id);
                           return (
-                            <GlowCard key={s.id} glow={scoreColor} className="match-card" style={{ padding: "18px 22px", display: "flex", alignItems: "center", gap: 18, opacity: k === "closed" ? 0.85 : 1 }}>
-                              <div style={{ position: "relative", flexShrink: 0 }} aria-label={`Fit score ${s.matchScore} out of 100`}>
+                            <GlowCard key={s.id} glow={scoreColor} className="match-card" style={{ padding: "18px 22px", display: "flex", alignItems: "center", gap: 18 }}>
+                              <div role="img" style={{ position: "relative", flexShrink: 0 }} aria-label={`Fit score ${s.matchScore} out of 100`}>
                                 <ProgressRing value={s.matchScore} color={scoreColor} />
                                 <div aria-hidden="true" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", fontSize: TYPE.base, fontWeight: 700, fontFamily: FONTS.body, color: scoreColor }}>{s.matchScore}</div>
                               </div>
@@ -66,10 +74,10 @@ export default function Matches() {
                                 </div>
                                 {s.amount && <div style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.gold, marginTop: 6 }}>{s.amount}</div>}
                               </div>
-                              <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
+                              <div className="match-actions" style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
                                 {k === "closed" ? (
                                   <Button variant="secondary" onClick={() => trackApplication(s)} style={{ fontSize: TYPE.xs, padding: "10px 16px" }}>
-                                    {tracked ? "✓ Tracking" : "Track for next year"}
+                                    {tracked ? <><AppIcon name="check" size={12} /> Tracking</> : "Track for next year"}
                                   </Button>
                                 ) : (
                                   <>
@@ -77,7 +85,7 @@ export default function Matches() {
                                       Draft a letter
                                     </Button>
                                     <Button variant="secondary" onClick={() => trackApplication(s)} style={{ fontSize: TYPE.xs, padding: "8px 14px" }}>
-                                      {tracked ? "✓ Tracked" : "Track"}
+                                      {tracked ? <><AppIcon name="check" size={12} /> Tracked</> : "Track"}
                                     </Button>
                                   </>
                                 )}
@@ -86,8 +94,14 @@ export default function Matches() {
                           );
                         })}
                       </div>
+                      {hidden > 0 && (
+                        <Button variant="ghost" onClick={() => setExpanded(e => ({ ...e, [k]: true }))} style={{ marginTop: 10, fontSize: TYPE.sm }}>
+                          {k === "closed" ? `Show ${hidden} closed listing${hidden === 1 ? "" : "s"}` : `Show all ${groups[k].length}`}
+                        </Button>
+                      )}
                     </section>
-                  ));
+                    );
+                  });
                 })()}
               </div>
   );

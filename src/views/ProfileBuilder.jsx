@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { yearIsUnder13, PROFILE_QUESTIONS, PROFILE_STEPS } from "../data/profile.js";
@@ -50,15 +51,10 @@ export default function ProfileBuilder() {
                           <AppIcon name="check" size={16} color={COLORS.teal} /> Thanks, you're all set.
                         </div>
                       ) : (
-                        <select id={id} aria-describedby={hintId} value="" onChange={e => {
-                          const v = e.target.value;
-                          if (!v) return;
+                        <AgeQuestion id={id} hintId={hintId} options={q.options} onConfirm={v => {
                           if (yearIsUnder13(v)) saveProfile({ under13: true });
                           else saveProfile({ ...profile, ageOk: true });
-                        }} style={{ width: "100%", padding: "12px 16px", background: COLORS.surface, border: `1px solid ${COLORS.fieldBorder}`, borderRadius: 10, color: COLORS.text, fontSize: TYPE.base, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box" }}>
-                          <option value="">Select a year...</option>
-                          {q.options.map(o => <option key={o} value={o}>{o}</option>)}
-                        </select>
+                        }} />
                       ))}
                       {q.type === "text" && (
                         <input id={id} aria-describedby={hintId} value={profile[q.id] || ""} onChange={e => saveProfile({...profile, [q.id]: e.target.value})}
@@ -189,11 +185,28 @@ export default function ProfileBuilder() {
                 </GlowCard>
 
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                  <Button onClick={runMatching} disabled={!profile.ageOk}>See my matches</Button>
+                  <Button onClick={() => { track("profile_completed", { completion: profileCompletion }); runMatching(); }} disabled={!profile.ageOk}>See my matches</Button>
                   <Button variant="ghost" onClick={generateCandidateProfile} disabled={generatingLetter || !profile.ageOk}>
                     {generatingLetter ? "Working..." : "Build my voice profile (optional)"}
                   </Button>
                 </div>
               </div>
+  );
+}
+
+// The birth year only counts once the student presses Continue. Committing on
+// change let a single arrow key (the list starts at the youngest year) lock a
+// 16-year-old keyboard user out for good.
+function AgeQuestion({ id, hintId, options, onConfirm }) {
+  const [year, setYear] = useState("");
+  return (
+    <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+      <select id={id} aria-describedby={hintId} value={year} onChange={e => setYear(e.target.value)}
+        style={{ flex: "1 1 180px", padding: "12px 16px", background: COLORS.surface, border: `1px solid ${COLORS.fieldBorder}`, borderRadius: 10, color: COLORS.text, fontSize: TYPE.base, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box" }}>
+        <option value="">Select a year...</option>
+        {options.map(o => <option key={o} value={o}>{o}</option>)}
+      </select>
+      <Button onClick={() => year && onConfirm(year)} disabled={!year}>Continue</Button>
+    </div>
   );
 }
