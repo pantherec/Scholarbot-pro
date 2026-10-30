@@ -185,3 +185,16 @@ artifact page for Corey.
   React detaches `<main>`'s ref while a lazy chunk loads, so route focus retries. Never put the
   server start and a `pkill`/`pgrep -f` of it in the same shell command: the command line itself
   matches and the shell dies (exit 144). Use `pgrep -f "[v]ite preview"` in its own call.
+- 2026-10-30: Fourth review (launch re-score, main `04ebeae` = live, no test password available so
+  no draft, sign-in or checkout; critics run one at a time). Composite 6.2 → 6.6; all 10-21 UI fixes
+  held. Report: `docs/critic/PRODUCT_REVIEW_2026-10-30.md`. New blocker found by timing, not reading:
+  every rate-limited route takes ~4.5 s because Upstash answers "fetch failed" and the client retries
+  before the in-memory fallback (Vercel runtime log, Hobby plan keeps 1 h, query `since: "30m"`).
+  **Every run: curl `GET /api/parent-pay?token=x` three times; over 1.5 s means the limiter is down.**
+  Also: `residen\w*` in `SENSITIVE_FIELDS` matches 404 catalog rows ("US Legal Resident"), so DACA
+  status still reaches the prompt; the fact checker flags "Committee"/"Foundation" on honest drafts
+  (write an honest fixture, not only invented ones); `initAnalytics()` runs for guests against the
+  policy. Lead checks that worked: `pg_policies` + `table_privileges` (no UPDATE/INSERT for web
+  roles), profile_data key counts, the `strip_profile_contact_fields` trigger, Resend NXDOMAIN, and
+  grep of the live bundle for a Sentry DSN.
+

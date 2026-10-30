@@ -384,7 +384,7 @@ export default function MeritLaunch() {
       const result = await withTimeout(supabase.auth.signUp({ email: authEmail, password: authPassword }), 8000);
       if (result === null) {
         clearStaleSupabaseSession();
-        setAuthError("That timed out — we've reset your session. Please try again.");
+        setAuthError("That timed out, so we reset your session. Please try again.");
         setAuthSubmitting(false);
         return;
       }
@@ -410,7 +410,7 @@ export default function MeritLaunch() {
       const result = await withTimeout(supabase.auth.signInWithPassword({ email: authEmail, password: authPassword }), 8000);
       if (result === null) {
         clearStaleSupabaseSession();
-        setAuthError("Sign-in timed out — we've reset your session. Please try again.");
+        setAuthError("Sign-in timed out, so we reset your session. Please try again.");
         setAuthSubmitting(false);
         return;
       }
@@ -436,7 +436,7 @@ export default function MeritLaunch() {
       }), 8000);
       if (result === null) {
         clearStaleSupabaseSession();
-        setAuthError("That timed out — we've reset your session. Please try again.");
+        setAuthError("That timed out, so we reset your session. Please try again.");
         setAuthSubmitting(false);
         return;
       }
@@ -455,7 +455,7 @@ export default function MeritLaunch() {
       const result = await withTimeout(supabase.auth.updateUser({ password: newPassword }), 8000);
       if (result === null) {
         clearStaleSupabaseSession();
-        setAuthError("That timed out — we've reset your session. Please try again.");
+        setAuthError("That timed out, so we reset your session. Please try again.");
         setAuthSubmitting(false);
         return;
       }
