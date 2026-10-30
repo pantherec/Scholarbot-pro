@@ -65,6 +65,10 @@ export const ICON_PATHS = {
   close: <><path d="m6 6 12 12"/><path d="M18 6 6 18"/></>,
   upload: <><path d="M12 15.5V4.5"/><path d="m7.5 9 4.5-4.5L16.5 9"/><path d="M4.5 15v3.5a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V15"/></>,
   doc: <><path d="M7 3.5h7l4.5 4.5V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z"/><path d="M14 3.5V8h4.5"/><path d="M9 13h6M9 16.5h6"/></>,
+  arrowRight: <><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></>,
+  arrowLeft: <><path d="M19 12H5"/><path d="m11 6-6 6 6 6"/></>,
+  external: <><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 14v4.5a1 1 0 0 1-1 1h-10a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1H10"/></>,
+  star: <path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.7 6.8 19.6l1-5.8L3.5 9.7l5.9-.8L12 3.5z"/>,
   info: <><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><path d="M12 7.6v.4"/></>,
 };
 
@@ -72,7 +76,7 @@ export const ICON_PATHS = {
 export function BrandMark({ size = 26 }) {
   return (
     <span aria-hidden="true" style={{
-      width: size, height: size, borderRadius: 6, background: "#0A0A0F",
+      width: size, height: size, borderRadius: 6, background: COLORS.bg,
       border: "1px solid rgba(201,162,39,0.45)", display: "inline-flex",
       alignItems: "center", justifyContent: "center", color: "#c9a227",
       fontFamily: "'Instrument Serif', Georgia, serif", fontSize: size * 0.72, lineHeight: 1, flexShrink: 0,

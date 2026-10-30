@@ -56,8 +56,23 @@ export async function verifyAuth(req) {
 // every cold start and isn't real protection in production.
 const redis =
   process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
-    ? Redis.fromEnv()
+    ? Redis.fromEnv({ retry: { retries: 0 } }) // @upstash/redis 1.38: default is 5 retries with backoff, which cost ~4.5 s per request during an outage
     : null;
+
+// Hard cap on a Redis round trip so a slow (not just dead) database also
+// falls back to the in-memory counter quickly.
+const REDIS_TIMEOUT_MS = 500;
+function withTimeout(promise) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Redis timed out after ${REDIS_TIMEOUT_MS}ms`)), REDIS_TIMEOUT_MS);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+// Log a Redis outage once per process, not on every request.
+let redisErrorLogged = false;
+let redisErrorsSuppressed = 0;
 
 const rateLimitStore = new Map();
 function checkRateLimitInMemory(key, maxRequests, windowMs) {
@@ -77,15 +92,20 @@ export async function checkRateLimit(key, maxRequests = 10, windowMs = 3600000) 
 
   try {
     const redisKey = `ratelimit:${key}`;
-    const count = await redis.incr(redisKey);
+    const count = await withTimeout(redis.incr(redisKey));
     if (count === 1) {
-      await redis.expire(redisKey, Math.ceil(windowMs / 1000));
+      await withTimeout(redis.expire(redisKey, Math.ceil(windowMs / 1000)));
     }
     if (count > maxRequests) return { allowed: false, remaining: 0 };
     return { allowed: true, remaining: maxRequests - count };
   } catch (err) {
     // Redis unreachable — fail open to in-memory rather than blocking all traffic.
-    console.error("Rate limit Redis error, falling back to in-memory:", err.message);
+    if (!redisErrorLogged) {
+      redisErrorLogged = true;
+      console.error("Rate limit Redis error, falling back to in-memory (logged once per process):", err.message);
+    } else {
+      redisErrorsSuppressed++;
+    }
     return checkRateLimitInMemory(key, maxRequests, windowMs);
   }
 }

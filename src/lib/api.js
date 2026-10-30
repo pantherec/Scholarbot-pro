@@ -109,7 +109,32 @@ export function mapScholarshipRow(r) {
 // Scholarships are public data (no RLS/auth needed), so a bare fetch() with just
 // the anon key is both simpler and immune to that failure mode. Paginated past
 // PostgREST's default 1000-row-per-request cap so the full table always loads.
+// Cached catalog route (api/catalog.js): same rows, CDN-cached, ~1/5 the bytes.
+// Returns raw rows, or null on any failure so the caller falls back to Supabase.
+export async function fetchCatalogFromRoute() {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    let res;
+    try {
+      res = await fetch("/api/catalog", { signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+    if (!res.ok) return null;
+    const body = await res.json();
+    return Array.isArray(body?.rows) && body.rows.length > 0 ? body.rows : null;
+  } catch (e) { return null; }
+}
+
 export async function fetchScholarshipsFromSupabase() {
+  const cached = await fetchCatalogFromRoute();
+  if (cached) return cached.map(mapScholarshipRow);
+  return fetchScholarshipsDirect();
+}
+
+// The original direct-to-PostgREST read, kept as the fallback.
+export async function fetchScholarshipsDirect() {
   if (!SUPABASE_URL || !SUPABASE_KEY) return null;
   const pageSize = 1000;
   let all = [];

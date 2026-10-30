@@ -1,7 +1,7 @@
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { store } from "../lib/api.js";
-import { GlowCard, SectionHeader } from "../ui/components.jsx";
+import { GlowCard, SectionHeader, AppIcon } from "../ui/components.jsx";
 
 export default function PracticeAnswers() {
   const { appAnswers, setAppAnswers, APP_QUESTIONS } = useApp();
@@ -18,7 +18,7 @@ export default function PracticeAnswers() {
                         color: appAnswers[`q${i}`] ? COLORS.gold : COLORS.textDim,
                         border: `1px solid ${appAnswers[`q${i}`] ? COLORS.gold + "44" : COLORS.border}`,
                       }}>
-                        {appAnswers[`q${i}`] ? "✓" : i + 1}
+                        {appAnswers[`q${i}`] ? <AppIcon name="check" size={14} /> : i + 1}
                       </span>
                       <label htmlFor={`pa-q${i}`} style={{ fontSize: TYPE.base, fontFamily: FONTS.body, color: COLORS.textMuted }}>{q}</label>
                     </div>

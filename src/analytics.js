@@ -15,6 +15,7 @@ const POSTHOG_KEY = typeof import.meta !== "undefined"
 const POSTHOG_HOST = "https://us.i.posthog.com";
 
 let ph = null;
+let initializing = false;
 
 // Events fired before posthog-js finishes loading (e.g. checkout_completed on
 // the Stripe return URL) are held here and flushed once it's ready, instead of
@@ -26,16 +27,28 @@ function getPosthog() {
   return ph;
 }
 
+// Analytics only run for signed-in users (see the privacy policy). `active` is
+// false for guests and after sign-out, so a guest's events are dropped, never
+// queued to fire later.
+let active = false;
+
+export function __pendingCount() { return pending.length; }
+
 function capture(event, properties) {
+  if (!active) return;
   if (ph) { ph.capture(event, properties); return; }
   if (!POSTHOG_KEY) return;
   if (pending.length < MAX_PENDING) pending.push([event, properties]);
 }
 
-// Initialize PostHog. Call once on app mount.
+// Initialize PostHog. Call only once a user is signed in; safe to call again
+// on every sign-in (it re-enables capture after a sign-out).
 export function initAnalytics() {
   if (!POSTHOG_KEY) return; // no-op if key not set
-  if (ph) return; // already initialized
+  active = true;
+  if (ph) { try { ph.opt_in_capturing(); } catch (e) { /* ignore */ } return; } // already initialized
+  if (initializing) return;
+  initializing = true;
 
   // Dynamically import posthog-js so it doesn't affect bundle if key is absent
   import("posthog-js").then(({ default: posthog }) => {
@@ -45,13 +58,20 @@ export function initAnalytics() {
       capture_pageview: true,             // automatic page view on init
       autocapture: false,                 // manual events only — keeps data clean
       persistence: "localStorage+cookie",
+      capture_dead_clicks: false,         // policy: no automatic click capture
+      disable_surveys: true,              // no survey widget or survey script
+      disable_session_recording: true,    // no session replay
+      capture_heatmaps: false,
     });
     ph = posthog;
+    if (active && pendingId) { posthog.identify(pendingId); pendingId = null; }
+    if (!active) { try { posthog.opt_out_capturing(); } catch (e) { /* ignore */ } pending.length = 0; return; }
     while (pending.length) {
       const [event, properties] = pending.shift();
       posthog.capture(event, properties);
     }
   }).catch(() => {
+    initializing = false;
     // posthog-js not installed — graceful no-op
     // To install: npm install posthog-js
   });
@@ -59,17 +79,23 @@ export function initAnalytics() {
 
 // Identify a signed-in user (call after successful signup/signin).
 // We send only the user ID — no PII like email — to stay COPPA-safe.
+let pendingId = null;
 export function identifyUser(userId) {
+  if (!active) return;
   const posthog = getPosthog();
-  if (!posthog) return;
+  if (!posthog) { pendingId = userId; return; }
   posthog.identify(userId);
 }
 
 // Reset identity on sign-out.
 export function resetUser() {
+  active = false;
+  pendingId = null;
+  pending.length = 0;
   const posthog = getPosthog();
   if (!posthog) return;
   posthog.reset();
+  try { posthog.opt_out_capturing(); } catch (e) { /* ignore */ }
 }
 
 // ============================================================
@@ -100,6 +126,7 @@ export function track(event, properties = {}) {
 // exactly which component and line threw. Never let reporting itself throw.
 export function trackError(error, context = {}) {
   try {
+    if (!active) return;
     const posthog = getPosthog();
     if (!posthog) return;
     posthog.capture("client_error", {

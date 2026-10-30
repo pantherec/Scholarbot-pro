@@ -206,6 +206,16 @@ for (const key of picked) {
         await p2.page.waitForFunction(() => !/Checking your link/.test(document.body.innerText), { timeout: 20000 }).catch(() => {});
         const pt = await text(p2.page);
         r.parentPage = { ready: pt.includes('Your student asked you'), leaksStudent: [profile?.name, profile?.school].filter(Boolean).some((x) => pt.includes(x.split(' ')[0])) };
+        // Time the parent page's GET directly (the page shows nothing until it returns). Flag over 1200 ms.
+        {
+          const tok = link.split('/pay/')[1].split(/[?#]/)[0];
+          const timeGet = async (u) => { const s0 = Date.now(); const resp = await fetch(u).catch(() => null); return { ms: Date.now() - s0, status: resp ? resp.status : 0 }; };
+          const good = await timeGet(`${BASE}/api/parent-pay?token=${encodeURIComponent(tok)}`);
+          const bad = await timeGet(`${BASE}/api/parent-pay?token=invalid`);
+          r.parentPayGetMs = good.ms; r.parentPayGetStatus = good.status;
+          r.parentPayInvalidGetMs = bad.ms; r.parentPayInvalidGetStatus = bad.status;
+          r.parentPayGetSlow = good.ms > 1200 || bad.ms > 1200;
+        }
         await p2.page.screenshot({ path: join(OUT, `${key}_parent_page.png`), fullPage: true });
         if (flag('checkout') && r.parentPage.ready) {
           const before = stripeHits.length;

@@ -2,13 +2,14 @@ import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { GlowCard, BrandMark, LinkButton, AppIcon, LetterDemo, Button } from "../ui/components.jsx";
 import { PLANS } from "../lib/plans.js";
+import { heroPriceLine } from "../lib/heroPrice.js";
 import { formatAwardTotal } from "../lib/catalogStats.js";
 import { track } from "../analytics.js";
 
 export default function Landing() {
-  const { isMobile, reducedMotion, profile, authUser, setShowAuthModal, setAuthMode, setLegalModal, checkoutLoading, setView, handleCheckout, handleSignOut, catalogReady, catalogStats, catalogCount, lastCheckedLabel } = useApp();
+  const { isMobile, reducedMotion, profile, authUser, setShowAuthModal, setAuthMode, setLegalModal, checkoutLoading, setView, handleCheckout, setPendingPlan, handleSignOut, catalogReady, catalogStats, catalogCount, lastCheckedLabel } = useApp();
   return (
-        <div style={{ minHeight: "100vh" }}>
+        <main id="main" style={{ minHeight: "100vh" }}>
           {/* Landing Nav */}
           <nav className="landing-nav" style={{
             position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
@@ -93,12 +94,13 @@ export default function Landing() {
                   {catalogCount ? `Browse ${catalogCount} Scholarships` : "Browse Scholarships"}
                 </Button>
               </div>
+              <p style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, margin: "16px 0 0" }}>{heroPriceLine(PLANS)}</p>
             </div>
           </div>
 
           {/* Catalog strip: computed from the live data (src/lib/catalogStats.js).
               Skeletons until it loads; never the 30 built-in fallbacks or a made-up date. */}
-          <div className="landing-stats-grid reveal" aria-live="polite" style={{
+          <div className="landing-stats-grid" aria-live="polite" style={{
             display: "flex", justifyContent: "center", gap: 48, padding: "32px 20px",
             borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`,
             flexWrap: "wrap",
@@ -145,7 +147,7 @@ export default function Landing() {
           <div style={{ padding: "80px 40px", textAlign: "center" }}>
             <h2 style={{ fontSize: TYPE["3xl"], fontWeight: 400, marginBottom: 8 }}>You Stay the Author</h2>
             <p style={{ fontSize: TYPE.base, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 36, maxWidth: 520, marginLeft: "auto", marginRight: "auto" }}>
-              Watch a draft take shape from one student's real details. Nothing invented, no stock phrases. A starting point the student revises into their own letter.
+              Watch a draft take shape from one student's real details. Any detail the draft adds that you didn't give us is flagged for you to check or cut. No stock phrases. A starting point the student revises into their own letter.
             </p>
             <div className="reveal"><LetterDemo /></div>
           </div>
@@ -212,7 +214,7 @@ export default function Landing() {
               {PLANS.map(pl => {
                 const accent = pl.id === "premium" ? COLORS.gold : pl.id === "seasonal" ? COLORS.teal : COLORS.textMuted;
                 const go = () => pl.id === "free" ? setView("profile")
-                  : authUser ? handleCheckout(pl.id) : (setAuthMode("signup"), setShowAuthModal(true));
+                  : authUser ? handleCheckout(pl.id) : (setPendingPlan(pl.id), setAuthMode("signup"), setShowAuthModal(true));
                 return (
                   <GlowCard key={pl.id} hover={false} glow={accent} style={{
                     padding: "32px 24px", textAlign: "left", display: "flex", flexDirection: "column",
@@ -265,6 +267,6 @@ export default function Landing() {
             </span>
             {catalogCount && <span>{catalogCount} scholarships · {formatAwardTotal(catalogStats.openAwards)} in open awards</span>}
           </footer>
-        </div>
+        </main>
   );
 }

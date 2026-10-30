@@ -14,6 +14,16 @@ import { createPlanCheckout, resolveOrigin, PLAN_PRICES } from "./_shared/billin
 const LINK_DAYS = 7;
 const TOKEN_RE = /^[A-Za-z0-9_-]{32}$/;
 
+// Cheap read-only "does this student already have a plan" check for the GET.
+// getUsage() also resets monthly counters and may write, which the parent page doesn't need.
+async function studentHasPlan(userId) {
+  const { data } = await adminClient()
+    .from("user_profiles").select("subscription_status, seasonal_expires_at").eq("id", userId).maybeSingle();
+  const status = data?.subscription_status;
+  if (status === "premium") return true;
+  return status === "seasonal" && !(data.seasonal_expires_at && new Date(data.seasonal_expires_at) < new Date());
+}
+
 async function findLink(token) {
   if (!TOKEN_RE.test(token || "")) return null;
   const { data } = await adminClient()
@@ -31,12 +41,15 @@ export default async function handler(req, res) {
   try {
     // ---- parent opens the link
     if (req.method === "GET") {
-      const rl = await checkRateLimit(`parentpay-view:${clientIp(req)}`, 60, 3600000);
+      // Rate-limit check and link lookup are independent, so run them together.
+      const [rl, link] = await Promise.all([
+        checkRateLimit(`parentpay-view:${clientIp(req)}`, 60, 3600000),
+        findLink(req.query?.token),
+      ]);
       if (!rl.allowed) return res.status(429).json({ error: "Too many requests. Please try again later." });
-      const link = await findLink(req.query?.token);
       if (!link) return res.status(404).json({ valid: false, error: "This link has expired or isn't valid. Ask for a new one." });
-      const usage = await getUsage(link.user_id).catch(() => null);
-      return res.status(200).json({ valid: true, alreadyActive: !!usage?.paid, expiresAt: link.expires_at });
+      const alreadyActive = await studentHasPlan(link.user_id).catch(() => false);
+      return res.status(200).json({ valid: true, alreadyActive, expiresAt: link.expires_at });
     }
 
     if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });

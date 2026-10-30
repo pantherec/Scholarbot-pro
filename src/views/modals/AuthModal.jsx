@@ -1,9 +1,18 @@
+import { useEffect } from "react";
 import { useApp } from "../../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../../ui/theme.js";
 import { BrandMark, Modal, LinkButton, Button } from "../../ui/components.jsx";
 
 export default function AuthModal() {
   const { showAuthModal, setShowAuthModal, authMode, setAuthMode, setLegalModal, authEmail, setAuthEmail, authPassword, setAuthPassword, newPassword, setNewPassword, confirmPassword, setConfirmPassword, authError, setAuthError, authSubmitting, authDob, setAuthDob, handleSignUp, handleSignIn, handleForgotPassword, handleUpdatePassword } = useApp();
+  // Switching sign-in / sign-up / forgot unmounts the focused link; put focus in
+  // the first field of the new form instead of letting it fall to <body>.
+  useEffect(() => {
+    if (!showAuthModal) return;
+    const id = authMode === "reset" ? "auth-newpw" : "auth-email";
+    const t = setTimeout(() => document.getElementById(id)?.focus(), 0);
+    return () => clearTimeout(t);
+  }, [authMode, showAuthModal]);
   return (
     <>
       {/* AUTH MODAL */}

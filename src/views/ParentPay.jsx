@@ -96,8 +96,8 @@ export default function ParentPay() {
         {showPlans && (
           <>
             <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, letterSpacing: 2, textTransform: "uppercase", color: COLORS.gold, marginBottom: 10 }}>For a parent or guardian</div>
-            <h1 style={{ fontSize: TYPE["4xl"], fontWeight: 400, lineHeight: 1.15, marginBottom: 14, textWrap: "balance" }}>
-              Your student asked you to look at MeritLaunch
+            <h1 role={state === "loading" ? "status" : undefined} style={{ fontSize: TYPE["4xl"], fontWeight: 400, lineHeight: 1.15, marginBottom: 14, textWrap: "balance", color: state === "loading" ? COLORS.textMuted : COLORS.text }}>
+              {state === "loading" ? "Checking your link…" : "Your student asked you to look at MeritLaunch"}
             </h1>
             <p style={{ ...text, fontSize: TYPE.md, marginBottom: 32 }}>
               MeritLaunch helps students find scholarships they're actually eligible for and draft application letters from their own real experiences.
@@ -150,7 +150,7 @@ export default function ParentPay() {
             {error && <div role="alert" style={{ padding: "10px 14px", borderRadius: 8, marginBottom: 14, fontSize: TYPE.sm, fontFamily: FONTS.body, background: COLORS.pinkDim, color: COLORS.text, border: `1px solid ${COLORS.pink}66` }}>{error}</div>}
 
             <Button onClick={checkout} disabled={busy || state === "loading"} aria-busy={state === "loading" || undefined} style={{ fontSize: TYPE.md, padding: "14px 32px" }}>
-              {state === "loading" ? "Checking your link..." : busy ? "Opening secure checkout..." : `Continue to secure checkout (${paidPlans.find(p => p.id === plan)?.price})`}
+              {state === "loading" ? "Checking…" : busy ? "Opening secure checkout..." : `Continue to secure checkout (${paidPlans.find(p => p.id === plan)?.price})`}
             </Button>
             <p style={{ ...text, fontSize: TYPE.sm, marginTop: 12 }}>
               Payment is handled by Stripe. Your card details never reach MeritLaunch.
