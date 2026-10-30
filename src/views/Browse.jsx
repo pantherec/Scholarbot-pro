@@ -15,19 +15,6 @@ export default function Browse() {
                     : "Loading the latest scholarship list..."}
                 />
 
-                {/* Disclaimer Banner */}
-                <div style={{
-                  display: "flex", alignItems: "flex-start", gap: 12,
-                  padding: "14px 18px", marginBottom: 24, borderRadius: 10,
-                  background: `${COLORS.orange}08`, border: `1px solid ${COLORS.orange}22`,
-                  fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6,
-                }}>
-                  <AppIcon name="info" size={18} color={COLORS.gold} style={{ marginTop: 1 }} />
-                  <span>
-                    <strong style={{ color: COLORS.gold }}>Before you apply:</strong> MeritLaunch aggregates scholarship information from public sources for your convenience. While we work to keep this data accurate, we cannot independently verify every listing. Always confirm eligibility, deadlines, and legitimacy directly with the scholarship provider before applying. <strong>Never pay an application fee for a legitimate scholarship.</strong> Closed listings stay in the catalog because most scholarships are annual, and we re-check each one monthly for a new deadline.
-                  </span>
-                </div>
-
                 {/* URL Import (Premium) — enforced on the server too */}
                 {!isPremium && authUser && (
                   <div style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 16 }}>
@@ -39,7 +26,7 @@ export default function Browse() {
                     <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.teal, marginBottom: 6, fontWeight: 500 }}>
-                          ★ Import from URL
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><AppIcon name="star" size={14} /> Import from URL</span>
                         </div>
                         <div style={{ display: "flex", gap: 8 }}>
                           <input value={importUrl} onChange={e => setImportUrl(e.target.value)} aria-label="Scholarship page URL"
@@ -168,7 +155,31 @@ export default function Browse() {
                   )}
                 </div>
 
+                {/* Disclaimer: one line, full text a tap away, below the search */}
+                <div style={{
+                  padding: "10px 16px", marginBottom: 20, borderRadius: 10,
+                  background: `${COLORS.orange}08`, border: `1px solid ${COLORS.orange}22`,
+                  fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6,
+                }}>
+                  <details>
+                    <summary style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10, minHeight: 32, listStyle: "none" }}>
+                      <AppIcon name="info" size={16} color={COLORS.gold} />
+                      <span>Listings come from each provider; check the source page before you apply. <span style={{ color: COLORS.gold, textDecoration: "underline", textUnderlineOffset: 2 }}>Before you apply</span></span>
+                    </summary>
+                    <p style={{ margin: "10px 0 2px 26px" }}>
+                      MeritLaunch aggregates scholarship information from public sources for your convenience. While we work to keep this data accurate, we cannot independently verify every listing. Always confirm eligibility, deadlines, and legitimacy directly with the scholarship provider before applying. <strong>Never pay an application fee for a legitimate scholarship.</strong> Closed listings stay in the catalog because most scholarships are annual, and we re-check each one monthly for a new deadline.
+                    </p>
+                  </details>
+                </div>
+
                 {/* Scholarship Cards */}
+                {catalogReady && filteredScholarships.length === 0 && (
+                  <GlowCard hover={false} style={{ padding: "28px 24px", textAlign: "center" }}>
+                    <div style={{ fontSize: TYPE.lg, marginBottom: 6 }}>{searchQuery.trim() ? `No scholarships match "${searchQuery.trim()}"` : "No scholarships match these filters"}</div>
+                    <p style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, margin: "0 0 14px" }}>Try a shorter search or fewer filters.</p>
+                    <Button variant="secondary" onClick={() => { setSearchQuery(""); setFilterNeedBased("all"); setFilterState("all"); setFilterCountry("all"); }}>Clear search</Button>
+                  </GlowCard>
+                )}
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {filteredScholarships.slice(0, browseLimit).map(s => {
                     const dl = getDeadlineStatus(s.deadline);
@@ -189,12 +200,12 @@ export default function Browse() {
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
                           <Button onClick={() => { setSelectedScholarship(s); setView("generate"); }} style={{ fontSize: TYPE.xs, padding: "8px 16px" }}>
-                            Apply →
+                            Apply <AppIcon name="arrowRight" size={14} />
                           </Button>
                           <Button variant="secondary" onClick={() => trackApplication(s)} style={{ fontSize: TYPE.xs, padding: "6px 14px" }}>
-                            {trackedApps.some(a => a.scholarshipId === s.id) ? "✓ Tracked" : "Track"}
+                            {trackedApps.some(a => a.scholarshipId === s.id) ? <><AppIcon name="check" size={12} /> Tracked</> : "Track"}
                           </Button>
-                          {s.link && <a href={s.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: TYPE.sm, color: COLORS.textMuted, fontFamily: FONTS.body, textAlign: "center", padding: "8px 4px", minHeight: 32 }}>Source ↗<span className="sr-only"> for {s.name} (opens in a new tab)</span></a>}
+                          {s.link && <a href={s.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: TYPE.sm, color: COLORS.textMuted, fontFamily: FONTS.body, textAlign: "center", padding: "8px 4px", minHeight: 32 }}>Source <AppIcon name="external" size={12} style={{ display: "inline-block", verticalAlign: "-1px" }} /><span className="sr-only"> for {s.name} (opens in a new tab)</span></a>}
                         </div>
                       </GlowCard>
                     );

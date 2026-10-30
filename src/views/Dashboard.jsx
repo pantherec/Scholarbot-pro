@@ -3,6 +3,7 @@ import { EMAIL_REMINDERS_LIVE } from "../lib/features.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { supabase } from "../lib/api.js";
 import { GlowCard, AppIcon, Button, SectionHeader } from "../ui/components.jsx";
+import { pickNextMatch } from "./matchOrder.js";
 import { track } from "../analytics.js";
 
 export default function Dashboard() {
@@ -15,10 +16,11 @@ export default function Dashboard() {
                 .map(m => ({ ...m, dl: parseDeadline(m.deadline) }))
                 .filter(m => m.dl.days !== null && m.dl.days >= 0 && !trackedApps.some(a => a.scholarshipId === m.id))
                 .sort((a, b) => a.dl.days - b.dl.days);
-              // Among matches due this month, the best fit; otherwise the best fit
-              // overall. The nearest date alone once pointed at a fit-30 listing.
+              // Same ordering as My Matches: best fit, and never a listing due in 3 days
+              // or less while a decent fit with more time exists.
               const soonMatches = liveMatches.filter(m => m.dl.days <= 30);
-              const bestMatch = (soonMatches.length ? soonMatches : liveMatches).slice().sort((a, b) => (b.matchScore - a.matchScore) || (a.dl.days - b.dl.days))[0];
+              const bestMatch = pickNextMatch(liveMatches);
+              const bestIsSoon = !!bestMatch && bestMatch.dl.days <= 30;
               const returning = savedLetters.length + trackedApps.length + matchResults.length > 0;
               const draftFor = (id) => {
                 const sch = scholarshipDB.find(x => x.id === id);
@@ -32,7 +34,7 @@ export default function Dashboard() {
                 : liveTracked.length > 0
                 ? { title: `Next deadline: ${liveTracked[0].name}`, desc: `Due ${liveTracked[0].dl.date.toLocaleDateString("en-US", { month: "long", day: "numeric" })}, ${liveTracked[0].dl.days} days from now. Start the letter this week.`, cta: "Draft this letter", go: () => draftFor(liveTracked[0].scholarshipId) }
                 : bestMatch
-                ? { title: `${soonMatches.length ? "Your best match due soon" : "Your best match"}: ${bestMatch.name}`, desc: `Due ${bestMatch.dl.date.toLocaleDateString("en-US", { month: "long", day: "numeric" })}, fit ${bestMatch.matchScore} of 100. Tracking it adds deadline reminders.`, cta: "Track it", go: () => trackApplication(bestMatch) }
+                ? { title: `${bestIsSoon ? "Your best match due soon" : "Your best match"}: ${bestMatch.name}`, desc: `Due ${bestMatch.dl.date.toLocaleDateString("en-US", { month: "long", day: "numeric" })}, fit ${bestMatch.matchScore} of 100. Tracking it adds deadline reminders.`, cta: "Track it", go: () => trackApplication(bestMatch) }
                 : { title: "Draft your first letter", desc: "Pick any scholarship and get a draft built from your real details.", cta: "Write a letter", go: () => setView("generate") };
               return (
               <div>
@@ -46,7 +48,7 @@ export default function Dashboard() {
                   <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, letterSpacing: 2, textTransform: "uppercase", color: COLORS.gold, marginBottom: 6 }}>Your next step</div>
                   <h2 style={{ fontSize: TYPE["2xl"], fontWeight: 400, marginBottom: 6, textWrap: "balance" }}>{next.title}</h2>
                   <p style={{ fontSize: TYPE.base, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6, marginBottom: 16, maxWidth: 560 }}>{next.desc}</p>
-                  <Button onClick={next.go}>{next.cta} →</Button>
+                  <Button onClick={next.go}>{next.cta} <AppIcon name="arrowRight" size={16} /></Button>
                   {liveTracked.length > 1 && (
                     <div style={{ marginTop: 18, paddingTop: 14, borderTop: `1px solid ${COLORS.border}` }}>
                       <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 6 }}>Also coming up</div>
@@ -78,7 +80,7 @@ export default function Dashboard() {
                         <div style={{ fontSize: TYPE["3xl"], fontWeight: 300, color: stat.color, marginBottom: 2, fontFamily: FONTS.heading }}>{stat.value}</div>
                         <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, letterSpacing: 1, textTransform: "uppercase" }}>{stat.label}</div>
                         {stat.hint && (
-                          <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: stat.color, marginTop: 8 }}>{stat.hint} →</div>
+                          <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: stat.color, marginTop: 8 }}>{stat.hint} <AppIcon name="arrowRight" size={12} style={{ display: "inline-block", verticalAlign: "-2px" }} /></div>
                         )}
                       </button>
                     </GlowCard>
