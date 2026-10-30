@@ -31,7 +31,12 @@ const STOP = new Set(("i i'm i've i'd i'll ap ib gpa sat act stem psat us usa u.
   "mr mrs ms dr the a an and of in at on to for with my our we it its he she they them his her their this that " +
   "these those there what when where how why who which but or so if as by from not no yes one first january " +
   "february march april may june july august september october november december monday tuesday wednesday " +
-  "thursday friday saturday sunday dear sincerely thank thanks hello").split(/\s+/));
+  "thursday friday saturday sunday dear sincerely thank thanks hello " +
+  // Salutations, closings and the generic words of an organisation's name. They
+  // are how every honest letter is addressed, never a fact about the student.
+  "scholarship scholarships committee selection foundation board fund award awards program programs " +
+  "members member respectfully regards gratefully warmly cordially yours truly best applicant applicants " +
+  "trustees council association society").split(/\s+/));
 
 function words(text) {
   return String(text || "").toLowerCase().match(/[a-z0-9][a-z0-9'’.-]*/g) || [];
@@ -57,7 +62,7 @@ export function sourceText({ profile = {}, bragSheet = "", appAnswers = {}, scho
   }
   parts.push(bragSheet || "", essayPrompt || "", voiceProfile || "");
   for (const v of Object.values(appAnswers || {})) if (typeof v === "string") parts.push(v);
-  for (const k of ["name", "criteria", "description", "amount"]) if (scholarship?.[k]) parts.push(String(scholarship[k]));
+  for (const k of ["name", "criteria", "description", "amount", "provider", "organization", "organisation", "sponsor", "org"]) if (scholarship?.[k]) parts.push(String(scholarship[k]));
   return parts.join("\n");
 }
 

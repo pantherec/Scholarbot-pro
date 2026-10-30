@@ -5,6 +5,24 @@ import { yearIsUnder13, PROFILE_QUESTIONS, PROFILE_STEPS } from "../data/profile
 import { GlowCard, AppIcon, Button, SectionHeader } from "../ui/components.jsx";
 import { track } from "../analytics.js";
 
+// Optional, and asked warmly: some awards are for women or men only. Stored as
+// "female" | "male" | "nonbinary" | "prefer_not"; blank excludes nothing. It is
+// used only for matching and is never sent to the letter model.
+const GENDER_QUESTION = {
+  id: "gender", q: "Gender (optional)", type: "select", step: 1,
+  options: [
+    { value: "female", label: "Female" }, { value: "male", label: "Male" },
+    { value: "nonbinary", label: "Nonbinary" }, { value: "prefer_not", label: "Prefer not to say" },
+  ],
+  why: "Some awards are for women or men only. If you'd like us to skip the ones that aren't for you, tell us; otherwise leave this blank.",
+};
+const QUESTIONS = (() => {
+  const i = PROFILE_QUESTIONS.findIndex(q => q.id === "ethnicity");
+  const out = [...PROFILE_QUESTIONS];
+  out.splice(i < 0 ? out.length : i + 1, 0, GENDER_QUESTION);
+  return out;
+})();
+
 export default function ProfileBuilder() {
   const { profile, bragSheet, setBragSheet, generatingLetter, bragSheetFileName, setBragSheetFileName, bragSheetUploading, profileStep, setProfileStep, bragFileRef, handleBragSheetUpload, saveProfile, answered, profileCompletion, runMatching, generateCandidateProfile } = useApp();
   return (
@@ -35,7 +53,7 @@ export default function ProfileBuilder() {
                 {/* Current Step Questions. On step 1 the age question comes first and
                     alone; nothing else is asked until it's answered 13+. */}
                 <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 28 }}>
-                  {PROFILE_QUESTIONS
+                  {QUESTIONS
                     .filter(q => q.step === profileStep)
                     .filter(q => profile.ageOk || q.type === "age")
                     .map(q => {
@@ -64,7 +82,7 @@ export default function ProfileBuilder() {
                         <select id={id} aria-describedby={hintId} value={profile[q.id] || ""} onChange={e => saveProfile({...profile, [q.id]: e.target.value})}
                           style={{ width: "100%", padding: "12px 16px", background: COLORS.surface, border: `1px solid ${COLORS.fieldBorder}`, borderRadius: 10, color: COLORS.text, fontSize: TYPE.base, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box" }}>
                           <option value="">Select...</option>
-                          {q.options.map(o => <option key={o} value={o}>{o}</option>)}
+                          {q.options.map(o => typeof o === "string" ? <option key={o} value={o}>{o}</option> : <option key={o.value} value={o.value}>{o.label}</option>)}
                         </select>
                       )}
                       {q.type === "multiselect" && (
