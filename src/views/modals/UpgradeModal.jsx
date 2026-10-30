@@ -1,15 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "../../AppContext.js";
-import { authFetch } from "../../lib/api.js";
+import { authFetch, store } from "../../lib/api.js";
 import { COLORS, FONTS, TYPE } from "../../ui/theme.js";
 import { Modal, Button, AppIcon } from "../../ui/components.jsx";
 import { track } from "../../analytics.js";
 import { PLANS, FREE_LIMITS } from "../../lib/plans.js";
 
 export default function UpgradeModal() {
-  const { profile, matchResults, upgradeReason, showUpgradeModal, setShowUpgradeModal, checkoutLoading, handleCheckout, notify, parseDeadline, authUser, setAuthMode, setShowAuthModal } = useApp();
+  const { profile, matchResults, upgradeReason, showUpgradeModal, setShowUpgradeModal, savedLetters, notify, parseDeadline, authUser, setAuthMode, setShowAuthModal } = useApp();
   const [parentLink, setParentLink] = useState(null);
   const [linkBusy, setLinkBusy] = useState(false);
+  // The dialog stays open while checkout is created, so the student sees progress
+  // (the request can take several seconds) and any error appears next to the retry.
+  const [opening, setOpening] = useState(null); // plan id while the checkout URL is on its way
+  const [checkoutError, setCheckoutError] = useState("");
+  useEffect(() => { if (!showUpgradeModal) { setOpening(null); setCheckoutError(""); } }, [showUpgradeModal]);
+  const startCheckout = async (plan) => {
+    if (!authUser) { setShowUpgradeModal(false); setAuthMode("signup"); setShowAuthModal(true); return; }
+    setOpening(plan); setCheckoutError("");
+    track("checkout_started", { plan });
+    try {
+      store.set("scholarbot-checkout-plan", plan); // read back on the success URL
+      const resp = await authFetch("/api/create-checkout", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, userId: authUser.id, userEmail: authUser.email }),
+      });
+      const data = await resp.json();
+      if (data.url) { window.location.href = data.url; return; } // stay on "Opening..." through the redirect
+      setCheckoutError(data.error ? `Checkout didn't start: ${data.error}` : "Checkout didn't start. Please try again.");
+    } catch { setCheckoutError("We couldn't reach checkout. Check your connection and try again."); }
+    setOpening(null);
+  };
   return (
     <>
       {/* UPGRADE MODAL — shows the student's own live matches, both plans, and a
@@ -18,7 +39,10 @@ export default function UpgradeModal() {
         {(() => {
           const kind = upgradeReason?.kind;
           const resets = upgradeReason?.resetsOn ? new Date(upgradeReason.resetsOn).toLocaleDateString("en-US", { month: "long", day: "numeric" }) : null;
-          const live = matchResults.filter(m => { const d = parseDeadline(m.deadline).days; return d !== null && d >= 0; })
+          // Matches that already have a saved letter are not "still needing" one.
+          const lettered = new Set((savedLetters || []).flatMap(l => [l.scholarshipId, l.scholarshipName].filter(Boolean)));
+          const live = matchResults.filter(m => !lettered.has(m.id) && !lettered.has(m.name))
+            .filter(m => { const d = parseDeadline(m.deadline).days; return d !== null && d >= 0; })
             .sort((a, b) => parseDeadline(a.deadline).days - parseDeadline(b.deadline).days).slice(0, 3);
           // A private, 7-day link to a page where a parent can read what the plan
           // does and pay for it. The page shows nothing about the student.
@@ -88,16 +112,20 @@ export default function UpgradeModal() {
                         </li>
                       ))}
                     </ul>
-                    <Button variant={pl.highlight ? "primary" : "secondary"} disabled={checkoutLoading}
-                      onClick={() => { setShowUpgradeModal(false); handleCheckout(pl.id); }}
-                      style={{ width: "100%", justifyContent: "center", fontSize: TYPE.sm, padding: "10px 12px" }}>
-                      {checkoutLoading ? "Loading..." : pl.cta}
+                    <Button variant={pl.highlight ? "primary" : "secondary"} disabled={!!opening}
+                      onClick={() => startCheckout(pl.id)}
+                      style={{ width: "100%", justifyContent: "center", fontSize: TYPE.sm, padding: "10px 12px", minHeight: 44 }}>
+                      {opening === pl.id ? "Opening secure checkout…" : pl.cta}
                     </Button>
                   </div>
                 ))}
               </div>
+              <div aria-live="polite" style={{ minHeight: opening || checkoutError ? undefined : 0 }}>
+                {opening && <p style={{ margin: "0 0 12px", fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted }}>Opening secure checkout…</p>}
+                {checkoutError && <div role="alert" style={{ padding: "10px 14px", borderRadius: 8, marginBottom: 12, fontSize: TYPE.sm, fontFamily: FONTS.body, background: COLORS.pinkDim, color: COLORS.text, border: `1px solid ${COLORS.pink}66`, textAlign: "left" }}>{checkoutError} Choose a plan above to retry.</div>}
+              </div>
               <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-                <Button variant="ghost" onClick={() => setShowUpgradeModal(false)} style={{ fontSize: TYPE.sm }}>Not now</Button>
+                <Button variant="ghost" disabled={!!opening} onClick={() => setShowUpgradeModal(false)} style={{ fontSize: TYPE.sm }}>Not now</Button>
               </div>
             </>
           );

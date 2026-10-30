@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
+import { rankByFit } from "./matchOrder.js";
 import { GlowCard, Badge, AppIcon, Button, SectionHeader, EmptyState, ProgressRing } from "../ui/components.jsx";
 
 export default function Matches() {
@@ -37,7 +38,7 @@ export default function Matches() {
                     const g = dl.days === null ? "undated" : dl.days < 0 ? "closed" : dl.days <= 30 ? "soon" : "later";
                     groups[g].push({ ...m, dl });
                   }
-                  groups.soon.sort((a, b) => a.dl.days - b.dl.days);
+                  for (const g of Object.keys(groups)) groups[g] = rankByFit(groups[g]);
                   const sections = [
                     ["soon", "Due in the next 30 days"], ["later", "Due later"],
                     ["undated", "Rolling or varies"], ["closed", "Closed this cycle (usually back next year)"],
@@ -60,8 +61,8 @@ export default function Matches() {
                                 <ProgressRing value={s.matchScore} color={scoreColor} />
                                 <div aria-hidden="true" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", fontSize: TYPE.base, fontWeight: 700, fontFamily: FONTS.body, color: scoreColor }}>{s.matchScore}</div>
                               </div>
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+                              <div className="match-body" style={{ flex: 1, minWidth: 0 }}>
+                                <div className="match-head" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
                                   <div style={{ fontSize: TYPE.md, fontWeight: 400 }}>{s.name}</div>
                                   <Badge color={s.dl.color}>{s.dl.tone === "undated" ? s.dl.label : s.dl.tone === "closed" ? "Closed this cycle" : `Due ${s.dl.date.toLocaleDateString("en-US", { month: "short", day: "numeric" })} · ${s.dl.days}d`}</Badge>
                                   <LinkCheck s={s} />
