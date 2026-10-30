@@ -17,9 +17,9 @@ export default function LetterWriter() {
   useEffect(() => { if (generatingLetter) setKept(new Set()); }, [generatingLetter]);
   const flagged = useMemo(() => {
     if (generatingLetter || !generatedLetter) return [];
-    const scholarship = scholarshipInputMode === "database" ? (selectedScholarship || {}) : { name: customScholarshipName, description: customScholarshipText };
+    const scholarship = scholarshipInputMode === "database" ? (selectedScholarship || {}) : { name: customScholarshipName || uploadedScholarshipName, description: customScholarshipText };
     return findUnsupportedDetails(generatedLetter, { profile, bragSheet, appAnswers, scholarship, essayPrompt, voiceProfile: generatedProfile });
-  }, [generatedLetter, generatingLetter, profile, bragSheet, appAnswers, scholarshipInputMode, selectedScholarship, customScholarshipName, customScholarshipText, essayPrompt, generatedProfile]);
+  }, [generatedLetter, generatingLetter, profile, bragSheet, appAnswers, scholarshipInputMode, selectedScholarship, customScholarshipName, uploadedScholarshipName, customScholarshipText, essayPrompt, generatedProfile]);
   const toCheck = flagged.filter(f => !kept.has(f.text.toLowerCase()));
   const findInLetter = (f) => {
     const el = letterRef.current;
