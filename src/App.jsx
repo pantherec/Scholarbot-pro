@@ -56,6 +56,13 @@ export default function MeritLaunch() {
     }
     if (typeof window !== "undefined") window.scrollTo(0, 0);
   }, []);
+  // Titles and canonical follow the view on first load too, not only on setView.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.title = titleFor(view);
+    const link = document.querySelector('link[rel="canonical"]');
+    if (link) link.setAttribute("href", `https://meritlaunch.com${view === "landing" ? "/" : (VIEW_PATHS[view] || window.location.pathname)}`);
+  }, [view]);
   useEffect(() => {
     const onPop = () => { const v = viewFromPath(window.location.pathname); setViewState(v); document.title = titleFor(v); };
     window.addEventListener("popstate", onPop);
@@ -180,11 +187,13 @@ export default function MeritLaunch() {
     ? Math.max(0, PRO_LIMITS.lettersPerMonth - monthlyLettersUsed)
     : Math.max(0, FREE_LIMITS.lettersPerMonth - monthlyLettersUsed);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [usageLoaded, setUsageLoaded] = useState(false);
 
   // Plan + usage come from the server, which owns the counters.
   const applyUsage = (u) => {
     if (!u || u.error) return;
     setUserSubscription(u.plan || "free");
+    setUsageLoaded(true);
     setMonthlyLettersUsed(u.lettersUsed || 0);
     setMonthlyMatchesUsed(u.matchesUsed || 0);
     setUsageResetsOn(u.resetsOn || null);
@@ -207,6 +216,25 @@ export default function MeritLaunch() {
     setShowUpgradeModal(true);
     track("upgrade_prompt_shown", { kind });
   };
+
+  // A guest who picks a plan on the landing is sent to sign-up; remember the
+  // plan (state + sessionStorage, for the email-confirm round trip) and start
+  // its checkout once sign-in and the plan lookup finish.
+  const PENDING_PLAN_KEY = "meritlaunch-pending-plan";
+  const [pendingPlan, setPendingPlanState] = useState(() => {
+    try {
+      const raw = sessionStorage.getItem(PENDING_PLAN_KEY);
+      const v = raw ? JSON.parse(raw) : null;
+      return v && v.plan && Date.now() - v.at < 3600000 ? v.plan : null;
+    } catch (e) { return null; }
+  });
+  const setPendingPlan = useCallback((plan) => {
+    setPendingPlanState(plan);
+    try {
+      if (plan) sessionStorage.setItem(PENDING_PLAN_KEY, JSON.stringify({ plan, at: Date.now() }));
+      else sessionStorage.removeItem(PENDING_PLAN_KEY);
+    } catch (e) { /* storage blocked: state still works in this tab */ }
+  }, []);
 
   // Stripe checkout handler
   const handleCheckout = useCallback(async (plan) => {
@@ -241,6 +269,13 @@ export default function MeritLaunch() {
       setCheckoutLoading(false);
     }
   }, [authUser]);
+
+  // Resume a plan picked before sign-in, once the account's plan is known.
+  useEffect(() => {
+    if (!pendingPlan || !authUser || !usageLoaded) return;
+    setPendingPlan(null);
+    if (!isPremium) handleCheckout(pendingPlan);
+  }, [pendingPlan, authUser, usageLoaded, isPremium, handleCheckout, setPendingPlan]);
 
   // Check for checkout success/cancel on page load
   useEffect(() => {
@@ -447,6 +482,7 @@ export default function MeritLaunch() {
     const result = await withTimeout(supabase?.auth.signOut() ?? Promise.resolve(true), 3000);
     if (result === null) clearStaleSupabaseSession();
     resetUser(); // clear PostHog identity on sign-out
+    setUsageLoaded(false); setPendingPlan(null);
     // Shared Chromebooks: nothing about this student stays in the browser.
     clearStudentLocalData();
     cloudReadyRef.current = null;
@@ -461,7 +497,7 @@ export default function MeritLaunch() {
 
   // Load data on mount + auth listener
   useEffect(() => {
-    initAnalytics(); // PostHog — no-op if VITE_POSTHOG_KEY not set
+    // PostHog starts only once a user is signed in (see the auth listener below).
 
     // Load local data first (fast)
     const p = store.get("scholarbot-profile"); if (p) setProfile(normalizeProfile(p));
@@ -489,9 +525,13 @@ export default function MeritLaunch() {
         }
       } finally { inFlight = null; }
     };
-    loadScholarships();
-    for (const delay of [5000, 20000, 60000]) {
-      retryTimers.push(setTimeout(loadScholarships, delay));
+    // The parent payment page needs none of the 1,297 rows; skip the fetch so it
+    // does not compete with the token check.
+    if (viewFromPath(window.location.pathname) !== "parentPay") {
+      loadScholarships();
+      for (const delay of [5000, 20000, 60000]) {
+        retryTimers.push(setTimeout(loadScholarships, delay));
+      }
     }
 
     // Loads subscription status, usage counters, notifications, and tracked
@@ -604,6 +644,7 @@ export default function MeritLaunch() {
         const user = session?.user ?? null;
         setAuthUser(user);
         setAuthLoading(false);
+        if (user && event !== "PASSWORD_RECOVERY") { initAnalytics(); identifyUser(user.id); } // PostHog: signed-in users only
         if (event === "PASSWORD_RECOVERY" || (recoveryLink && user)) {
           recoveryLink = false;
           setAuthMode("reset");
@@ -1119,6 +1160,7 @@ export default function MeritLaunch() {
     setAuthLoading,
     showAuthModal,
     setShowAuthModal,
+    setPendingPlan,
     authMode,
     setAuthMode,
     legalModal,

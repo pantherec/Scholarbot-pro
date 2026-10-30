@@ -96,7 +96,9 @@ export const PRIVACY_SECTIONS = [
       "You can edit or remove most profile fields yourself at any time.",
       "To download a copy of your data, or to delete your account, contact us at privacy@meritlaunch.com. Deleting your account removes your profile, saved letters, and tracked applications from our database.",
       "Clearing your browser storage removes the copy kept on your device.",
-      "You can unsubscribe from emails with the link in any email, or turn alerts off from the toggle on your dashboard.",
+      EMAIL_REMINDERS_LIVE
+        ? "You can unsubscribe from emails with the link in any email, or turn alerts off from the toggle on your dashboard."
+        : "Deadline reminders appear on your dashboard. We send no reminder emails; the only emails are account emails like password resets, and payment receipts from Stripe.",
     ],
   },
   {
