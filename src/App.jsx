@@ -159,6 +159,8 @@ export default function MeritLaunch() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [authError, setAuthError] = useState("");
+  const [authNotice, setAuthNotice] = useState(""); // success text shown INSIDE the modal (toasts sit behind its backdrop)
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState(""); // set when sign-in fails with "Email not confirmed"
   const [authSubmitting, setAuthSubmitting] = useState(false);
   const [authDob, setAuthDob] = useState(""); // COPPA: used only for age check, never stored
   const [usageResetsOn, setUsageResetsOn] = useState(null);
@@ -325,7 +327,7 @@ export default function MeritLaunch() {
 
   // Auth handlers
   const handleSignUp = async () => {
-    setAuthError(""); setAuthSubmitting(true);
+    setAuthError(""); setAuthNotice(""); setUnconfirmedEmail(""); setAuthSubmitting(true);
     // COPPA age gate — check age, then discard DOB immediately (never stored)
     if (authDob) {
       const birthDate = new Date(authDob);
@@ -357,8 +359,9 @@ export default function MeritLaunch() {
       if (error) { setAuthError(error.message); }
       else {
         setAuthError("");
-        notify("Check your email for a confirmation link!", "success");
         setAuthMode("signin");
+        setAuthPassword("");
+        setAuthNotice(`Almost there. We sent a confirmation link to ${authEmail}. Open it, then sign in here. If it is not in your inbox within a minute, check your spam folder.`);
         const newUserId = data?.user?.id;
         if (newUserId) {
           identifyUser(newUserId);
@@ -370,7 +373,7 @@ export default function MeritLaunch() {
   };
 
   const handleSignIn = async () => {
-    setAuthError(""); setAuthSubmitting(true);
+    setAuthError(""); setAuthNotice(""); setUnconfirmedEmail(""); setAuthSubmitting(true);
     try {
       const result = await withTimeout(supabase.auth.signInWithPassword({ email: authEmail, password: authPassword }), 8000);
       if (result === null) {
@@ -380,7 +383,14 @@ export default function MeritLaunch() {
         return;
       }
       const { data, error } = result;
-      if (error) { setAuthError(error.message); }
+      if (error) {
+        if (/not confirmed/i.test(error.message || "")) {
+          setUnconfirmedEmail(authEmail);
+          setAuthError("Your email address has not been confirmed yet. Open the confirmation link we emailed you when you signed up, then sign in. Need another copy? Use the resend link below.");
+        } else {
+          setAuthError(error.message);
+        }
+      }
       else {
         setShowAuthModal(false); setAuthEmail(""); setAuthPassword("");
         notify("Welcome back!", "success");
@@ -393,8 +403,21 @@ export default function MeritLaunch() {
     setAuthSubmitting(false);
   };
 
-  const handleForgotPassword = async () => {
+  const handleResendConfirmation = async () => {
+    const email = unconfirmedEmail || authEmail;
+    if (!email) return;
     setAuthError(""); setAuthSubmitting(true);
+    try {
+      const result = await withTimeout(supabase.auth.resend({ type: "signup", email }), 8000);
+      const error = result === null ? { message: "That timed out. Please try again." } : result.error;
+      if (error) { setAuthError(error.message); }
+      else { setUnconfirmedEmail(""); setAuthNotice(`We sent a new confirmation link to ${email}. Open it, then sign in here.`); }
+    } catch(e) { setAuthError("Something went wrong. Please try again."); }
+    setAuthSubmitting(false);
+  };
+
+  const handleForgotPassword = async () => {
+    setAuthError(""); setAuthNotice(""); setUnconfirmedEmail(""); setAuthSubmitting(true);
     try {
       const result = await withTimeout(supabase.auth.resetPasswordForEmail(authEmail, {
         redirectTo: window.location.origin,
@@ -413,7 +436,7 @@ export default function MeritLaunch() {
   };
 
   const handleUpdatePassword = async () => {
-    setAuthError(""); setAuthSubmitting(true);
+    setAuthError(""); setAuthNotice(""); setUnconfirmedEmail(""); setAuthSubmitting(true);
     if (newPassword.length < 6) { setAuthError("Password must be at least 6 characters."); setAuthSubmitting(false); return; }
     if (newPassword !== confirmPassword) { setAuthError("Passwords don't match."); setAuthSubmitting(false); return; }
     try {
@@ -1132,6 +1155,10 @@ export default function MeritLaunch() {
     confirmPassword,
     setConfirmPassword,
     authError,
+    authNotice,
+    setAuthNotice,
+    unconfirmedEmail,
+    handleResendConfirmation,
     setAuthError,
     authSubmitting,
     setAuthSubmitting,
@@ -1216,7 +1243,7 @@ export default function MeritLaunch() {
       {/* NOTIFICATION TOAST */}
       {notification && (
         <div role="status" aria-live="polite" style={{
-          position: "fixed", top: 20, right: 20, zIndex: 9999, maxWidth: "calc(100vw - 40px)",
+          position: "fixed", top: 20, right: 20, zIndex: 10001, /* above the modal backdrop (10000) */ maxWidth: "calc(100vw - 40px)",
           padding: "14px 24px", borderRadius: 12,
           fontFamily: FONTS.body, fontSize: TYPE.base, fontWeight: 600,
           background: notification.type === "error" ? COLORS.pink : notification.type === "success" ? COLORS.teal : COLORS.gold,

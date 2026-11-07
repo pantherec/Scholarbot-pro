@@ -3,7 +3,7 @@ import { COLORS, FONTS, TYPE } from "../../ui/theme.js";
 import { BrandMark, Modal, LinkButton, Button } from "../../ui/components.jsx";
 
 export default function AuthModal() {
-  const { showAuthModal, setShowAuthModal, authMode, setAuthMode, setLegalModal, authEmail, setAuthEmail, authPassword, setAuthPassword, newPassword, setNewPassword, confirmPassword, setConfirmPassword, authError, setAuthError, authSubmitting, authDob, setAuthDob, handleSignUp, handleSignIn, handleForgotPassword, handleUpdatePassword } = useApp();
+  const { showAuthModal, setShowAuthModal, authMode, setAuthMode, setLegalModal, authEmail, setAuthEmail, authPassword, setAuthPassword, newPassword, setNewPassword, confirmPassword, setConfirmPassword, authError, setAuthError, authNotice, setAuthNotice, unconfirmedEmail, handleResendConfirmation, authSubmitting, authDob, setAuthDob, handleSignUp, handleSignIn, handleForgotPassword, handleUpdatePassword } = useApp();
   return (
     <>
       {/* AUTH MODAL */}
@@ -18,9 +18,19 @@ export default function AuthModal() {
               </p>
             </div>
 
+            {authNotice && (
+              <div role="status" aria-live="polite" style={{ padding: "12px 14px", borderRadius: 8, marginBottom: 16, fontSize: TYPE.sm, fontFamily: FONTS.body, lineHeight: 1.5, background: COLORS.tealDim, color: COLORS.text, border: `1px solid ${COLORS.teal}66`, textAlign: "left" }}>
+                <strong style={{ color: COLORS.teal }}>Check your email.</strong> {authNotice}
+              </div>
+            )}
             {authError && (
-              <div role="alert" style={{ padding: "10px 14px", borderRadius: 8, marginBottom: 16, fontSize: TYPE.sm, fontFamily: FONTS.body, background: COLORS.pinkDim, color: COLORS.text, border: `1px solid ${COLORS.pink}66`, textAlign: "left" }}>
+              <div role="alert" style={{ padding: "10px 14px", borderRadius: 8, marginBottom: 16, fontSize: TYPE.sm, fontFamily: FONTS.body, lineHeight: 1.5, background: COLORS.pinkDim, color: COLORS.text, border: `1px solid ${COLORS.pink}66`, textAlign: "left" }}>
                 {authError}
+                {unconfirmedEmail && (
+                  <div style={{ marginTop: 8 }}>
+                    <LinkButton onClick={handleResendConfirmation} style={{ fontSize: TYPE.sm }}>{authSubmitting ? "Sending..." : "Resend the confirmation email"}</LinkButton>
+                  </div>
+                )}
               </div>
             )}
 
@@ -78,16 +88,16 @@ export default function AuthModal() {
             <div style={{ marginTop: 20, textAlign: "center", fontFamily: FONTS.body, fontSize: TYPE.sm, color: COLORS.textMuted, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
               {authMode === "signin" && (
                 <>
-                  <LinkButton onClick={() => { setAuthMode("forgot"); setAuthError(""); }}>Forgot password?</LinkButton>
+                  <LinkButton onClick={() => { setAuthMode("forgot"); setAuthError(""); setAuthNotice(""); }}>Forgot password?</LinkButton>
                   <span aria-hidden="true">|</span>
-                  <span>No account? <LinkButton onClick={() => { setAuthMode("signup"); setAuthError(""); }}>Sign up</LinkButton></span>
+                  <span>No account? <LinkButton onClick={() => { setAuthMode("signup"); setAuthError(""); setAuthNotice(""); }}>Sign up</LinkButton></span>
                 </>
               )}
               {authMode === "signup" && (
-                <span>Already have an account? <LinkButton onClick={() => { setAuthMode("signin"); setAuthError(""); setAuthDob(""); }}>Sign in</LinkButton></span>
+                <span>Already have an account? <LinkButton onClick={() => { setAuthMode("signin"); setAuthError(""); setAuthNotice(""); setAuthDob(""); }}>Sign in</LinkButton></span>
               )}
               {authMode === "forgot" && (
-                <LinkButton onClick={() => { setAuthMode("signin"); setAuthError(""); }}>Back to sign in</LinkButton>
+                <LinkButton onClick={() => { setAuthMode("signin"); setAuthError(""); setAuthNotice(""); }}>Back to sign in</LinkButton>
               )}
               {authMode === "reset" && (
                 <span style={{ fontSize: TYPE.xs }}>Enter your new password above to finish the reset.</span>
