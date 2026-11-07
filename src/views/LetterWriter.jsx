@@ -4,10 +4,48 @@ import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { GlowCard, ICON_PATHS, LinkButton, AppIcon, Button, SectionHeader } from "../ui/components.jsx";
 import { FREE_LIMITS } from "../lib/plans.js";
 import { findUnsupportedDetails, describeDetail } from "../lib/factcheck.js";
+import { PROFILE_QUESTIONS } from "../data/profile.js";
 import { track } from "../analytics.js";
 
 export default function LetterWriter() {
-  const { bragSheet, appAnswers, generatedProfile, includeSensitive, setIncludeSensitive, profile, scholarshipQuery, setScholarshipQuery, scholarshipPickerOpen, setScholarshipPickerOpen, scholarshipDB, matchResults, essayPrompt, setEssayPrompt, wordLimit, setWordLimit, aiPolicy, setAiPolicy, pickerActive, setPickerActive, selectedScholarship, setSelectedScholarship, selectedTemplate, setSelectedTemplate, templates, generatedLetter, setGeneratedLetter, generatingLetter, setProfileStep, scholarshipInputMode, setScholarshipInputMode, customScholarshipText, setCustomScholarshipText, customScholarshipName, setCustomScholarshipName, scholarshipUrl, setScholarshipUrl, fetchingUrl, uploadedScholarshipName, authUser, monthlyLettersUsed, setView, scholarshipFileRef, isPremium, openUpgrade, handleScholarshipUpload, fetchScholarshipFromUrl, notify, saveLetter, thinFields, generateLetter, parseDeadline, catalogCount } = useApp();
+  const { bragSheet, appAnswers, generatedProfile, includeSensitive, setIncludeSensitive, profile, scholarshipQuery, setScholarshipQuery, scholarshipPickerOpen, setScholarshipPickerOpen, scholarshipDB, matchResults, essayPrompt, setEssayPrompt, wordLimit, setWordLimit, aiPolicy, setAiPolicy, pickerActive, setPickerActive, selectedScholarship, setSelectedScholarship, selectedTemplate, setSelectedTemplate, templates, generatedLetter, setGeneratedLetter, generatingLetter, setProfileStep, scholarshipInputMode, setScholarshipInputMode, customScholarshipText, setCustomScholarshipText, customScholarshipName, setCustomScholarshipName, scholarshipUrl, setScholarshipUrl, fetchingUrl, uploadedScholarshipName, authUser, monthlyLettersUsed, setView, scholarshipFileRef, isPremium, openUpgrade, handleScholarshipUpload, fetchScholarshipFromUrl, notify, saveLetter, thinFields, generateLetter, parseDeadline, catalogCount, bragSheetFileName, draftQuestions, draftAnswers, setDraftAnswers, askingQuestions, draftStage, draftError } = useApp();
+
+  // What this draft is built from, named, so "using only what's in your
+  // profile" is never shown while a brag sheet or answers are in play.
+  const profileFilled = PROFILE_QUESTIONS.filter(q => q.type !== "age" && (Array.isArray(profile[q.id]) ? profile[q.id].length : String(profile[q.id] || "").trim())).length;
+  const answeredCount = (draftQuestions || []).filter(q => { const a = draftAnswers[q.id]; return a && a.status !== "skipped" && (a.status === "confirmed" || (a.text || "").trim()); }).length;
+  const sources = [
+    `your profile (${profileFilled} of ${PROFILE_QUESTIONS.length - 1} answers)`,
+    bragSheet ? `your brag sheet${bragSheetFileName ? ` (${bragSheetFileName})` : ""}` : null,
+    generatedProfile ? "your voice notes" : null,
+    Object.keys(appAnswers || {}).length ? "your practice answers" : null,
+    essayPrompt.trim() ? "the application's question" : null,
+    answeredCount ? `your ${answeredCount} answer${answeredCount === 1 ? "" : "s"} below` : null,
+  ].filter(Boolean);
+
+  // Progress while drafting: a clock until the first words, then words written
+  // against the target length.
+  const letterCardRef = useRef(null);
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (!generatingLetter) { setElapsed(0); return; }
+    letterCardRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+    const t0 = Date.now();
+    const id = setInterval(() => setElapsed(Math.floor((Date.now() - t0) / 1000)), 500);
+    return () => clearInterval(id);
+  }, [generatingLetter]);
+  const parsedLimit = parseInt(wordLimit, 10);
+  const targetWords = Number.isFinite(parsedLimit) ? Math.min(1000, Math.max(100, parsedLimit)) : (aiPolicy === "unsure" ? 250 : 400);
+  const wordsSoFar = generatedLetter.trim() ? generatedLetter.trim().split(/\s+/).length : 0;
+  const pct = generatingLetter && wordsSoFar ? Math.min(96, Math.round((wordsSoFar / targetWords) * 100)) : 0;
+
+  // The questions panel opens when questions arrive and folds once a draft is written.
+  const [qOpen, setQOpen] = useState(true);
+  useEffect(() => { if (draftQuestions && draftQuestions.length) setQOpen(true); }, [draftQuestions]);
+  useEffect(() => { if (generatingLetter) setQOpen(false); }, [generatingLetter]);
+  const setAnswer = (id, patch) => setDraftAnswers(prev => ({ ...prev, [id]: { ...(prev[id] || {}), ...patch } }));
+  const skippedCount = (draftQuestions || []).filter(q => draftAnswers[q.id]?.status === "skipped").length;
+  const openCount = (draftQuestions || []).length - answeredCount - skippedCount;
 
   // Details the draft added that the student never gave us (an age, a count, a
   // weekday, a name). Each one is listed until the student marks it true or
@@ -293,24 +331,126 @@ export default function LetterWriter() {
 
                 {aiPolicy === "allowed" && profile.ageOk && thinFields().length > 0 && (
                   <div style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: 16, lineHeight: 1.6 }}>
-                    Your draft will be thinner without {thinFields().join(", ")}. Drafts only use what you've told us.{" "}
+                    Your profile is missing {thinFields().join(", ")}.{bragSheet ? " Your brag sheet still counts, but the profile fields are what matching reads." : " Drafts only use what you've told us."}{" "}
                     <LinkButton onClick={() => { setProfileStep(thinFields().includes("activities") ? 2 : 3); setView("profile"); }}>Add one detail</LinkButton>
                   </div>
                 )}
 
+                {aiPolicy && (
+                  <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, margin: "0 0 12px", lineHeight: 1.6 }}>
+                    {aiPolicy === "unsure" ? "Outline from" : "Drafting from"}: {sources.join(" · ")}.
+                  </p>
+                )}
                 <Button onClick={() => generateLetter()}
-                  disabled={generatingLetter || !aiPolicy || (scholarshipInputMode === "database" ? !selectedScholarship : !customScholarshipText.trim())}
+                  disabled={generatingLetter || askingQuestions || !aiPolicy || (scholarshipInputMode === "database" ? !selectedScholarship : !customScholarshipText.trim())}
                   style={{ fontSize: TYPE.md, padding: "14px 40px", marginBottom: 28 }}>
-                  {generatingLetter ? "Drafting from your details..." : aiPolicy === "unsure" ? "Make my outline" : "Draft my letter"}
+                  {askingQuestions ? "Checking what your draft needs..." : generatingLetter ? (draftStage === "writing" ? "Writing..." : "Drafting from your details...") : aiPolicy === "unsure" ? "Make my outline" : draftQuestions && draftQuestions.length && !generatedLetter ? "Write my draft" : "Draft my letter"}
                 </Button>
                 {!aiPolicy && !generatingLetter && (
                   <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, margin: "-16px 0 28px" }}>
                     Answer the AI-help question above first.
                   </p>
                 )}
+                {askingQuestions && (
+                  <p style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, margin: "-16px 0 28px", lineHeight: 1.6 }}>
+                    Reading your details against {selectedTemplate?.name || "the chosen style"} to see if anything is missing. This takes a few seconds and doesn't use a letter.
+                  </p>
+                )}
+
+                {aiPolicy === "allowed" && draftQuestions && draftQuestions.length > 0 && !generatingLetter && (
+                  <div role="region" aria-label="Questions before your draft" style={{ marginBottom: 28, padding: "16px 18px", borderRadius: 12, background: COLORS.surface, border: `1px solid ${COLORS.gold}66` }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+                      <div>
+                        <div style={{ fontSize: TYPE.md, fontFamily: FONTS.heading, color: COLORS.text }}>
+                          {generatedLetter ? `Your answers (${answeredCount} given, ${skippedCount + openCount} left out)` : `Before we draft: ${draftQuestions.length} quick question${draftQuestions.length === 1 ? "" : "s"}`}
+                        </div>
+                        <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginTop: 4, lineHeight: 1.5, maxWidth: 620 }}>
+                          {selectedTemplate?.name || "This style"} wants details your profile and brag sheet don't have. Rather than make them up, the draft asks. Answer in a sentence or two, say the example is true, or skip it and that topic stays out.
+                        </div>
+                      </div>
+                      <LinkButton onClick={() => setQOpen(v => !v)}>{qOpen ? "Hide" : "Show"}</LinkButton>
+                    </div>
+                    {qOpen && (
+                      <ol style={{ listStyle: "none", padding: 0, margin: "14px 0 0", display: "flex", flexDirection: "column", gap: 14 }}>
+                        {draftQuestions.map((q, i) => {
+                          const a = draftAnswers[q.id] || {};
+                          const status = a.status || "";
+                          const example = (q.example || "").replace(/^for example:?\s*/i, "");
+                          return (
+                            <li key={q.id} style={{ padding: "12px 14px", borderRadius: 10, background: COLORS.bg, border: `1px solid ${status === "skipped" ? COLORS.border : status ? COLORS.teal + "66" : COLORS.border}`, opacity: status === "skipped" ? 0.7 : 1 }}>
+                              <div style={{ display: "flex", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
+                                <span style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.gold }}>{i + 1}{q.about ? ` · ${q.about}` : ""}</span>
+                                {q.why && <span style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textDim }}>for {q.why}</span>}
+                                {status === "skipped" && <span style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted }}>Skipped: this stays out of the draft.</span>}
+                                {status === "confirmed" && <span style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.teal }}>You said the example is what happened.</span>}
+                              </div>
+                              <label htmlFor={`dq-${q.id}`} style={{ display: "block", fontSize: TYPE.base, fontFamily: FONTS.body, color: COLORS.text, margin: "6px 0 8px", lineHeight: 1.5 }}>{q.question}</label>
+                              {example && status !== "confirmed" && (
+                                <div style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, fontStyle: "italic", marginBottom: 8, lineHeight: 1.5 }}>
+                                  Example only: “{example}” <span style={{ fontStyle: "normal", color: COLORS.textDim }}>Keep it only if it's what actually happened.</span>
+                                </div>
+                              )}
+                              {status !== "skipped" && status !== "confirmed" && (
+                                <textarea id={`dq-${q.id}`} rows={2} value={a.text || ""}
+                                  onChange={e => setAnswer(q.id, { status: e.target.value.trim() ? "answered" : "", text: e.target.value })}
+                                  placeholder="What actually happened, in your words"
+                                  style={{ width: "100%", padding: "10px 14px", background: COLORS.surface, border: `1px solid ${COLORS.fieldBorder}`, borderRadius: 10, color: COLORS.text, fontSize: TYPE.base, fontFamily: FONTS.body, outline: "none", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
+                              )}
+                              <div style={{ display: "flex", gap: 14, marginTop: 8, flexWrap: "wrap" }}>
+                                {example && status !== "confirmed" && <LinkButton onClick={() => setAnswer(q.id, { status: "confirmed" })}>That's true, use the example</LinkButton>}
+                                {status !== "skipped" && <LinkButton onClick={() => setAnswer(q.id, { status: "skipped" })}>Skip, leave it out</LinkButton>}
+                                {(status === "skipped" || status === "confirmed") && <LinkButton onClick={() => setAnswer(q.id, { status: (a.text || "").trim() ? "answered" : "" })}>Answer instead</LinkButton>}
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ol>
+                    )}
+                    {!generatedLetter && (
+                      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 16, flexWrap: "wrap" }}>
+                        <Button onClick={() => generateLetter({ skipQuestions: true })} disabled={generatingLetter}>Write my draft{answeredCount ? ` with ${answeredCount} answer${answeredCount === 1 ? "" : "s"}` : ""}</Button>
+                        <span style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textDim }}>
+                          {openCount > 0 ? `${openCount} unanswered question${openCount === 1 ? "" : "s"} will be left out of the draft.` : "Nothing unanswered."}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {(generatedLetter || generatingLetter) && (
                   <div>
+                    <div ref={letterCardRef} style={{ scrollMarginTop: 24 }} />
+                    {generatingLetter && (
+                      <div role="status" aria-live="polite" style={{ marginBottom: 12, padding: "12px 16px", borderRadius: 10, background: COLORS.surface, border: `1px solid ${COLORS.border}` }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.text, flexWrap: "wrap" }}>
+                          <span>
+                            {draftStage === "writing"
+                              ? `Writing: about ${pct}% of a ${targetWords}-word ${aiPolicy === "unsure" ? "outline" : "draft"}`
+                              : draftStage === "waiting"
+                                ? "Reading your profile, brag sheet and the scholarship. The first words take a few seconds."
+                                : "Sending your details..."}
+                          </span>
+                          <span style={{ color: COLORS.textDim }}>{draftStage === "writing" ? `${wordsSoFar} words` : `${elapsed}s`}</span>
+                        </div>
+                        <div aria-hidden="true" style={{ height: 6, borderRadius: 3, background: COLORS.border, marginTop: 10, overflow: "hidden" }}>
+                          <div style={{
+                            height: "100%", borderRadius: 3,
+                            width: draftStage === "writing" ? `${pct}%` : "100%",
+                            background: draftStage === "writing" ? `linear-gradient(90deg, ${COLORS.gold}, ${COLORS.goldLight})` : `linear-gradient(90deg, ${COLORS.border} 0%, ${COLORS.gold} 50%, ${COLORS.border} 100%)`,
+                            backgroundSize: draftStage === "writing" ? "100% 100%" : "200% 100%",
+                            animation: draftStage === "writing" ? "none" : "shimmer 1.6s linear infinite",
+                            transition: "width 0.4s ease",
+                          }} />
+                        </div>
+                        <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginTop: 8 }}>Using {sources.join(" · ")}.</div>
+                      </div>
+                    )}
+                    {!generatingLetter && draftError && (
+                      <div role="alert" style={{ marginBottom: 12, padding: "12px 16px", borderRadius: 10, background: COLORS.pinkDim, border: `1px solid ${COLORS.pink}66`, fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.text, lineHeight: 1.6, display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+                        <span><strong>This draft stopped early.</strong> {draftError.message}{generatedLetter ? " What arrived is below, but it isn't a whole letter." : ""}</span>
+                        <Button variant="secondary" onClick={() => generateLetter({ skipQuestions: true })} style={{ padding: "8px 16px", fontSize: TYPE.sm }}>Try again</Button>
+                      </div>
+                    )}
                     <GlowCard hover={false} className="letter-card" style={{
                       padding: 32, marginBottom: 16,
                       background: COLORS.card,
@@ -326,8 +466,8 @@ export default function LetterWriter() {
                       }}>
                         {generatingLetter && !generatedLetter && (
                           <div style={{ textAlign: "center", padding: "40px 0" }}>
-                            <div style={{ fontSize: TYPE.base, fontFamily: FONTS.body, color: "#5f5a50", marginBottom: 8 }}>Drafting from your details...</div>
-                            <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: "#6f6a60" }}>Using only what's in your profile</div>
+                            <div style={{ fontSize: TYPE.base, fontFamily: FONTS.body, color: "#5f5a50", marginBottom: 8 }}>{draftStage === "waiting" ? "The first words are on their way..." : "Drafting from your details..."}</div>
+                            <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: "#6f6a60", lineHeight: 1.6, maxWidth: 440, margin: "0 auto" }}>Built only from {sources.join(", ")}. Nothing is added that you didn't tell us.</div>
                           </div>
                         )}
                         {/* While streaming, render read-only so the typing effect and
@@ -393,7 +533,7 @@ export default function LetterWriter() {
                     )}
                     {!generatingLetter && generatedLetter && (
                       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                        <Button disabled={toCheck.length > 0} title={toCheck.length ? "Check the details above first" : undefined} onClick={() => {
+                        <Button disabled={toCheck.length > 0 || !!draftError} title={draftError ? "This draft stopped early. Try again first." : toCheck.length ? "Check the details above first" : undefined} onClick={() => {
                           const label = scholarshipInputMode === "database" ? selectedScholarship?.name : (customScholarshipName || "Custom Scholarship");
                           saveLetter({ content: generatedLetter, scholarshipName: label, template: selectedTemplate?.name, scholarshipId: selectedScholarship?.id });
                         }}>Save Letter</Button>

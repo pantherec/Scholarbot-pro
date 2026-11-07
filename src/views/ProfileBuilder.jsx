@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
-import { yearIsUnder13, PROFILE_QUESTIONS, PROFILE_STEPS } from "../data/profile.js";
-import { GlowCard, AppIcon, Button, SectionHeader } from "../ui/components.jsx";
+import { yearIsUnder13, PROFILE_QUESTIONS, PROFILE_STEPS, GRAD_YEARS } from "../data/profile.js";
+import { GlowCard, AppIcon, Button, SectionHeader, LinkButton } from "../ui/components.jsx";
+import { suggestFromBragSheet, applySuggestions, SUGGESTION_LABELS } from "../lib/bragsheet.js";
 import { track } from "../analytics.js";
 
 export default function ProfileBuilder() {
-  const { profile, bragSheet, setBragSheet, generatingLetter, bragSheetFileName, setBragSheetFileName, bragSheetUploading, profileStep, setProfileStep, bragFileRef, handleBragSheetUpload, saveProfile, answered, profileCompletion, runMatching, generateCandidateProfile } = useApp();
+  const { profile, bragSheet, setBragSheet, generatingLetter, bragSheetFileName, setBragSheetFileName, bragSheetUploading, profileStep, setProfileStep, bragFileRef, handleBragSheetUpload, saveProfile, answered, profileCompletion, runMatching, generateCandidateProfile, notify } = useApp();
   return (
               <div>
                 <SectionHeader title="My Profile" subtitle="Your answers drive your matches, and every letter draft is built only from them." />
@@ -179,9 +180,10 @@ export default function ProfileBuilder() {
                     }}/>
                   {bragSheet && (
                     <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textDim, marginTop: 6 }}>
-                      {bragSheet.length.toLocaleString()} characters loaded
+                      {bragSheet.length.toLocaleString()} characters loaded. Letter drafts read all of it.
                     </div>
                   )}
+                  {bragSheet && <BragSuggestions bragSheet={bragSheet} profile={profile} saveProfile={saveProfile} notify={notify} />}
                 </GlowCard>
 
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -207,6 +209,102 @@ function AgeQuestion({ id, hintId, options, onConfirm }) {
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
       <Button onClick={() => year && onConfirm(year)} disabled={!year}>Continue</Button>
+    </div>
+  );
+}
+
+// What the brag sheet could add to the profile, sorted into the fields the
+// matcher and the letter prompt read. Ticked by default; the student unticks
+// anything the keyword router got wrong, then adds the rest with one click.
+// Items already in the profile drop out, so the panel empties as it is used.
+function BragSuggestions({ bragSheet, profile, saveProfile, notify }) {
+  const sug = useMemo(() => suggestFromBragSheet(bragSheet, profile, { gradYears: GRAD_YEARS }), [bragSheet, profile]);
+  const [off, setOff] = useState(() => new Set());       // keys the student unticked
+  const [showUnsorted, setShowUnsorted] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => { setHidden(false); }, [bragSheet]);
+  const total = sug.count + (showUnsorted ? sug.unsorted.length : 0);
+  if (hidden || (sug.count === 0 && sug.unsorted.length === 0)) return null;
+  // Everything recognisable is already in the profile; only the lines no rule
+  // could place remain, offered quietly.
+  if (sug.count === 0 && !showUnsorted) {
+    return (
+      <div style={{ marginTop: 12, fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6 }}>
+        Everything we recognised from your brag sheet is in your profile. {sug.unsorted.length} line{sug.unsorted.length === 1 ? "" : "s"} we couldn't place: <LinkButton onClick={() => setShowUnsorted(true)}>show</LinkButton>
+      </div>
+    );
+  }
+
+  const key = (kind, field, i) => `${kind}:${field}:${i}`;
+  const on = (k) => !off.has(k);
+  const toggle = (k) => setOff((prev) => { const n = new Set(prev); if (n.has(k)) n.delete(k); else n.add(k); return n; });
+  const picked = () => {
+    const fields = {}, items = {};
+    for (const [f, v] of Object.entries(sug.fields)) if (on(key("field", f, 0))) fields[f] = v;
+    for (const [f, list] of Object.entries(sug.items)) {
+      const sel = list.filter((_, i) => on(key("item", f, i)));
+      if (sel.length) items[f] = sel;
+    }
+    if (showUnsorted) {
+      const sel = sug.unsorted.filter((_, i) => on(key("unsorted", "otherDetails", i)));
+      if (sel.length) items.otherDetails = [...(items.otherDetails || []), ...sel];
+    }
+    return { fields, items };
+  };
+  const n = (() => { const p = picked(); return Object.keys(p.fields).length + Object.values(p.items).reduce((a, l) => a + l.length, 0); })();
+  const apply = () => {
+    const p = picked();
+    saveProfile(applySuggestions(profile, p));
+    track("brag_sheet_sorted", { count: n });
+    notify(`Added ${n} detail${n === 1 ? "" : "s"} to your profile. Check each field and edit anything that's off.`, "success");
+  };
+  const row = (k, text, label) => (
+    <label key={k} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "6px 0", cursor: "pointer", fontSize: TYPE.sm, fontFamily: FONTS.body, color: on(k) ? COLORS.text : COLORS.textDim, lineHeight: 1.5 }}>
+      <input type="checkbox" checked={on(k)} onChange={() => toggle(k)} style={{ width: 16, height: 16, accentColor: COLORS.gold, marginTop: 3, flexShrink: 0 }} />
+      <span>{label && <span style={{ color: COLORS.textMuted }}>{label}: </span>}{text}</span>
+    </label>
+  );
+  const sectionStyle = { fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.gold, letterSpacing: 1.5, textTransform: "uppercase", margin: "14px 0 2px" };
+  return (
+    <div role="region" aria-label="Details found in your brag sheet" style={{ marginTop: 16, padding: "14px 16px", borderRadius: 12, background: COLORS.goldDim, border: `1px solid ${COLORS.gold}55` }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+        <div>
+          <div style={{ fontSize: TYPE.base, fontFamily: FONTS.body, color: COLORS.text, fontWeight: 500 }}>
+            {sug.count > 0
+              ? `Your brag sheet has ${sug.count} detail${sug.count === 1 ? "" : "s"} that aren't in your profile yet.`
+              : "Lines from your brag sheet we couldn't place"}
+          </div>
+          <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginTop: 4, lineHeight: 1.5 }}>
+            Sorted by what each line says. Untick anything in the wrong place, then add them. Nothing is written until you click.
+          </div>
+        </div>
+        <LinkButton onClick={() => setHidden(true)}>Not now</LinkButton>
+      </div>
+      {Object.keys(sug.fields).length > 0 && (
+        <div>
+          <div style={sectionStyle}>About you</div>
+          {Object.entries(sug.fields).map(([f, v]) => row(key("field", f, 0), v, SUGGESTION_LABELS.fields[f] || f))}
+        </div>
+      )}
+      {Object.entries(sug.items).map(([f, list]) => list.length ? (
+        <div key={f}>
+          <div style={sectionStyle}>{SUGGESTION_LABELS.items[f]}</div>
+          {list.map((it, i) => row(key("item", f, i), it))}
+        </div>
+      ) : null)}
+      {sug.unsorted.length > 0 && (
+        <div>
+          <div style={{ ...sectionStyle, display: "flex", alignItems: "center", gap: 10 }}>
+            <span>Couldn't tell where these go ({sug.unsorted.length})</span>
+            <LinkButton onClick={() => setShowUnsorted((v) => !v)} style={{ textTransform: "none", letterSpacing: 0 }}>{showUnsorted ? "Hide" : "Show, and add to Other details"}</LinkButton>
+          </div>
+          {showUnsorted && sug.unsorted.map((it, i) => row(key("unsorted", "otherDetails", i), it))}
+        </div>
+      )}
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14, flexWrap: "wrap" }}>
+        <Button onClick={apply} disabled={n === 0} style={{ padding: "10px 20px", fontSize: TYPE.sm }}>Add {n} to my profile</Button>
+        <span style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textDim }}>{total - n > 0 ? `${total - n} unticked` : "Everything ticked"}</span>
+      </div>
     </div>
   );
 }

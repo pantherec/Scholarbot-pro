@@ -4,6 +4,10 @@
 import { sanitizeForPrompt } from "./auth.js";
 
 export const LETTER_MODEL = "claude-sonnet-5";
+// The pre-draft questions are a small structured task; Haiku 5.5 is fast and
+// cheap enough to run before every draft without spending a letter.
+export const QUESTIONS_MODEL = "claude-haiku-5-5";
+export const QUESTIONS_MAX_TOKENS = 900;
 export const LETTER_MAX_TOKENS = 1600;
 export const PROFILE_MAX_TOKENS = 1000;
 export const URL_MAX_TOKENS = 1000;
@@ -11,7 +15,7 @@ export const URL_MAX_TOKENS = 1000;
 export const TEMPLATES = {
   narrative: {
     name: "The Storyteller",
-    rules: "1. Open with a specific moment or memory. 2. Use I-statements. 3. Connect personal story to scholarship mission. 4. Close with forward-looking vision. 5. Ground every claim in a scene the reader can picture.",
+    rules: "1. Open with a specific moment the student actually described (in their answers, brag sheet, or added details). If they described none, open with their most concrete true fact. 2. Use I-statements. 3. Connect personal story to scholarship mission. 4. Close with forward-looking vision. 5. Ground every claim in something the student stated; never dress a fact up with invented surroundings.",
   },
   evidence: {
     name: "The Scientist",
@@ -23,7 +27,7 @@ export const TEMPLATES = {
   },
   underdog: {
     name: "The Overcomer",
-    rules: "1. Be honest about challenges without being pitiful. 2. Show agency: what YOU did about it. 3. Frame hardship as fuel, not excuse. 4. Demonstrate growth trajectory. 5. End with strength and vision, not gratitude alone.",
+    rules: "1. Be honest about the challenges the student described, without being pitiful. Never add a hardship they did not describe. 2. Show agency: what YOU did about it. 3. Frame hardship as fuel, not excuse. 4. Demonstrate growth trajectory. 5. End with strength and vision, not gratitude alone.",
   },
 };
 
@@ -44,6 +48,7 @@ const PROFILE_FIELDS = [
   ["communityService", "COMMUNITY SERVICE"],
   ["personalStory", "PERSONAL STORY"],
   ["careerGoal", "CAREER GOAL"],
+  ["otherDetails", "OTHER DETAILS (work, family responsibilities, projects, skills)"],
   ["writingStyle", "WRITING VOICE"],
 ];
 
@@ -96,6 +101,7 @@ export function buildLetterRequest(input = {}) {
   const {
     profile = {}, scholarship = {}, templateId, customTemplate, essayPrompt,
     wordLimit, voiceProfile, bragSheet, appAnswers, mode, includeSensitive,
+    details, declined,
   } = input;
   const scholarshipText = [scholarship.name, scholarship.criteria, scholarship.description, essayPrompt].map((v) => s(v, 8000)).join(" ");
 
@@ -122,6 +128,7 @@ export function buildLetterRequest(input = {}) {
     voiceProfile ? `\nVOICE NOTES (built from the student's own answers; match this voice):\n${s(voiceProfile, 4000)}` : "",
     bragSheet ? `\nBRAG SHEET (the student's own document):\n${s(bragSheet, 8000)}` : "",
     appAnswers && Object.keys(appAnswers).length ? `\nAPPLICATION-PREP ANSWERS:\n${s(JSON.stringify(appAnswers), 6000)}` : "",
+    addedDetails(details, declined),
   ].join("\n");
 
   if (outline) {
@@ -153,6 +160,11 @@ HONESTY RULES (non-negotiable):
 - If a field is blank, leave that topic out rather than filling it with generic claims.
 - Do not claim eligibility the profile does not support. If the profile is silent on a criterion, write around it.
 - Never mention immigration or citizenship status, or the family's finances, unless they appear in the profile below. The student chooses when to share those.
+
+NO INVENTED SCENES (this is where drafts go wrong):
+- Do not add dialogue, family members, teachers, friends, objects, tools, places, times of day, weather, or sensory details unless the student's material states them. If the material says only "built a fire detection system with a Raspberry Pi," then "soldering a heat sensor at my kitchen table while my mother asks about college" is invented and forbidden.
+- If the style asks for a moment or a scene and the student gave none, open with the student's most concrete true fact instead. A plain true sentence beats a vivid invented one.
+- Details the student added for this draft (below) are true and may be used in full. Topics the student chose not to add must be left out entirely; do not hint at them or fill the gap with something similar.
 
 SPECIFICITY:
 Every paragraph needs at least one concrete detail from the student's material: a school, a specific activity, a real number, a place, a named person. Replace "I developed leadership skills" with what the leadership actually looked like.
@@ -187,6 +199,103 @@ ${facts}`;
       content: `Draft a scholarship letter for "${schName}" that ${firstName(profile.name)} will revise and make their own.\n\nSCHOLARSHIP:\n${schText}${question ? `\n\nTHE APPLICATION'S QUESTION:\n${question}` : ""}`,
     }],
   };
+}
+
+// Answers the student gave to the pre-draft questions, and the questions they
+// chose to skip. Both reach the draft so it uses the first and never fills the
+// second with something made up.
+function addedDetails(details, declined) {
+  const out = [];
+  const used = Array.isArray(details) ? details.filter((d) => d && s(d.answer, 1200)) : [];
+  if (used.length) {
+    out.push("\nDETAILS THE STUDENT ADDED FOR THIS DRAFT (true; use them):");
+    for (const d of used.slice(0, 8)) out.push(`- ${s(d.question, 300) || "Detail"}: ${s(d.answer, 1200)}`);
+  }
+  const skipped = Array.isArray(declined) ? declined.map((q) => s(q, 300)).filter(Boolean) : [];
+  if (skipped.length) {
+    out.push("\nTOPICS THE STUDENT CHOSE NOT TO ADD (leave these out; do not invent them):");
+    for (const q of skipped.slice(0, 8)) out.push(`- ${q}`);
+  }
+  return out.join("\n");
+}
+
+// Before a draft is written, the model looks for the places where the chosen
+// style would need a concrete detail the student's material does not contain,
+// and asks for it. The student answers, confirms, or skips each one. This is
+// what replaced the drafts that opened with an invented scene.
+export function buildQuestionsRequest(input = {}) {
+  const { profile = {}, scholarship = {}, templateId, customTemplate, essayPrompt, voiceProfile, bragSheet, appAnswers, includeSensitive } = input;
+  const scholarshipText = [scholarship.name, scholarship.criteria, scholarship.description, essayPrompt].map((v) => s(v, 8000)).join(" ");
+  const tpl = TEMPLATES[templateId] || (customTemplate && customTemplate.rules
+    ? { name: s(customTemplate.name, 80) || "Custom style", rules: s(customTemplate.rules, 1500) }
+    : TEMPLATES.narrative);
+  const question = s(essayPrompt, 2000);
+  const schName = s(scholarship.name, 200) || "this scholarship";
+  const schText = scholarship.source === "custom"
+    ? `- Name: ${schName}\n- Full description:\n${s(scholarship.description, 6000)}`
+    : `- Name: ${schName}\n- Criteria: ${s(scholarship.criteria, 3000)}`;
+  const facts = [
+    "STUDENT PROFILE (the student's own answers):",
+    profileSummary(profile, { includeSensitive: includeSensitive === true, scholarshipText }),
+    voiceProfile ? `\nVOICE NOTES:\n${s(voiceProfile, 3000)}` : "",
+    bragSheet ? `\nBRAG SHEET (the student's own document):\n${s(bragSheet, 8000)}` : "",
+    appAnswers && Object.keys(appAnswers).length ? `\nAPPLICATION-PREP ANSWERS:\n${s(JSON.stringify(appAnswers), 4000)}` : "",
+  ].join("\n");
+
+  const system = `A high school student is about to get a scholarship letter drafted from their own material, in the style below. Before anything is written, you find the places where that style would need a concrete detail the material does not contain, and ask the student for it. The student will answer, confirm, or skip each question. Nothing you ask will be assumed true.
+
+STYLE: ${tpl.name}
+${tpl.rules}
+
+RULES:
+- Ask at most 4 questions. Fewer is better. Zero is correct when the material is already specific enough for this style.
+- Each question is about one real item in the material (an activity, a project, an award, a story) and asks for the specific thing the draft would otherwise have to make up: a moment, what happened, where, who was involved (by role), a number, what the student did next.
+- "example" is one sentence showing the KIND of answer, clearly hypothetical, starting with "For example:". It is an illustration, never a claim about this student.
+- Never ask about immigration status, family finances, health, religion, or anything the scholarship did not ask about.
+- Do not ask for things the material already states.
+- Plain, friendly wording a 17-year-old answers in a sentence or two.
+
+OUTPUT: only a JSON array, no prose, no code fence:
+[{"id":"q1","about":"<the item in the material, in a few words>","question":"<the question>","why":"<what the draft would use it for, e.g. the opening>","example":"For example: ..."}]
+Return [] when nothing is missing.`;
+
+  return {
+    model: QUESTIONS_MODEL,
+    max_tokens: QUESTIONS_MAX_TOKENS,
+    output_config: { effort: "low" },
+    system,
+    messages: [{
+      role: "user",
+      content: `Scholarship: ${schName}\n${schText}${question ? `\n\nTHE APPLICATION'S QUESTION:\n${question}` : ""}\n\n${facts}\n\nList the questions.`,
+    }],
+  };
+}
+
+// Pulls the question list out of the model's reply. Tolerates a code fence or
+// a sentence around the JSON; returns [] for anything unusable.
+export function parseQuestions(text) {
+  const raw = String(text || "");
+  const start = raw.indexOf("[");
+  const end = raw.lastIndexOf("]");
+  if (start < 0 || end <= start) return [];
+  let arr;
+  try { arr = JSON.parse(raw.slice(start, end + 1)); } catch { return []; }
+  if (!Array.isArray(arr)) return [];
+  const out = [];
+  for (const q of arr) {
+    if (!q || typeof q !== "object") continue;
+    const question = s(q.question, 400);
+    if (!question) continue;
+    out.push({
+      id: s(q.id, 20) || `q${out.length + 1}`,
+      about: s(q.about, 160),
+      question,
+      why: s(q.why, 200),
+      example: s(q.example, 400),
+    });
+    if (out.length === 4) break;
+  }
+  return out;
 }
 
 // The "voice profile": a short description of how this student writes, used to
