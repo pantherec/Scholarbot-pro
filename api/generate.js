@@ -4,6 +4,7 @@
 // max_tokens, tools) is ignored.
 import { verifyAuth, checkRateLimit, isUrlSafe } from "./_shared/auth.js";
 import { buildProfileRequest, buildUrlRequest, buildQuestionsRequest, parseQuestions } from "./_shared/prompts.js";
+import { anthropicHeaders, responseText } from "./_shared/anthropic.js";
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 
@@ -35,7 +36,7 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(ANTHROPIC_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+      headers: anthropicHeaders(apiKey, request),
       body: JSON.stringify(request),
     });
     const data = await response.json();
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
       if (body.task === "draft_questions") return res.status(200).json({ questions: [], degraded: true });
       return res.status(502).json({ error: "The AI service returned an error. Please try again." });
     }
-    const text = (data.content || []).map((b) => b.text || "").filter(Boolean).join("\n").trim();
+    const text = responseText(data);
     if (body.task === "draft_questions") return res.status(200).json({ questions: parseQuestions(text) });
     return res.status(200).json({ text });
   } catch (error) {

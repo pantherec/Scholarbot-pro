@@ -50,6 +50,9 @@ export function describeStreamOutcome(state) {
     return { reason: "error", message: "The AI service hit an error mid-draft. You weren't charged. Try again." };
   }
   if (state.stopReason === "refusal") return { reason: "refusal", message: "The AI declined to finish this draft. You weren't charged. Try again, or change the writing style." };
+  // Thinking counts toward max_tokens, so a long think can leave a draft
+  // clipped mid-sentence with stop_reason "max_tokens". That is not a letter.
+  if (state.stopReason === "max_tokens") return { reason: "too_long", message: "The draft ran out of room before it finished. You weren't charged. Try again, or set a word limit." };
   if (!state.stopped) return { reason: "cut_off", message: "The connection dropped before the draft finished. You weren't charged. Try again." };
   if (!state.gotText) return { reason: "empty", message: "The AI service returned an empty draft. You weren't charged. Please try again." };
   return null;
@@ -57,5 +60,5 @@ export function describeStreamOutcome(state) {
 
 // A letter is spent only on a draft that really ended.
 export function streamCountsAsLetter(state) {
-  return state.gotText && !state.error && state.stopped && state.stopReason !== "refusal";
+  return state.gotText && !state.error && state.stopped && state.stopReason !== "refusal" && state.stopReason !== "max_tokens";
 }

@@ -3,14 +3,24 @@
 // token budget, or the guardrails below.
 import { sanitizeForPrompt } from "./auth.js";
 
-export const LETTER_MODEL = "claude-sonnet-5";
+// Sonnet 5.5: same price as Sonnet 5 ($2 / $10 per million tokens in / out).
+// It thinks by default and that thinking counts toward max_tokens, so the
+// budgets below leave room for it on top of the letter itself.
+export const LETTER_MODEL = "claude-sonnet-5-5";
+// Effort is set explicitly: Sonnet 5.5's levels are recalibrated from Sonnet 5.
+// "high" is the API default, kept for drafts; the URL lookup is a simple
+// extraction and runs at "low".
+export const LETTER_EFFORT = "high";
+// Server-side refusal fallback (beta header added in _shared/anthropic.js).
+export const FALLBACKS = "default";
 // The pre-draft questions are a small structured task; Haiku 5.5 is fast and
 // cheap enough to run before every draft without spending a letter.
 export const QUESTIONS_MODEL = "claude-haiku-5-5";
 export const QUESTIONS_MAX_TOKENS = 900;
-export const LETTER_MAX_TOKENS = 1600;
-export const PROFILE_MAX_TOKENS = 1000;
-export const URL_MAX_TOKENS = 1000;
+export const LETTER_MAX_TOKENS = 4000;
+export const OUTLINE_MAX_TOKENS = 3000;
+export const PROFILE_MAX_TOKENS = 3000;
+export const URL_MAX_TOKENS = 3000;
 
 export const TEMPLATES = {
   narrative: {
@@ -144,7 +154,9 @@ Do not write sentences the student could paste as their essay.
 ${facts}`;
     return {
       model: LETTER_MODEL,
-      max_tokens: 900,
+      max_tokens: OUTLINE_MAX_TOKENS,
+      output_config: { effort: LETTER_EFFORT },
+      fallbacks: FALLBACKS,
       system,
       messages: [{ role: "user", content: `Scholarship: ${schName}\n${schText}${question ? `\n\nTHE APPLICATION'S QUESTION:\n${question}` : ""}\n\nMake the outline.` }],
     };
@@ -193,6 +205,8 @@ ${facts}`;
   return {
     model: LETTER_MODEL,
     max_tokens: LETTER_MAX_TOKENS,
+    output_config: { effort: LETTER_EFFORT },
+    fallbacks: FALLBACKS,
     system,
     messages: [{
       role: "user",
@@ -317,6 +331,8 @@ ${profileSummary(profile)}${bragSheet ? `\n\nBRAG SHEET:\n${s(bragSheet, 8000)}`
   return {
     model: LETTER_MODEL,
     max_tokens: PROFILE_MAX_TOKENS,
+    output_config: { effort: LETTER_EFFORT },
+    fallbacks: FALLBACKS,
     messages: [{ role: "user", content }],
   };
 }
@@ -325,6 +341,8 @@ export function buildUrlRequest(url) {
   return {
     model: LETTER_MODEL,
     max_tokens: URL_MAX_TOKENS,
+    output_config: { effort: "low" },
+    fallbacks: FALLBACKS,
     tools: [{ type: "web_search_20260209", name: "web_search" }],
     messages: [{
       role: "user",

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createStreamTracker, describeStreamOutcome, streamCountsAsLetter } from "../../../api/_shared/stream.js";
-import { buildLetterRequest, buildQuestionsRequest, parseQuestions } from "../../../api/_shared/prompts.js";
+import { buildLetterRequest, buildQuestionsRequest, buildProfileRequest, buildUrlRequest, parseQuestions } from "../../../api/_shared/prompts.js";
+import { anthropicHeaders, responseText } from "../../../api/_shared/anthropic.js";
 
 const ev = (o) => `data: ${JSON.stringify(o)}\n\n`;
 const text = (t) => ev({ type: "content_block_delta", index: 0, delta: { type: "text_delta", text: t } });
@@ -30,6 +31,11 @@ describe("stream watch (one-sentence draft that still cost a letter)", () => {
     const d = createStreamTracker(); d.push(text("Dear committee,")); d.flush();
     expect(describeStreamOutcome(d.state).reason).toBe("cut_off");
     expect(streamCountsAsLetter(d.state)).toBe(false);
+  });
+  it("treats a max_tokens stop as a clipped draft, not a letter", () => {
+    const t = createStreamTracker(); t.push(text("I built a fire detector that")); t.push(stop("max_tokens")); t.flush();
+    expect(describeStreamOutcome(t.state).reason).toBe("too_long");
+    expect(streamCountsAsLetter(t.state)).toBe(false);
   });
   it("holds a line split across two network reads", () => {
     const t = createStreamTracker();
@@ -71,5 +77,28 @@ describe("drafts ask before they invent", () => {
     const req = buildLetterRequest({ profile: { ...profile, otherDetails: "Lifeguard, summers 2024 and 2025" }, scholarship });
     expect(req.system).toContain("OTHER DETAILS");
     expect(req.system).toContain("Lifeguard, summers 2024 and 2025");
+  });
+});
+
+describe("Sonnet 5.5 requests", () => {
+  const profile = { name: "Alexia Savage", ageOk: true };
+  const scholarship = { source: "database", name: "Ron Brown Scholar Program", criteria: "c" };
+  it("drafts, outlines, voice profiles and URL lookups run on Sonnet 5.5 with fallback and explicit effort", () => {
+    for (const req of [buildLetterRequest({ profile, scholarship }), buildLetterRequest({ profile, scholarship, mode: "outline" }), buildProfileRequest({ profile }), buildUrlRequest("https://example.org/s")]) {
+      expect(req.model).toBe("claude-sonnet-5-5");
+      expect(req.fallbacks).toBe("default");
+      expect(req.output_config?.effort).toBeTruthy();
+      expect(req.thinking).toBeUndefined();
+      expect(anthropicHeaders("k", req)["anthropic-beta"]).toBe("server-side-fallback-2026-07-01");
+    }
+  });
+  it("keeps the pre-draft questions on Haiku 5.5 without fallback", () => {
+    const req = buildQuestionsRequest({ profile, scholarship });
+    expect(req.model).toBe("claude-haiku-5-5");
+    expect(req.fallbacks).toBeUndefined();
+    expect(anthropicHeaders("k", req)["anthropic-beta"]).toBeUndefined();
+  });
+  it("reads text past a leading thinking block", () => {
+    expect(responseText({ content: [{ type: "thinking", thinking: "" }, { type: "text", text: "{\"name\":\"X\"}" }] })).toBe('{"name":"X"}');
   });
 });

@@ -12,6 +12,7 @@ import { verifyAuth, checkRateLimit } from "./_shared/auth.js";
 import { buildLetterRequest } from "./_shared/prompts.js";
 import { getUsage, canUse, recordUse, limitResponse } from "./_shared/usage.js";
 import { createStreamTracker, describeStreamOutcome, streamCountsAsLetter } from "./_shared/stream.js";
+import { anthropicHeaders } from "./_shared/anthropic.js";
 
 export const config = { maxDuration: 60 };
 
@@ -26,7 +27,7 @@ async function startStream(apiKey, request) {
   for (let attempt = 0; attempt < 2; attempt++) {
     response = await fetch(ANTHROPIC_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+      headers: anthropicHeaders(apiKey, request),
       body: JSON.stringify(request),
     });
     if (response.ok) return response;
