@@ -72,9 +72,14 @@ export default function GlobalStyles() {
           /* App grids stack on phones (inline grid styles need !important here) */
           .two-col { grid-template-columns: 1fr !important; }
           /* Match cards: ring, text and buttons stack so the name gets the full width */
-          .match-card { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; padding: 16px !important; }
-          .match-card > [role="img"] { align-self: flex-start; }
-          .match-card .match-actions { flex-direction: row !important; flex-wrap: wrap; }
+          /* Match cards: the fit ring sits inline with the name (one row), reasons
+             and buttons take the full card width. */
+          .match-card { display: grid !important; grid-template-columns: auto minmax(0, 1fr); align-items: center !important; column-gap: 12px; row-gap: 8px; padding: 14px 16px !important; }
+          .match-card > [role="img"] { grid-column: 1; grid-row: 1; }
+          .match-card .match-body { display: contents; }
+          .match-card .match-head { grid-column: 2; grid-row: 1; margin-bottom: 0 !important; }
+          .match-card .match-body > :not(.match-head) { grid-column: 1 / -1; margin-top: 0 !important; }
+          .match-card .match-actions { grid-column: 1 / -1; flex-direction: row !important; flex-wrap: wrap; }
           .match-card .match-actions > button { flex: 1 1 120px; }
           .letter-card { padding: 14px !important; }
           .letter-paper { padding: 20px 16px !important; }
@@ -92,6 +97,10 @@ export default function GlobalStyles() {
 
           /* App shell */
           .mobile-menu-btn { display: block !important; }
+          /* Open menu: the close X moves to the right edge of the drawer so it no
+             longer covers the brand mark (drawer is 240px wide, X is 44px). */
+          .mobile-menu-btn[aria-expanded="true"] { left: 190px !important; }
+          .sidebar-brand { min-height: 56px; box-sizing: border-box; padding: 12px 56px 12px 20px !important; }
           .mobile-overlay { display: block !important; }
           .app-sidebar { transform: translateX(-100%); }
           .app-sidebar.open { transform: translateX(0); }

@@ -140,3 +140,119 @@ describe("the headline award total counts open individual awards", () => {
     expect(isProgramTotal("$2,000 renewable")).toBe(false);
   });
 });
+
+// ---- Critic 10-30 lane B ----
+const SEED = JSON.parse(readFileSync(new URL("../../../test-profiles/test_profiles_seed.json", import.meta.url), "utf8"));
+const seedProfile = (id) => SEED.profiles.find((p) => p.id === id).profile;
+const JENNA_AWARD = { name: "Heartland Rural Futures Scholarship", criteria: "Rural high school seniors planning to study engineering or agriculture." };
+
+describe("fact check: an honest letter raises no chips", () => {
+  it("a letter written strictly from Jenna's seed profile, to a named award, has 0 flags", () => {
+    const flags = findUnsupportedDetails(fixture("honest_jenna_draft.txt"), { profile: seedProfile("test-jenna-firstgen-rural-stem"), scholarship: JENNA_AWARD });
+    expect(flags.map((f) => f.text)).toEqual([]);
+  });
+  it("salutation and organisation words alone are never flagged, but numbers and weekdays still are", () => {
+    const letter = "I wrote this.\nDear Scholarship Selection Committee,\nI thank the Foundation Board and Fund members. Respectfully, Regards.\nI met four people on Thursday.";
+    const texts = findUnsupportedDetails(letter, { profile: {} }).map((f) => f.text.toLowerCase());
+    expect(texts).toEqual(["four", "thursday"]);
+  });
+  it("the award's own name and provider count as sources", () => {
+    const letter = "I am grateful for the support of the Kowalczyk Family Trust and the Ostrander Fellowship.";
+    const flagged = (sch) => findUnsupportedDetails(letter, { profile: {}, scholarship: sch }).map((f) => f.text);
+    expect(flagged({})).toEqual(expect.arrayContaining(["Kowalczyk", "Ostrander"]));
+    expect(flagged({ name: "Ostrander Fellowship", provider: "Kowalczyk Family Trust" })).toEqual([]);
+  });
+});
+
+describe("prompt privacy and sensitivity (10-30)", () => {
+  const CIT = (criteria) => buildLetterRequest({ profile: AMARA, scholarship: { source: "database", name: "X Award", criteria } }).system;
+  it("'US Legal Resident' or 'resident of Ohio' does not trigger the citizenship field", () => {
+    expect(CIT("Open to any US Legal Resident attending high school")).not.toMatch(/CITIZENSHIP|DACA/);
+    expect(CIT("Must be a resident of Ohio with a 3.0 GPA, residency verified")).not.toMatch(/CITIZENSHIP|DACA/);
+  });
+  it("immigration terms do trigger it", () => {
+    expect(CIT("DACA recipients welcome")).toMatch(/CITIZENSHIP: DACA\/TPS/);
+    expect(CIT("Open to U.S. citizens only")).toMatch(/CITIZENSHIP/);
+    expect(CIT("Permanent resident status required")).toMatch(/CITIZENSHIP/);
+    expect(CIT("International students may apply")).toMatch(/CITIZENSHIP/);
+  });
+  it("scrubs emails, phones and street addresses from the brag sheet and essay boxes", () => {
+    const brag = "Contact: maria.g@example.com\n(555) 010-0100 or 555-0100 or +1 555 010 0100\n123 Maple Street, Apt 4, Rochester, NY 14620\n- 4 years at Lincoln Street Elementary\n200 hours volunteering, 3.9 GPA";
+    const req = buildLetterRequest({ profile: { ...MARIA, personalStory: "Call me at 555.010.0199." }, scholarship: { source: "custom", ...AWARD }, bragSheet: brag, appAnswers: { why: "Write maria.g@example.com" }, essayPrompt: "Mail to 55 Oak Ave" });
+    const all = req.system + JSON.stringify(req.messages);
+    expect(all).not.toMatch(/maria\.g@example|010-0100|555-0100|555 010 0100|Maple|14620|010\.0199|Oak Ave/);
+    expect(all).toContain("[removed]");
+    expect(all).toContain("4 years at Lincoln Street Elementary");
+    expect(all).toContain("200 hours volunteering, 3.9 GPA");
+    expect(JSON.stringify(buildProfileRequest({ profile: MARIA, bragSheet: brag }))).not.toMatch(/maria\.g@example|Maple/);
+  });
+});
+
+describe("open-awards total: individual, open, undergraduate-bound (10-30)", () => {
+  const now = new Date(2026, 9, 30);
+  const rows = [
+    { name: "Real Award", amount: "$2,500", deadline: "2099-03-01", criteria: "High school seniors." },
+    { name: "Rolling Award", amount: "$1,000", deadline: "Rolling", criteria: "Any student." },
+    { name: "Vanier Canada Graduate Scholarships", amount: "$50,000", deadline: "2099-11-01", criteria: "Doctoral students at Canadian universities." },
+    { name: "Trudeau Foundation Scholarship", amount: "$50,000", deadline: "2099-12-01", criteria: "PhD candidates in the humanities." },
+    { name: "Research Fellowship", amount: "$30,000", deadline: "2099-12-01", criteria: "Open to all." },
+    { name: "Community Pool", amount: "$77,000 pooled", deadline: "2099-12-01", criteria: "Seniors." },
+    { name: "Program Total", amount: "$9,000", deadline: "2099-12-01", criteria: "Up to 12 awards totaling $9,000 each cycle." },
+    { name: "Old Cycle", amount: "$4,000", deadline: "Spring 2026", criteria: "Seniors." },
+    { name: "Old Year", amount: "$4,000", deadline: "2025 cycle", criteria: "Seniors." },
+    { name: "Fall Cycle", amount: "$500", deadline: "Fall 2026", criteria: "Seniors." },
+    { name: "Past Date", amount: "$6,000", deadline: "2026-03-01", criteria: "Seniors." },
+    { name: "Graduating", amount: "$700", deadline: "2099-01-01", criteria: "Students who graduate from high school with a 3.0 and total household income under $90,000." },
+  ];
+  it("counts only open, individual, non-graduate awards", () => {
+    const s = computeCatalogStats(rows, now);
+    expect(s.openAwards).toBe(2500 + 1000 + 500 + 700);
+    expect(s.openWithAmount).toBe(4);
+    expect(s.withAmount).toBe(12);
+  });
+});
+
+describe("matching: Dream Act awards and the optional gender rule (10-30)", () => {
+  const DASIG = { id: "d1", name: "Dream Act Service Incentive Grant", criteria: "CA Cal Grant B recipients who filed CADAA + community service", state: "CA", deadline: "2099-03-02" };
+  const CADAA = { id: "d2", name: "State Aid", criteria: "Complete the CADAA application.", deadline: "2099-03-02" };
+  const MN_GRANT = { id: "d3", name: "Minnesota State Grant", criteria: "MN resident undergrads enrolled 3+ credits; FAFSA/Dream Act need", state: "MN", deadline: "2099-03-02" };
+  const CAL = { ...MARIA, location: "Fresno, CA" };
+  it("keeps Dream Act awards away from citizens, and still offers them to DACA students", () => {
+    expect(checkEligibility(CAL, DASIG)).toEqual({ eligible: false, why: "citizenship" });
+    expect(checkEligibility(CAL, CADAA).eligible).toBe(false);
+    expect(checkEligibility({ ...CAL, citizenship: "DACA/TPS" }, DASIG).eligible).toBe(true);
+    expect(checkEligibility({ ...MARIA, location: "Duluth, MN" }, MN_GRANT).eligible).toBe(true); // "FAFSA/Dream Act" is not undocumented-only
+  });
+
+  const WOMEN = [
+    { id: "w1", name: "Women in STEM Award", criteria: "Open to female high school seniors." },
+    { id: "w2", name: "Soroptimist Live Your Dream", criteria: "Awards for those who provide primary support." },
+    { id: "w3", name: "P.E.O. STAR Scholarship", criteria: "Senior girls with leadership." },
+    { id: "w4", name: "Hartley Fund", criteria: "Scholarship for her education: young women entering nursing." },
+  ];
+  const MEN = [
+    { id: "m1", name: "Brotherhood Award", criteria: "Male students only, graduating seniors." },
+    { id: "m2", name: "Young Men's Fund", criteria: "Open to young men in the trades." },
+  ];
+  const OPEN_TO_ALL = [
+    { id: "o1", name: "STEM Award", criteria: "Open to men and women. Women are encouraged to apply." },
+    { id: "o2", name: "Plain Award", criteria: "High school seniors with a 3.0 GPA." },
+    { id: "o4", name: "Girls & Boys State Opens", criteria: "Check websites for details" },
+    { id: "o3", name: "Mentor Fund", criteria: "Seniors, regardless of gender, with a mentor." },
+  ];
+  it("a male student skips women-only awards; a female student skips men-only awards", () => {
+    const boy = { ...MARIA, gender: "male" }, girl = { ...MARIA, gender: "female" };
+    for (const s of WOMEN) { expect(checkEligibility(boy, s)).toEqual({ eligible: false, why: "gender" }); expect(checkEligibility(girl, s).eligible).toBe(true); }
+    for (const s of MEN) { expect(checkEligibility(girl, s)).toEqual({ eligible: false, why: "gender" }); expect(checkEligibility(boy, s).eligible).toBe(true); }
+    for (const s of OPEN_TO_ALL) { expect(checkEligibility(boy, s).eligible).toBe(true); expect(checkEligibility(girl, s).eligible).toBe(true); }
+  });
+  it("unanswered, prefer_not and nonbinary exclude nothing", () => {
+    for (const gender of [undefined, "", "prefer_not", "nonbinary"]) {
+      for (const s of [...WOMEN, ...MEN]) expect(checkEligibility({ ...MARIA, gender }, s).eligible).toBe(true);
+    }
+  });
+  it("gender never reaches the model", () => {
+    const req = buildLetterRequest({ profile: { ...MARIA, gender: "female" }, scholarship: { source: "custom", ...AWARD } });
+    expect(JSON.stringify(req)).not.toMatch(/gender|female/i);
+  });
+});

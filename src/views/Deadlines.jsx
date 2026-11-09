@@ -17,11 +17,11 @@ export default function Deadlines() {
                     {/* Status summary */}
                     <div className="status-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 24 }}>
                       {[
-                        { status: "interested", label: "Interested", color: COLORS.textMuted, icon: "○" },
-                        { status: "in_progress", label: "In Progress", color: COLORS.gold, icon: "◐" },
-                        { status: "submitted", label: "Submitted", color: COLORS.teal, icon: "●" },
-                        { status: "accepted", label: "Accepted", color: COLORS.teal, icon: "✓" },
-                        { status: "rejected", label: "Rejected", color: COLORS.pink, icon: "✗" },
+                        { status: "interested", label: "Interested", color: COLORS.textMuted },
+                        { status: "in_progress", label: "In Progress", color: COLORS.gold },
+                        { status: "submitted", label: "Submitted", color: COLORS.teal },
+                        { status: "accepted", label: "Accepted", color: COLORS.teal },
+                        { status: "rejected", label: "Rejected", color: COLORS.pink },
                       ].map(s => (
                         <div key={s.status} style={{
                           textAlign: "center", padding: "12px 8px", borderRadius: 10,

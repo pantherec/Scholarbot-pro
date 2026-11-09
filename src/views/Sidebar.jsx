@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { authFetch } from "../lib/api.js";
@@ -6,6 +7,17 @@ import { track } from "../analytics.js";
 
 export default function Sidebar() {
   const { view, isMobile, profile, mobileMenuOpen, setMobileMenuOpen, authUser, setShowAuthModal, setAuthMode, setView, PRO_LIMITS, isPremium, remainingMatches, remainingLetters, openUpgrade, handleSignOut, notify, profileCompletion, catalogCount, navItems } = useApp();
+  // Escape closes the phone menu and hands focus back to the menu button.
+  useEffect(() => {
+    if (!isMobile || !mobileMenuOpen) return;
+    const onKey = (e) => {
+      if (e.key !== "Escape" || e.defaultPrevented) return;
+      setMobileMenuOpen(false);
+      document.querySelector(".mobile-menu-btn")?.focus();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isMobile, mobileMenuOpen]);
   return (
     <>
           {/* SIDEBAR */}
@@ -16,7 +28,7 @@ export default function Sidebar() {
             transition: "transform 0.3s",
           }}>
             {/* Logo */}
-            <div style={{ padding: "24px 20px 16px", borderBottom: `1px solid ${COLORS.border}` }}>
+            <div className="sidebar-brand" style={{ padding: "24px 20px 16px", borderBottom: `1px solid ${COLORS.border}` }}>
               <button type="button" onClick={() => { setView("landing"); setMobileMenuOpen(false); }} aria-label="MeritLaunch home page"
                 style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", padding: 0, cursor: "pointer" }}>
                 <BrandMark size={26} />
@@ -59,7 +71,7 @@ export default function Sidebar() {
               borderTop: `1px solid ${COLORS.border}`,
               width: "100%", textAlign: "left",
             }}>
-              ← Back to Home
+              <AppIcon name="arrowLeft" size={14} /> Back to Home
             </button>
 
             {/* User & Auth */}

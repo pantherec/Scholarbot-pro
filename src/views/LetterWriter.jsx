@@ -53,11 +53,18 @@ export default function LetterWriter() {
   const [kept, setKept] = useState(() => new Set());
   const letterRef = useRef(null);
   useEffect(() => { if (generatingLetter) setKept(new Set()); }, [generatingLetter]);
+  // Keep the highlighted option in view while the student arrows through the picker.
+  useEffect(() => {
+    if (!scholarshipPickerOpen) return;
+    const opts = document.querySelectorAll('[id^="sch-opt-"][role="option"]');
+    const el = opts[Math.min(pickerActive, opts.length - 1)];
+    if (el && typeof el.scrollIntoView === "function") el.scrollIntoView({ block: "nearest" });
+  }, [pickerActive, scholarshipPickerOpen]);
   const flagged = useMemo(() => {
     if (generatingLetter || !generatedLetter) return [];
-    const scholarship = scholarshipInputMode === "database" ? (selectedScholarship || {}) : { name: customScholarshipName, description: customScholarshipText };
+    const scholarship = scholarshipInputMode === "database" ? (selectedScholarship || {}) : { name: customScholarshipName || uploadedScholarshipName, description: customScholarshipText };
     return findUnsupportedDetails(generatedLetter, { profile, bragSheet, appAnswers, scholarship, essayPrompt, voiceProfile: generatedProfile });
-  }, [generatedLetter, generatingLetter, profile, bragSheet, appAnswers, scholarshipInputMode, selectedScholarship, customScholarshipName, customScholarshipText, essayPrompt, generatedProfile]);
+  }, [generatedLetter, generatingLetter, profile, bragSheet, appAnswers, scholarshipInputMode, selectedScholarship, customScholarshipName, uploadedScholarshipName, customScholarshipText, essayPrompt, generatedProfile]);
   const toCheck = flagged.filter(f => !kept.has(f.text.toLowerCase()));
   const findInLetter = (f) => {
     const el = letterRef.current;

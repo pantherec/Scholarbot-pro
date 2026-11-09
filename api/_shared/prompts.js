@@ -64,12 +64,33 @@ const PROFILE_FIELDS = [
 
 const s = (v, n) => sanitizeForPrompt(Array.isArray(v) ? v.join(", ") : (v == null ? "" : String(v)), n);
 
+// Contact details never reach the model, wherever the student typed them (a brag
+// sheet pasted from a resume, an essay box, a story). Emails, US phone numbers
+// and street addresses (a number, 1-4 capitalised words, a street suffix) are replaced with a neutral token.
+const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+/g;
+const STREET_SUFFIX = "(?:[Ss]t(?:reet)?|[Aa]ve(?:nue)?|[Rr]d|[Rr]oad|[Bb]lvd|[Bb]oulevard|[Dd]r(?:ive)?|[Ll]n|[Ll]ane|[Cc]t|[Cc]ourt|[Ww]ay)";
+const ADDRESS_RE = new RegExp(
+  String.raw`(?<![\w$.,-])(?!(?:19|20)\d\d\b)\d{1,6}\s+(?:[A-Z0-9][A-Za-z0-9.'’-]*\s+){1,4}?` + STREET_SUFFIX + String.raw`\b\.?` +
+  String.raw`(?:,?\s*(?:[Aa]pt|[Uu]nit|[Ss]uite|[Ss]te|#)\.?\s*[A-Za-z0-9-]+)?` +
+  String.raw`(?:,?\s*[A-Z][A-Za-z.' -]{1,30},?\s+[A-Z]{2}\.?(?:\s+\d{5}(?:-\d{4})?)?)?`, "g");
+const PHONE_RE = /(?<![\d.])(?:\+?1[\s.-]?)?(?:\(\d{3}\)\s?|\d{3}[\s.-]?)\d{3}[\s.-]?\d{4}(?![\d])|(?<![\d.-])\d{3}[-.]\d{4}(?![\d-])/g;
+export function scrubContact(text) {
+  return String(text || "")
+    .replace(EMAIL_RE, "[removed]")
+    .replace(ADDRESS_RE, "[removed]")
+    .replace(PHONE_RE, "[removed]");
+}
+// Student-authored text: sanitized, then scrubbed of contact details.
+const sp = (v, n) => scrubContact(s(v, n));
+
 // Immigration status and family finances are the student's to disclose. They
 // reach the model only when the scholarship itself asks about them or the
 // student turns them on for this draft. A draft once told a committee about a
 // student's DACA status for an award that never asked.
 export const SENSITIVE_FIELDS = {
-  citizenship: /\b(citizen|citizenship|immigra\w*|daca|dreamer|undocu\w*|residen\w*|visa|international|refugee|asylum)\b/i,
+  // Immigration terms only. Bare "resident" / "residency" is NOT a trigger: "US Legal
+  // Resident" and "resident of Ohio" are everywhere and never ask about status.
+  citizenship: /\b(citizens?|citizenship|immigra\w*|daca|dreamers?|undocu\w*|permanent\s+residen\w*|visas?|refugees?|asylum|international\s+students?)\b/i,
   financialNeed: /\b(need|income|pell|fafsa|financial|low[- ]income|first[- ]generation|hardship|socioeconomic)\b/i,
 };
 
@@ -82,7 +103,7 @@ export function profileSummary(profile = {}, { includeSensitive = false, scholar
   for (const [key, label] of PROFILE_FIELDS) {
     const asks = SENSITIVE_FIELDS[key];
     if (asks && !includeSensitive && !asks.test(scholarshipText)) continue;
-    const v = s(profile[key], 2500);
+    const v = sp(profile[key], 2500);
     if (v) lines.push(`${label}: ${v}`);
   }
   return lines.join("\n");
@@ -124,7 +145,7 @@ export function buildLetterRequest(input = {}) {
     ? `Stay at or under ${limit} words (the application's limit). Aim for ${Math.round(limit * 0.85)}–${limit}.`
     : "350–450 words.";
 
-  const question = s(essayPrompt, 2000);
+  const question = sp(essayPrompt, 2000);
   const outline = mode === "outline";
 
   const schName = s(scholarship.name, 200) || "this scholarship";
@@ -135,9 +156,9 @@ export function buildLetterRequest(input = {}) {
   const facts = [
     "STUDENT PROFILE (the student's own answers):",
     profileSummary(profile, { includeSensitive: includeSensitive === true, scholarshipText }),
-    voiceProfile ? `\nVOICE NOTES (built from the student's own answers; match this voice):\n${s(voiceProfile, 4000)}` : "",
-    bragSheet ? `\nBRAG SHEET (the student's own document):\n${s(bragSheet, 8000)}` : "",
-    appAnswers && Object.keys(appAnswers).length ? `\nAPPLICATION-PREP ANSWERS:\n${s(JSON.stringify(appAnswers), 6000)}` : "",
+    voiceProfile ? `\nVOICE NOTES (built from the student's own answers; match this voice):\n${sp(voiceProfile, 4000)}` : "",
+    bragSheet ? `\nBRAG SHEET (the student's own document):\n${sp(bragSheet, 8000)}` : "",
+    appAnswers && Object.keys(appAnswers).length ? `\nAPPLICATION-PREP ANSWERS:\n${sp(JSON.stringify(appAnswers), 6000)}` : "",
     addedDetails(details, declined),
   ].join("\n");
 
@@ -327,7 +348,7 @@ export function buildProfileRequest(input = {}) {
 **Strongest material:** 5 bullets, each naming a specific fact from their answers that a draft should lean on.
 
 STUDENT ANSWERS:
-${profileSummary(profile)}${bragSheet ? `\n\nBRAG SHEET:\n${s(bragSheet, 8000)}` : ""}${appAnswers && Object.keys(appAnswers).length ? `\n\nAPPLICATION-PREP ANSWERS:\n${s(JSON.stringify(appAnswers), 6000)}` : ""}`;
+${profileSummary(profile)}${bragSheet ? `\n\nBRAG SHEET:\n${sp(bragSheet, 8000)}` : ""}${appAnswers && Object.keys(appAnswers).length ? `\n\nAPPLICATION-PREP ANSWERS:\n${sp(JSON.stringify(appAnswers), 6000)}` : ""}`;
   return {
     model: LETTER_MODEL,
     max_tokens: PROFILE_MAX_TOKENS,

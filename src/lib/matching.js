@@ -41,6 +41,21 @@ const CITIZEN = /\b(?:u\.?\s?s\.?a?\.?|united states|american) citizens?\b/;
 // Canadian locations, for awards the catalog tags with country "CA".
 const CANADA = /\b(canada|ontario|quebec|qu\u00e9bec|alberta|british columbia|manitoba|saskatchewan|nova scotia|new brunswick|newfoundland|prince edward island|yukon|nunavut)\b|,\s*(on|qc|ab|bc|mb|sk|ns|nb|nl|pe|yt|nt|nu)\b/;
 
+// Gender-restricted awards. The profile's optional gender is "female", "male",
+// "nonbinary" or "prefer_not"; unanswered and prefer_not exclude nothing, and so
+// does nonbinary (a rule cannot honestly decide that for the student). An award
+// that also says "men and women", "all genders" or "encouraged" is not restricted.
+const WOMEN_ONLY = /\b(women|woman|female|girls?|young women|for her|soroptimist|p\.e\.o|peo)\b/;
+const MEN_ONLY = /\b(men only|males? only|male students? only|male applicants? only|boys only|young men|for men|men who)\b/;
+const GENDER_INCLUSIVE = /(men and women|women and men|men or women|women or men|male and female|female and male|(?:boys|girls|men|women|male|female) ?(?:&|and) ?(?:boys|girls|men|women|male|female)|all genders|any gender|regardless of (?:gender|sex)|gender[- ]neutral|open to all|all students|encouraged|preference|preferred|priority|especially|particularly|including women)/;
+export function genderRestriction(s) {
+  const text = `${s.name || ""} ${s.criteria || ""}`.toLowerCase();
+  if (GENDER_INCLUSIVE.test(text)) return null;
+  if (WOMEN_ONLY.test(text)) return "female";
+  if (MEN_ONLY.test(text)) return "male";
+  return null;
+}
+
 export function studentHeritage(profile) {
   const raw = Array.isArray(profile.ethnicity) ? profile.ethnicity : (profile.ethnicity ? [profile.ethnicity] : []);
   const text = raw.join(" | ").toLowerCase();
@@ -141,8 +156,8 @@ export function checkEligibility(profile, s) {
   // Awards only for DACA/undocumented or international students (TheDream.US,
   // Golden Door, "Undocu Students", CA Dream Act) are not for citizens or
   // permanent residents.
-  const nonCitizenOnly = /(daca|undocu\w*|dreamer|ab ?540|\binternational\b)/.test(text) &&
-    !/(\bcitizens?\b|permanent resident|\blpr\b|incl\.? undocu\w*|including daca|any (high school )?senior|all students)/.test(text);
+  const nonCitizenOnly = /(daca|undocu\w*|dreamer|dream act|cadaa|ab ?540|\binternational\b)/.test(text) &&
+    !/(\bcitizens?\b|permanent resident|\blpr\b|incl\.? undocu\w*|including daca|any (high school )?senior|all students|fafsa)/.test(text);
   if (nonCitizenOnly && (cit.startsWith("u.s.") || cit.startsWith("dual") || cit.startsWith("permanent"))) {
     return { eligible: false, why: "citizenship" };
   }
@@ -161,6 +176,13 @@ export function checkEligibility(profile, s) {
   if (s.state && myState && s.state !== myState) return { eligible: false, why: "state" };
   // A student outside the US can't hold a US state residency award.
   if (s.state && !myState && cit.startsWith("international")) return { eligible: false, why: "state" };
+
+  // Gender-restricted awards (only when the student chose to answer).
+  const g = String(profile.gender || "").toLowerCase();
+  if (g === "male" || g === "female") {
+    const need = genderRestriction(s);
+    if (need && need !== g) return { eligible: false, why: "gender" };
+  }
 
   // GPA floor.
   const req = parseGpaRequirement(text);
