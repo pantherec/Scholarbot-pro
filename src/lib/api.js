@@ -64,7 +64,7 @@ export async function getAccessTokenSafe() {
 // one student's profile, letters or tracker into another student's account.
 export const STUDENT_STORAGE_KEYS = [
   "scholarbot-profile", "scholarbot-letters", "scholarbot-templates", "scholarbot-answers",
-  "scholarbot-voice-profile", "scholarbot-brag-sheet", "scholarbot-draft", "scholarbot-matches",
+  "scholarbot-voice-profile", "scholarbot-brag-sheet", "scholarbot-brag-sheet-name", "scholarbot-draft", "scholarbot-matches",
   "scholarbot-tracked-apps", "scholarbot-owner",
 ];
 export function clearStudentLocalData() {

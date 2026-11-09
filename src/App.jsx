@@ -119,8 +119,16 @@ export default function MeritLaunch() {
   const [appAnswers, setAppAnswers] = useState({});
   const [notification, setNotification] = useState(null);
   const [deadlineAlerts, setDeadlineAlerts] = useState([]);
-  const [bragSheetFileName, setBragSheetFileName] = useState("");
+  const [bragSheetFileName, setBragSheetFileName] = useState(() => store.get("scholarbot-brag-sheet-name") || "");
   const [bragSheetUploading, setBragSheetUploading] = useState(false);
+  // The draft asks before it invents: questions the model wants answered for
+  // this scholarship + style (null until asked), the student's answers, and the
+  // stage of the stream so the page can show real progress and real failures.
+  const [draftQuestions, setDraftQuestions] = useState(null);
+  const [draftAnswers, setDraftAnswers] = useState({}); // id -> { status: "answered" | "confirmed" | "skipped", text }
+  const [askingQuestions, setAskingQuestions] = useState(false);
+  const [draftStage, setDraftStage] = useState(""); // "" | "sending" | "waiting" | "writing"
+  const [draftError, setDraftError] = useState(null); // { reason, message } when a draft stopped early
   const [profileStep, setProfileStep] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const bragFileRef = useRef(null);
@@ -166,6 +174,8 @@ export default function MeritLaunch() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [authError, setAuthError] = useState("");
+  const [authNotice, setAuthNotice] = useState(""); // success text shown INSIDE the modal (toasts sit behind its backdrop)
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState(""); // set when sign-in fails with "Email not confirmed"
   const [authSubmitting, setAuthSubmitting] = useState(false);
   const [authDob, setAuthDob] = useState(""); // COPPA: used only for age check, never stored
   const [usageResetsOn, setUsageResetsOn] = useState(null);
@@ -308,7 +318,7 @@ export default function MeritLaunch() {
     try {
       const text = await readFileAsText(file);
       setBragSheet(prev => prev ? prev + "\n\n--- Uploaded from: " + file.name + " ---\n\n" + text : text);
-      notify(`Brag sheet "${file.name}" uploaded successfully!`, "success");
+      notify(`Read "${file.name}". Check what it found for your profile below.`, "success");
     } catch(err) {
       notify(err?.message || "Error reading file. Try pasting the content instead.", "error");
       setBragSheetFileName("");
@@ -360,7 +370,7 @@ export default function MeritLaunch() {
 
   // Auth handlers
   const handleSignUp = async () => {
-    setAuthError(""); setAuthSubmitting(true);
+    setAuthError(""); setAuthNotice(""); setUnconfirmedEmail(""); setAuthSubmitting(true);
     // COPPA age gate — check age, then discard DOB immediately (never stored)
     if (authDob) {
       const birthDate = new Date(authDob);
@@ -392,8 +402,9 @@ export default function MeritLaunch() {
       if (error) { setAuthError(error.message); }
       else {
         setAuthError("");
-        notify("Check your email for a confirmation link!", "success");
         setAuthMode("signin");
+        setAuthPassword("");
+        setAuthNotice(`Almost there. We sent a confirmation link to ${authEmail}. Open it, then sign in here. If it is not in your inbox within a minute, check your spam folder.`);
         const newUserId = data?.user?.id;
         if (newUserId) {
           identifyUser(newUserId);
@@ -405,7 +416,7 @@ export default function MeritLaunch() {
   };
 
   const handleSignIn = async () => {
-    setAuthError(""); setAuthSubmitting(true);
+    setAuthError(""); setAuthNotice(""); setUnconfirmedEmail(""); setAuthSubmitting(true);
     try {
       const result = await withTimeout(supabase.auth.signInWithPassword({ email: authEmail, password: authPassword }), 8000);
       if (result === null) {
@@ -415,7 +426,14 @@ export default function MeritLaunch() {
         return;
       }
       const { data, error } = result;
-      if (error) { setAuthError(error.message); }
+      if (error) {
+        if (/not confirmed/i.test(error.message || "")) {
+          setUnconfirmedEmail(authEmail);
+          setAuthError("Your email address has not been confirmed yet. Open the confirmation link we emailed you when you signed up, then sign in. Need another copy? Use the resend link below.");
+        } else {
+          setAuthError(error.message);
+        }
+      }
       else {
         setShowAuthModal(false); setAuthEmail(""); setAuthPassword("");
         notify("Welcome back!", "success");
@@ -428,8 +446,21 @@ export default function MeritLaunch() {
     setAuthSubmitting(false);
   };
 
-  const handleForgotPassword = async () => {
+  const handleResendConfirmation = async () => {
+    const email = unconfirmedEmail || authEmail;
+    if (!email) return;
     setAuthError(""); setAuthSubmitting(true);
+    try {
+      const result = await withTimeout(supabase.auth.resend({ type: "signup", email }), 8000);
+      const error = result === null ? { message: "That timed out. Please try again." } : result.error;
+      if (error) { setAuthError(error.message); }
+      else { setUnconfirmedEmail(""); setAuthNotice(`We sent a new confirmation link to ${email}. Open it, then sign in here.`); }
+    } catch(e) { setAuthError("Something went wrong. Please try again."); }
+    setAuthSubmitting(false);
+  };
+
+  const handleForgotPassword = async () => {
+    setAuthError(""); setAuthNotice(""); setUnconfirmedEmail(""); setAuthSubmitting(true);
     try {
       const result = await withTimeout(supabase.auth.resetPasswordForEmail(authEmail, {
         redirectTo: window.location.origin,
@@ -448,7 +479,7 @@ export default function MeritLaunch() {
   };
 
   const handleUpdatePassword = async () => {
-    setAuthError(""); setAuthSubmitting(true);
+    setAuthError(""); setAuthNotice(""); setUnconfirmedEmail(""); setAuthSubmitting(true);
     if (newPassword.length < 6) { setAuthError("Password must be at least 6 characters."); setAuthSubmitting(false); return; }
     if (newPassword !== confirmPassword) { setAuthError("Passwords don't match."); setAuthSubmitting(false); return; }
     try {
@@ -489,7 +520,7 @@ export default function MeritLaunch() {
     autoMatchedRef.current = null;
     setAuthUser(null);
     setProfile({}); setSavedLetters([]); setTrackedApps([]); setMatchResults([]);
-    setGeneratedLetter(""); setAppAnswers({}); setGeneratedProfile(""); setBragSheet("");
+    setGeneratedLetter(""); setAppAnswers({}); setGeneratedProfile(""); setBragSheet(""); setBragSheetFileName(""); setDraftQuestions(null); setDraftAnswers({}); setDraftError(null);
     setTemplates(DEFAULT_TEMPLATES); setSelectedScholarship(null); setEssayPrompt("");
     setView("landing");
     notify("Signed out.", "info");
@@ -599,7 +630,7 @@ export default function MeritLaunch() {
         // none of it is shown to, or synced into, this account.
         clearStudentLocalData();
         setProfile({}); setSavedLetters([]); setTrackedApps([]); setMatchResults([]);
-        setGeneratedLetter(""); setAppAnswers({}); setGeneratedProfile(""); setBragSheet("");
+        setGeneratedLetter(""); setAppAnswers({}); setGeneratedProfile(""); setBragSheet(""); setBragSheetFileName(""); setDraftQuestions(null); setDraftAnswers({}); setDraftError(null);
         setTemplates(DEFAULT_TEMPLATES);
       }
       store.set("scholarbot-owner", user.id);
@@ -821,7 +852,62 @@ export default function MeritLaunch() {
     ["personalStory", "your personal story"], ["careerGoal", "your career goal"],
   ].filter(([k]) => !(profile[k] || "").trim()).map(([, label]) => label);
 
-  const generateLetter = async ({ isRegenerate = false } = {}) => {
+  // The answers and skips from the pre-draft questions, in the shape the
+  // prompt builder takes. An unanswered question counts as skipped, so the
+  // draft never fills it in.
+  const draftDetails = () => {
+    const details = [], declined = [];
+    for (const q of draftQuestions || []) {
+      const a = draftAnswers[q.id];
+      if (!a || a.status === "skipped") { declined.push(q.question); continue; }
+      const text = a.status === "confirmed" ? (q.example || "").replace(/^for example:?\s*/i, "").trim() : (a.text || "").trim();
+      if (text) details.push({ question: q.question, answer: text }); else declined.push(q.question);
+    }
+    return { details, declined };
+  };
+
+  const draftRequestBase = () => {
+    const hasDbSelection = scholarshipInputMode === "database" && selectedScholarship;
+    const scholarship = hasDbSelection
+      ? { source: "database", name: selectedScholarship.name, criteria: selectedScholarship.criteria, amount: selectedScholarship.amount }
+      : { source: "custom", name: customScholarshipName || "Custom Scholarship", description: customScholarshipText.slice(0, 8000) };
+    const builtIn = DEFAULT_TEMPLATES.some(t => t.id === selectedTemplate?.id);
+    return {
+      profile: draftProfile(),
+      scholarship,
+      templateId: builtIn ? selectedTemplate.id : null,
+      customTemplate: builtIn ? null : { name: selectedTemplate?.name, rules: selectedTemplate?.rules },
+      essayPrompt: essayPrompt.trim(),
+      voiceProfile: generatedProfile || "",
+      bragSheet: bragSheet || "",
+      appAnswers,
+      includeSensitive,
+    };
+  };
+
+  // Asks Haiku which concrete details the chosen style would need that the
+  // student's material doesn't have. Free (no letter spent); any failure means
+  // "no questions" so it can never block a draft.
+  const askDraftQuestions = async () => {
+    setAskingQuestions(true);
+    try {
+      const resp = await authFetch("/api/generate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task: "draft_questions", ...draftRequestBase() }),
+      });
+      const data = resp.ok ? await resp.json().catch(() => ({})) : {};
+      const qs = Array.isArray(data.questions) ? data.questions : [];
+      setDraftQuestions(qs); setDraftAnswers({});
+      return qs;
+    } catch (e) {
+      setDraftQuestions([]);
+      return [];
+    } finally {
+      setAskingQuestions(false);
+    }
+  };
+
+  const generateLetter = async ({ isRegenerate = false, skipQuestions = false } = {}) => {
     if (!authUser) { setAuthMode("signup"); setShowAuthModal(true); notify("Create a free account to draft letters.", "info"); return; }
     const hasDbSelection = scholarshipInputMode === "database" && selectedScholarship;
     const hasCustomInput = scholarshipInputMode !== "database" && customScholarshipText.trim();
@@ -837,6 +923,14 @@ export default function MeritLaunch() {
       else openUpgrade("letter");
       return;
     }
+
+    // First pass for this scholarship + style: find out what the draft would
+    // otherwise have to make up, and let the student fill it in or skip it.
+    if (!outline && !skipQuestions && draftQuestions === null) {
+      const qs = await askDraftQuestions();
+      if (qs.length) { track("draft_questions_shown", { count: qs.length }); return; }
+    }
+
     // Regenerating writes a new draft and costs a letter. Free users get only a
     // couple, so confirm before spending one.
     if (isRegenerate && !isPremium && !outline) {
@@ -847,49 +941,47 @@ export default function MeritLaunch() {
 
     setGeneratingLetter(true);
     setGeneratedLetter("");
+    setDraftError(null);
+    setDraftStage("sending");
 
     const scholarshipLabel = hasDbSelection ? selectedScholarship.name : (customScholarshipName || "Custom Scholarship");
-    const scholarship = hasDbSelection
-      ? { source: "database", name: selectedScholarship.name, criteria: selectedScholarship.criteria, amount: selectedScholarship.amount }
-      : { source: "custom", name: customScholarshipName || "Custom Scholarship", description: customScholarshipText.slice(0, 8000) };
-    const builtIn = DEFAULT_TEMPLATES.some(t => t.id === selectedTemplate?.id);
+    const { details, declined } = outline ? { details: [], declined: [] } : draftDetails();
 
     try {
       const response = await authFetch("/api/generate-stream", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          profile: draftProfile(),
-          scholarship,
-          templateId: builtIn ? selectedTemplate.id : null,
-          customTemplate: builtIn ? null : { name: selectedTemplate?.name, rules: selectedTemplate?.rules },
-          essayPrompt: essayPrompt.trim(),
+          ...draftRequestBase(),
           wordLimit: wordLimit || null,
-          voiceProfile: generatedProfile || "",
-          bragSheet: bragSheet || "",
-          appAnswers,
           mode: outline ? "outline" : "draft",
-          includeSensitive,
+          details,
+          declined,
         }),
       });
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        setGeneratingLetter(false);
+        setGeneratingLetter(false); setDraftStage("");
         if (response.status === 402) { setGeneratedLetter(""); openUpgrade("letter", errData.resetsOn); return; }
         setGeneratedLetter("");
         notify(errData.error || "Couldn't draft the letter. Please try again.", "error");
         return;
       }
 
+      setDraftStage("waiting");
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let fullText = "";
+      let streamError = null;
       const parser = createSseParser((evt) => {
         if (evt.type === "content_block_delta" && evt.delta?.text) {
+          if (!fullText) setDraftStage("writing");
           fullText += evt.delta.text;
           setGeneratedLetter(fullText);
         } else if (evt.type === "meritlaunch_usage") {
           setMonthlyLettersUsed(evt.lettersUsed || 0);
+        } else if (evt.type === "meritlaunch_error") {
+          streamError = { reason: evt.reason || "error", message: evt.message || "The draft stopped early. You weren't charged. Try again." };
         }
       });
       while (true) {
@@ -899,7 +991,14 @@ export default function MeritLaunch() {
       }
       parser.flush();
 
-      if (!fullText) {
+      if (streamError) {
+        // The server saw the stream fail (overload, refusal, dropped socket).
+        // Whatever arrived stays on screen, flagged, and no letter was spent.
+        setDraftError(streamError);
+        track("letter_cut_off", { reason: streamError.reason, chars: fullText.length });
+        notify(streamError.message, "error");
+      } else if (!fullText) {
+        setDraftError({ reason: "empty", message: "The AI service returned an empty draft. You weren't charged. Please try again." });
         notify("The AI service returned an empty draft. You weren't charged. Please try again.", "error");
       } else {
         store.set("scholarbot-draft", fullText);
@@ -907,9 +1006,11 @@ export default function MeritLaunch() {
         if (outline) track("letter_outline_generated");
       }
     } catch (e) {
+      setDraftError({ reason: "network", message: "Couldn't reach the AI service. Check your connection and try again." });
       notify("Couldn't reach the AI service. Check your connection and try again.", "error");
     }
     setGeneratingLetter(false);
+    setDraftStage("");
   };
 
   // Profile generation
@@ -1024,6 +1125,9 @@ export default function MeritLaunch() {
 
   // Keep work across reloads.
   useEffect(() => { store.set("scholarbot-brag-sheet", bragSheet); }, [bragSheet]);
+  useEffect(() => { store.set("scholarbot-brag-sheet-name", bragSheetFileName); }, [bragSheetFileName]);
+  // A different scholarship, style or question means different gaps: ask again.
+  useEffect(() => { setDraftQuestions(null); setDraftAnswers({}); setDraftError(null); }, [selectedScholarship?.id, customScholarshipText, selectedTemplate?.id, essayPrompt, scholarshipInputMode]);
   useEffect(() => { if (!generatingLetter) store.set("scholarbot-draft", generatedLetter); }, [generatedLetter, generatingLetter]);
   useEffect(() => { setBrowseLimit(24); }, [searchQuery, filterNeedBased, filterCountry, filterState, showExpired]);
 
@@ -1135,6 +1239,14 @@ export default function MeritLaunch() {
     deadlineAlerts,
     setDeadlineAlerts,
     bragSheetFileName,
+    draftQuestions,
+    setDraftQuestions,
+    draftAnswers,
+    setDraftAnswers,
+    askingQuestions,
+    draftStage,
+    draftError,
+    setDraftError,
     setBragSheetFileName,
     bragSheetUploading,
     setBragSheetUploading,
@@ -1174,6 +1286,10 @@ export default function MeritLaunch() {
     confirmPassword,
     setConfirmPassword,
     authError,
+    authNotice,
+    setAuthNotice,
+    unconfirmedEmail,
+    handleResendConfirmation,
     setAuthError,
     authSubmitting,
     setAuthSubmitting,
@@ -1258,7 +1374,7 @@ export default function MeritLaunch() {
       {/* NOTIFICATION TOAST */}
       {notification && (
         <div role="status" aria-live="polite" style={{
-          position: "fixed", top: 20, right: 20, zIndex: 9999, maxWidth: "calc(100vw - 40px)",
+          position: "fixed", top: 20, right: 20, zIndex: 10001, /* above the modal backdrop (10000) */ maxWidth: "calc(100vw - 40px)",
           padding: "14px 24px", borderRadius: 12,
           fontFamily: FONTS.body, fontSize: TYPE.base, fontWeight: 600,
           background: notification.type === "error" ? COLORS.pink : notification.type === "success" ? COLORS.teal : COLORS.gold,

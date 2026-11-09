@@ -1,8 +1,10 @@
-// Non-streaming Claude tasks: the voice profile and scholarship-from-URL lookup.
-// The request is built on the server (api/_shared/prompts.js); anything else the
-// browser sends (model, system, max_tokens, tools) is ignored.
+// Non-streaming Claude tasks: the voice profile, the pre-draft questions, and
+// the scholarship-from-URL lookup. The request is built on the server
+// (api/_shared/prompts.js); anything else the browser sends (model, system,
+// max_tokens, tools) is ignored.
 import { verifyAuth, checkRateLimit, isUrlSafe } from "./_shared/auth.js";
-import { buildProfileRequest, buildUrlRequest } from "./_shared/prompts.js";
+import { buildProfileRequest, buildUrlRequest, buildQuestionsRequest, parseQuestions } from "./_shared/prompts.js";
+import { anthropicHeaders, responseText } from "./_shared/anthropic.js";
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 
@@ -22,6 +24,8 @@ export default async function handler(req, res) {
   let request;
   if (body.task === "profile") {
     request = buildProfileRequest(body);
+  } else if (body.task === "draft_questions") {
+    request = buildQuestionsRequest(body);
   } else if (body.task === "scholarship_from_url") {
     if (!body.url || !isUrlSafe(body.url)) return res.status(400).json({ error: "That URL is not allowed." });
     request = buildUrlRequest(body.url);
@@ -32,17 +36,22 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(ANTHROPIC_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+      headers: anthropicHeaders(apiKey, request),
       body: JSON.stringify(request),
     });
     const data = await response.json();
     if (!response.ok) {
-      console.error("Anthropic error:", response.status, data?.error?.message);
+      console.error("Anthropic error:", response.status, data?.error?.type, data?.error?.message);
+      // Questions are a convenience step; the browser drafts without them when
+      // this fails, so it gets an empty list rather than an error.
+      if (body.task === "draft_questions") return res.status(200).json({ questions: [], degraded: true });
       return res.status(502).json({ error: "The AI service returned an error. Please try again." });
     }
-    const text = (data.content || []).map((b) => b.text || "").filter(Boolean).join("\n").trim();
+    const text = responseText(data);
+    if (body.task === "draft_questions") return res.status(200).json({ questions: parseQuestions(text) });
     return res.status(200).json({ text });
   } catch (error) {
+    if (body.task === "draft_questions") return res.status(200).json({ questions: [], degraded: true });
     return res.status(500).json({ error: "Failed to reach AI service" });
   }
 }

@@ -1,6 +1,7 @@
 import { verifyAuth, checkRateLimit, isUrlSafe, applyCors } from "./_shared/auth.js";
 import { getUsage } from "./_shared/usage.js";
-import { LETTER_MODEL } from "./_shared/prompts.js";
+import { LETTER_MODEL, URL_MAX_TOKENS, FALLBACKS } from "./_shared/prompts.js";
+import { anthropicHeaders, responseText } from "./_shared/anthropic.js";
 
 export default async function handler(req, res) {
   applyCors(req, res);
@@ -56,14 +57,12 @@ export default async function handler(req, res) {
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
+      headers: anthropicHeaders(apiKey, { fallbacks: FALLBACKS }),
       body: JSON.stringify({
         model: LETTER_MODEL,
-        max_tokens: 1000,
+        max_tokens: URL_MAX_TOKENS,
+        output_config: { effort: "low" },
+        fallbacks: FALLBACKS,
         messages: [{
           role: "user",
           content: `Extract scholarship information from this webpage text. Return ONLY a JSON object with these fields:
@@ -84,7 +83,7 @@ ${textContent}`
     const data = await response.json();
     if (!response.ok) return res.status(500).json({ error: "AI extraction failed" });
 
-    const aiText = data.content?.[0]?.text || "";
+    const aiText = responseText(data);
     const jsonMatch = aiText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return res.status(500).json({ error: "Could not parse scholarship data from page" });
 
