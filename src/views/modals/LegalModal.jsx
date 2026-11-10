@@ -30,7 +30,7 @@ export default function LegalModal() {
                   </h3>
                   <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6 }}>
                     {section.body.map((line, j) => (
-                      <li key={j} style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6 }}>
+                      <li key={j} style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: section.conspicuous ? COLORS.text : COLORS.textMuted, fontWeight: section.conspicuous ? 600 : 400, lineHeight: 1.6 }}>
                         {line}
                       </li>
                     ))}
@@ -39,9 +39,12 @@ export default function LegalModal() {
               ))}
             </div>
 
-            <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textDim, marginTop: 28, paddingTop: 16, borderTop: `1px solid ${COLORS.border}` }}>
-              This is general information, not legal advice, and may be updated as MeritLaunch changes.
-            </p>
+            {/* The Terms are an agreement, so they don't carry the "general information" note. */}
+            {legalModal === "privacy" && (
+              <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textDim, marginTop: 28, paddingTop: 16, borderTop: `1px solid ${COLORS.border}` }}>
+                This is general information, not legal advice, and may be updated as MeritLaunch changes.
+              </p>
+            )}
       </Modal>
     </>
   );
