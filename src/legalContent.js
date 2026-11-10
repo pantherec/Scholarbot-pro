@@ -7,8 +7,26 @@ import { EMAIL_REMINDERS_LIVE } from "./lib/features.js";
 // substitute for review by a lawyer before relying on it — especially
 // given MeritLaunch collects financial-need, heritage, and citizenship
 // data from users who may be minors (13-17, per the age gate).
+//
+// DRAFT FOR COMPLIANCE REVIEW (November 2026): the Terms sections
+// "Disclaimer of warranties", "Limitation of liability" and "Governing law
+// and disputes", and the operator line in "What MeritLaunch is", are
+// first drafts. A compliance analyst and a lawyer must confirm them before
+// we rely on them. Open points for the reviewer:
+//   - Governing law and venue: Wyoming (state of organization) is a
+//     placeholder. The owner is in New York; pick the state counsel prefers.
+//   - The liability cap ($50, or 12 months of fees if higher) is a
+//     placeholder business choice.
+//   - Many users are 13-17. Minors can usually void contracts, so ask
+//     whether these terms need parent or guardian agreement at sign-up.
+//   - Whether to add arbitration with a class-action waiver, an indemnity
+//     clause, or a mailing address for legal notices.
+//   - "Some states don't allow..." wording: check it against New Jersey's
+//     TCCWNA and similar consumer statutes.
+// Sections with `conspicuous: true` render in bold so the disclaimers
+// stand out, as warranty disclaimers generally must.
 
-export const LAST_UPDATED = "September 2026";
+export const LAST_UPDATED = "November 2026";
 
 export const PRIVACY_SECTIONS = [
   {
@@ -119,6 +137,7 @@ export const TERMS_SECTIONS = [
   {
     heading: "What MeritLaunch is",
     body: [
+      "MeritLaunch is operated by Synprax Labs LLC, a Wyoming limited liability company (\"Synprax Labs,\" \"we,\" \"us\"). These terms are an agreement between you and Synprax Labs LLC. By creating an account or using MeritLaunch, you agree to them.",
       "MeritLaunch matches students to scholarships based on the profile information they provide, and helps draft application letters from that information. It's a tool to speed up your own scholarship search and writing — not a guarantee of eligibility, award, or outcome for any scholarship.",
     ],
   },
@@ -159,6 +178,33 @@ export const TERMS_SECTIONS = [
     heading: "No guarantee of results",
     body: [
       "MeritLaunch does not guarantee that you will be matched with, be eligible for, or win any scholarship. Scholarship awards are decided entirely by the awarding organizations, not by us.",
+    ],
+  },
+  {
+    heading: "Disclaimer of warranties",
+    conspicuous: true,
+    body: [
+      "MeritLaunch is provided \"as is\" and \"as available.\" To the fullest extent the law allows, Synprax Labs LLC disclaims all warranties, express or implied, including any implied warranties of merchantability, fitness for a particular purpose, title, and non-infringement.",
+      "We don't promise that MeritLaunch will be uninterrupted, error-free, or secure; that scholarship listings, deadlines, amounts, or eligibility rules are accurate, complete, or current; that match results are correct; or that AI-generated drafts are accurate, original, or acceptable to any scholarship provider.",
+      "Some states don't allow the exclusion of implied warranties, so some of these exclusions may not apply to you.",
+    ],
+  },
+  {
+    heading: "Limitation of liability",
+    conspicuous: true,
+    body: [
+      "To the fullest extent the law allows, Synprax Labs LLC and its members, managers, employees, and agents will not be liable for any indirect, incidental, special, consequential, exemplary, or punitive damages, or for lost profits, lost data, missed deadlines, or lost scholarship or admission opportunities, arising out of or relating to MeritLaunch or these terms, even if we were told such damages were possible.",
+      "Our total liability for all claims arising out of or relating to MeritLaunch or these terms is limited to the greater of (a) the amount you paid us for MeritLaunch in the 12 months before the event that gave rise to the claim, or (b) $50.",
+      "These limits apply to every legal theory, whether contract, tort (including negligence), statute, or anything else. They don't limit any liability that cannot be limited under applicable law, such as liability for fraud, gross negligence, or willful misconduct. Some states don't allow these limits, so they may not fully apply to you.",
+    ],
+  },
+  {
+    heading: "Governing law and disputes",
+    body: [
+      "These terms, and any dispute arising out of or relating to them or to MeritLaunch, are governed by the laws of the State of Wyoming, without regard to its conflict-of-law rules.",
+      "Before filing a claim, you agree to contact us at support@meritlaunch.com and give us 30 days to try to resolve it informally.",
+      "Any dispute that isn't resolved informally will be brought only in the state or federal courts located in Wyoming, and you and Synprax Labs LLC consent to the jurisdiction of those courts. Either of us may instead bring an individual claim in small-claims court if it qualifies.",
+      "If a court finds any part of these terms unenforceable, that part will be enforced to the fullest extent allowed and the rest of these terms will remain in effect.",
     ],
   },
   {
