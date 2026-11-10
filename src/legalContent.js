@@ -8,21 +8,10 @@ import { EMAIL_REMINDERS_LIVE } from "./lib/features.js";
 // given MeritLaunch collects financial-need, heritage, and citizenship
 // data from users who may be minors (13-17, per the age gate).
 //
-// DRAFT FOR COMPLIANCE REVIEW (November 2026): the Terms sections
-// "Disclaimer of warranties", "Limitation of liability" and "Governing law
-// and disputes", and the operator line in "What MeritLaunch is", are
-// first drafts. A compliance analyst and a lawyer must confirm them before
-// we rely on them. Open points for the reviewer:
-//   - Governing law and venue: Wyoming (state of organization) is a
-//     placeholder. The owner is in New York; pick the state counsel prefers.
-//   - The liability cap ($50, or 12 months of fees if higher) is a
-//     placeholder business choice.
-//   - Many users are 13-17. Minors can usually void contracts, so ask
-//     whether these terms need parent or guardian agreement at sign-up.
-//   - Whether to add arbitration with a class-action waiver, an indemnity
-//     clause, or a mailing address for legal notices.
-//   - "Some states don't allow..." wording: check it against New Jersey's
-//     TCCWNA and similar consumer statutes.
+// COMPLIANCE-APPROVED (November 2026): the Terms sections "Disclaimer of
+// warranties", "Limitation of liability" and "Governing law and disputes",
+// and the operator line in "What MeritLaunch is", were reviewed and approved
+// as written. Any change to their wording needs the same review first.
 // Sections with `conspicuous: true` render in bold so the disclaimers
 // stand out, as warranty disclaimers generally must.
 
