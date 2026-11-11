@@ -75,7 +75,7 @@ export const PRIVACY_SECTIONS = [
       "Stripe: payments. Card details go directly to Stripe and never touch our servers.",
       EMAIL_REMINDERS_LIVE
         ? "Resend: sends our deadline-reminder and account emails."
-        : "Resend: the service we'll use for deadline-reminder emails once they launch. Nothing is sent through it today.",
+        : "Resend: sends our account emails (sign-up confirmation and password reset). Deadline-reminder emails are not sent yet.",
       "PostHog: product analytics, only for signed-in users. You are identified by an internal user ID with no name or email. Automatic click capture is turned off.",
       "Sentry: error reports, only if enabled. It is set up not to collect personal information.",
       "We do not send your profile data to scholarship providers. You choose what to submit and where.",

@@ -1,14 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 import { sendEmail, emailFooter } from "./_shared/email.js";
+import { emailRemindersLive } from "./_shared/emailSwitch.js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL || "https://zudczsepvkjbjgomgilz.supabase.co",
   process.env.SUPABASE_SERVICE_KEY
 );
 
-// Email goes through the shared Resend helper. If RESEND_API_KEY is unset,
-// email is skipped gracefully (in-app notifications still work).
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
+// Email goes through the shared Resend helper, and only when the server
+// switch in _shared/emailSwitch.js is on. In-app notifications work either way.
+const EMAIL_LIVE = emailRemindersLive();
 
 function buildSeasonEndingHtml(name, endDate, userId) {
   return `<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a;">
@@ -143,7 +144,7 @@ export default async function handler(req, res) {
     }
 
     let emailsSent = 0, emailErrors = 0;
-    if (alerts.length > 0 && RESEND_API_KEY) {
+    if (alerts.length > 0 && EMAIL_LIVE) {
       const byUser = {};
       for (const a of alerts) (byUser[a.userId] = byUser[a.userId] || []).push(a);
       const userIds = Object.keys(byUser);
@@ -207,7 +208,7 @@ export default async function handler(req, res) {
         seasonEndingNotices = rows.length;
       }
 
-      if (RESEND_API_KEY) {
+      if (EMAIL_LIVE) {
         for (const p of ending || []) {
           if (!p.email || p.email_alerts_opt_out) continue;
           try {
@@ -234,7 +235,7 @@ export default async function handler(req, res) {
       emailErrors,
       seasonEndingNotices,
       seasonEndingEmails,
-      emailEnabled: Boolean(RESEND_API_KEY),
+      emailEnabled: EMAIL_LIVE,
       timestamp: now.toISOString(),
     });
   } catch (error) {
