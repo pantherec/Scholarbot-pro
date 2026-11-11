@@ -4,6 +4,11 @@
 export const FREE_LIMITS = { matchesPerMonth: 5, lettersPerMonth: 2 };
 export const PAID_LIMITS = { matchesPerMonth: Infinity, lettersPerMonth: 50 };
 
+// One refund policy, shown in the Terms and on the parent payment page.
+export const REFUND_LETTER_CAP = 5;
+export const REFUND_POLICY =
+  `Refunds: if MeritLaunch is not right for you, email support@meritlaunch.com within 7 days of your first payment for a full refund, as long as ${REFUND_LETTER_CAP} or fewer letters have been drafted on the paid plan. After that, refunds are handled case by case.`;
+
 export const PLANS = [
   {
     id: "free",

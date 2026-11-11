@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { sendEmail, emailFooter } from "./_shared/email.js";
+import { assertWritten } from "./_shared/planGuard.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const supabase = createClient(
@@ -65,12 +66,12 @@ export default async function handler(req, res) {
         // Determine subscription type from the session
         if (session.mode === "subscription") {
           // Premium monthly subscription
-          await supabase.from("user_profiles").update({
+          assertWritten(await supabase.from("user_profiles").update({
             subscription_status: "premium",
             stripe_customer_id: customerId,
             stripe_subscription_id: session.subscription,
             updated_at: new Date().toISOString(),
-          }).eq("id", userId);
+          }).eq("id", userId), `Premium grant for ${userId} (session ${session.id})`);
         } else if (session.mode === "payment") {
           // Seasonal one-time payment — expiry matches the marketed product:
           // the pricing page sells "$29.99 / 4 months" ("4 months of full
@@ -78,12 +79,12 @@ export default async function handler(req, res) {
           const expiresAt = new Date();
           expiresAt.setMonth(expiresAt.getMonth() + 4);
 
-          await supabase.from("user_profiles").update({
+          assertWritten(await supabase.from("user_profiles").update({
             subscription_status: "seasonal",
             stripe_customer_id: customerId,
             seasonal_expires_at: expiresAt.toISOString(),
             updated_at: new Date().toISOString(),
-          }).eq("id", userId);
+          }).eq("id", userId), `Season Pass grant for ${userId} (session ${session.id})`);
         }
 
         // Paid through a parent link: mark it used so it can't start another checkout.
@@ -109,10 +110,10 @@ export default async function handler(req, res) {
         // email promises "nothing is lost"); only a terminal status downgrades.
         const appStatus = ["active", "trialing", "past_due"].includes(status) ? "premium" : "free";
 
-        await supabase.from("user_profiles").update({
+        assertWritten(await supabase.from("user_profiles").update({
           subscription_status: appStatus,
           updated_at: new Date().toISOString(),
-        }).eq("id", userId);
+        }).eq("id", userId), `Subscription update for ${userId}`);
 
         console.log(`Subscription updated for user ${userId}: ${appStatus}`);
         break;
@@ -125,11 +126,11 @@ export default async function handler(req, res) {
         if (!userId) break;
 
         // Downgrade to free
-        await supabase.from("user_profiles").update({
+        assertWritten(await supabase.from("user_profiles").update({
           subscription_status: "free",
           stripe_subscription_id: null,
           updated_at: new Date().toISOString(),
-        }).eq("id", userId);
+        }).eq("id", userId), `Subscription cancel for ${userId}`);
 
         console.log(`Subscription cancelled for user ${userId}`);
         break;

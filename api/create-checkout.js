@@ -1,5 +1,7 @@
 import { verifyAuth, checkRateLimit, applyCors } from "./_shared/auth.js";
 import { createPlanCheckout, resolveOrigin, PLAN_PRICES } from "./_shared/billing.js";
+import { getUsage } from "./_shared/usage.js";
+import { alreadyPaidMessage } from "./_shared/planGuard.js";
 
 export default async function handler(req, res) {
   applyCors(req, res);
@@ -20,6 +22,15 @@ export default async function handler(req, res) {
       plan = Object.keys(PLAN_PRICES).find((k) => PLAN_PRICES[k] === req.body.priceId);
     }
     if (!PLAN_PRICES[plan]) return res.status(400).json({ error: "Unknown plan" });
+
+    // One plan at a time. Without this a Premium subscriber could also buy a
+    // Season Pass and be billed for both. If the lookup itself fails, refuse:
+    // a missed sale is recoverable, a double charge is not.
+    let usage;
+    try { usage = await getUsage(user.id); }
+    catch { return res.status(503).json({ error: "We couldn't check your current plan. Please try again in a moment." }); }
+    const blocked = alreadyPaidMessage(usage);
+    if (blocked) return res.status(409).json({ error: blocked, code: "already_paid" });
 
     const origin = resolveOrigin(req);
     const session = await createPlanCheckout({

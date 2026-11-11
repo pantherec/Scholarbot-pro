@@ -1,4 +1,5 @@
 import { EMAIL_REMINDERS_LIVE } from "./lib/features.js";
+import { REFUND_POLICY } from "./lib/plans.js";
 
 // Privacy Policy and Terms of Service content for MeritLaunch.
 //
@@ -154,7 +155,9 @@ export const TERMS_SECTIONS = [
       `Free: 5 match runs and 2 AI letters per month, all 4 writing styles, the tracker, and ${EMAIL_REMINDERS_LIVE ? "deadline alerts" : "deadline reminders in your account"}.`,
       "Premium, $9.99 per month: unlimited match runs, 50 AI letters per month, and scholarship import from a URL.",
       "Season Pass, $29.99 one time: everything in Premium for 4 months. It does not auto-renew.",
-      "Premium is a recurring monthly subscription and renews automatically until canceled. You can cancel or manage billing at any time. Cancellation takes effect at the end of the current billing period. Payments are processed by Stripe. Refunds are handled case-by-case. Contact support@meritlaunch.com if something went wrong with a charge.",
+      "Premium is a recurring monthly subscription and renews automatically until canceled. You can cancel or manage billing at any time. Cancellation takes effect at the end of the current billing period. Payments are processed by Stripe.",
+      REFUND_POLICY,
+      "Contact support@meritlaunch.com if something went wrong with a charge.",
     ],
   },
   {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { Button, BrandMark, AppIcon, GlowCard } from "../ui/components.jsx";
-import { PLANS } from "../lib/plans.js";
+import { PLANS, REFUND_POLICY } from "../lib/plans.js";
 import { track } from "../analytics.js";
 
 // The page a parent opens from a student's "Ask a parent to pay" link.
@@ -156,6 +156,7 @@ export default function ParentPay() {
               Payment is handled by Stripe. Your card details never reach MeritLaunch.
               {plan === "premium" ? " Premium renews monthly and can be canceled anytime." : " The Season Pass is one payment and does not renew."}
             </p>
+            <p style={{ ...text, fontSize: TYPE.sm, marginTop: 8 }}>{REFUND_POLICY}</p>
 
             <section aria-labelledby="pp-privacy" style={{ marginTop: 36, paddingTop: 24, borderTop: `1px solid ${COLORS.border}` }}>
               <h2 id="pp-privacy" style={{ fontSize: TYPE.lg, fontWeight: 400, marginBottom: 10 }}>Our promise about student data</h2>
