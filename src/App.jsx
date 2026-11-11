@@ -12,6 +12,7 @@ import {
 } from "./analytics.js";
 import { PRIVACY_SECTIONS, TERMS_SECTIONS, LAST_UPDATED } from "./legalContent.js";
 import { rankMatches } from "./lib/matching.js";
+import { friendlyAuthError, passwordProblem } from "./lib/authErrors.js";
 import { parseDeadlineDate as parseDeadlineDateLib, deadlineInfo, compareByDeadline } from "./lib/deadline.js";
 import { PLANS, FREE_LIMITS, PAID_LIMITS } from "./lib/plans.js";
 import { computeCatalogStats, formatAwardTotal } from "./lib/catalogStats.js";
@@ -391,6 +392,8 @@ export default function MeritLaunch() {
     }
     setAuthDob(""); // discard DOB — not stored anywhere
     try {
+      const pwIssue = passwordProblem(authPassword);
+      if (pwIssue) { setAuthError(pwIssue); setAuthSubmitting(false); return; }
       const result = await withTimeout(supabase.auth.signUp({ email: authEmail, password: authPassword }), 8000);
       if (result === null) {
         clearStaleSupabaseSession();
@@ -399,7 +402,7 @@ export default function MeritLaunch() {
         return;
       }
       const { data, error } = result;
-      if (error) { setAuthError(error.message); }
+      if (error) { setAuthError(friendlyAuthError(error, "signup")); }
       else {
         setAuthError("");
         setAuthMode("signin");
@@ -431,7 +434,7 @@ export default function MeritLaunch() {
           setUnconfirmedEmail(authEmail);
           setAuthError("Your email address has not been confirmed yet. Open the confirmation link we emailed you when you signed up, then sign in. Need another copy? Use the resend link below.");
         } else {
-          setAuthError(error.message);
+          setAuthError(friendlyAuthError(error, "signin"));
         }
       }
       else {
@@ -453,7 +456,7 @@ export default function MeritLaunch() {
     try {
       const result = await withTimeout(supabase.auth.resend({ type: "signup", email }), 8000);
       const error = result === null ? { message: "That timed out. Please try again." } : result.error;
-      if (error) { setAuthError(error.message); }
+      if (error) { setAuthError(friendlyAuthError(error, "resend")); }
       else { setUnconfirmedEmail(""); setAuthNotice(`We sent a new confirmation link to ${email}. Open it, then sign in here.`); }
     } catch(e) { setAuthError("Something went wrong. Please try again."); }
     setAuthSubmitting(false);
@@ -472,15 +475,22 @@ export default function MeritLaunch() {
         return;
       }
       const { error } = result;
-      if (error) { setAuthError(error.message); }
-      else { notify("Password reset email sent!", "success"); setAuthMode("signin"); }
+      if (error) { setAuthError(friendlyAuthError(error, "forgot")); }
+      else {
+        // Supabase answers the same way whether or not the address has an
+        // account, so say so: a student who never signed up would otherwise
+        // wait for an email that is not coming.
+        setAuthMode("signin");
+        setAuthNotice(`If ${authEmail} has a MeritLaunch account, a reset link is on its way. It can take a minute, and it may land in spam. No email? You may have signed up with a different address, or not created an account yet. In that case choose Sign up below.`);
+      }
     } catch(e) { setAuthError("Something went wrong."); }
     setAuthSubmitting(false);
   };
 
   const handleUpdatePassword = async () => {
     setAuthError(""); setAuthNotice(""); setUnconfirmedEmail(""); setAuthSubmitting(true);
-    if (newPassword.length < 6) { setAuthError("Password must be at least 6 characters."); setAuthSubmitting(false); return; }
+    const pwIssue = passwordProblem(newPassword);
+    if (pwIssue) { setAuthError(pwIssue); setAuthSubmitting(false); return; }
     if (newPassword !== confirmPassword) { setAuthError("Passwords don't match."); setAuthSubmitting(false); return; }
     try {
       const result = await withTimeout(supabase.auth.updateUser({ password: newPassword }), 8000);
@@ -491,7 +501,7 @@ export default function MeritLaunch() {
         return;
       }
       const { error } = result;
-      if (error) { setAuthError(error.message); }
+      if (error) { setAuthError(friendlyAuthError(error, "reset")); }
       else {
         notify("Password updated successfully!", "success");
         setShowAuthModal(false); setNewPassword(""); setConfirmPassword(""); setAuthMode("signin");

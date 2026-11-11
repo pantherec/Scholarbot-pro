@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useApp } from "../../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../../ui/theme.js";
 import { BrandMark, Modal, LinkButton, Button } from "../../ui/components.jsx";
+import { PASSWORD_RULES } from "../../lib/authErrors.js";
 
 export default function AuthModal() {
   const { showAuthModal, setShowAuthModal, authMode, setAuthMode, setLegalModal, authEmail, setAuthEmail, authPassword, setAuthPassword, newPassword, setNewPassword, confirmPassword, setConfirmPassword, authError, setAuthError, authNotice, setAuthNotice, unconfirmedEmail, handleResendConfirmation, authSubmitting, authDob, setAuthDob, handleSignUp, handleSignIn, handleForgotPassword, handleUpdatePassword } = useApp();
@@ -48,8 +49,9 @@ export default function AuthModal() {
               {authMode === "reset" ? (
                 <>
                   <div>
-                    <label htmlFor="auth-newpw" style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, display: "block", marginBottom: 6, textAlign: "left" }}>New password (at least 6 characters)</label>
-                    <input id="auth-newpw" type="password" autoComplete="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} style={{ padding: "12px 16px", borderRadius: 10, fontSize: TYPE.base, fontFamily: FONTS.body, background: COLORS.surface, border: `1px solid ${COLORS.fieldBorder}`, color: COLORS.text, outline: "none", width: "100%", boxSizing: "border-box" }}/>
+                    <label htmlFor="auth-newpw" style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, display: "block", marginBottom: 6, textAlign: "left" }}>New password</label>
+                    <input id="auth-newpw" type="password" autoComplete="new-password" aria-describedby="auth-newpw-rules" value={newPassword} onChange={e => setNewPassword(e.target.value)} style={{ padding: "12px 16px", borderRadius: 10, fontSize: TYPE.base, fontFamily: FONTS.body, background: COLORS.surface, border: `1px solid ${COLORS.fieldBorder}`, color: COLORS.text, outline: "none", width: "100%", boxSizing: "border-box" }}/>
+                    <p id="auth-newpw-rules" style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5, margin: "6px 0 0", textAlign: "left" }}>{PASSWORD_RULES}</p>
                   </div>
                   <div>
                     <label htmlFor="auth-confirmpw" style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, display: "block", marginBottom: 6, textAlign: "left" }}>Confirm new password</label>
@@ -68,8 +70,9 @@ export default function AuthModal() {
                   </div>
                   {authMode !== "forgot" && (
                     <div>
-                      <label htmlFor="auth-password" style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, display: "block", marginBottom: 6, textAlign: "left" }}>Password{authMode === "signup" ? " (at least 6 characters)" : ""}</label>
-                      <input id="auth-password" type="password" autoComplete={authMode === "signup" ? "new-password" : "current-password"} value={authPassword} onChange={e => setAuthPassword(e.target.value)} style={{ padding: "12px 16px", borderRadius: 10, fontSize: TYPE.base, fontFamily: FONTS.body, background: COLORS.surface, border: `1px solid ${COLORS.fieldBorder}`, color: COLORS.text, outline: "none", width: "100%", boxSizing: "border-box" }}/>
+                      <label htmlFor="auth-password" style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, display: "block", marginBottom: 6, textAlign: "left" }}>Password</label>
+                      <input id="auth-password" type="password" autoComplete={authMode === "signup" ? "new-password" : "current-password"} aria-describedby={authMode === "signup" ? "auth-pw-rules" : undefined} value={authPassword} onChange={e => setAuthPassword(e.target.value)} style={{ padding: "12px 16px", borderRadius: 10, fontSize: TYPE.base, fontFamily: FONTS.body, background: COLORS.surface, border: `1px solid ${COLORS.fieldBorder}`, color: COLORS.text, outline: "none", width: "100%", boxSizing: "border-box" }}/>
+                      {authMode === "signup" && <p id="auth-pw-rules" style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5, margin: "6px 0 0", textAlign: "left" }}>{PASSWORD_RULES}</p>}
                     </div>
                   )}
                   {authMode === "signup" && (
