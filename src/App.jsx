@@ -12,7 +12,7 @@ import {
 } from "./analytics.js";
 import { PRIVACY_SECTIONS, TERMS_SECTIONS, LAST_UPDATED } from "./legalContent.js";
 import { rankMatches } from "./lib/matching.js";
-import { friendlyAuthError, passwordProblem } from "./lib/authErrors.js";
+import { friendlyAuthError, passwordProblem, isRepeatSignUp, authLinkProblem } from "./lib/authErrors.js";
 import { parseDeadlineDate as parseDeadlineDateLib, deadlineInfo, compareByDeadline } from "./lib/deadline.js";
 import { PLANS, FREE_LIMITS, PAID_LIMITS } from "./lib/plans.js";
 import { computeCatalogStats, formatAwardTotal } from "./lib/catalogStats.js";
@@ -372,6 +372,10 @@ export default function MeritLaunch() {
   // Auth handlers
   const handleSignUp = async () => {
     setAuthError(""); setAuthNotice(""); setUnconfirmedEmail(""); setAuthSubmitting(true);
+    // Check the password before the age gate so a password error never costs
+    // the student the date she already typed.
+    const pwIssue = passwordProblem(authPassword);
+    if (pwIssue) { setAuthError(pwIssue); setAuthSubmitting(false); return; }
     // COPPA age gate — check age, then discard DOB immediately (never stored)
     if (authDob) {
       const birthDate = new Date(authDob);
@@ -390,10 +394,9 @@ export default function MeritLaunch() {
       setAuthSubmitting(false);
       return;
     }
-    setAuthDob(""); // discard DOB — not stored anywhere
+    // The date stays in the form (in memory only, never stored or sent) until
+    // sign-up succeeds, so a server-side error does not make her retype it.
     try {
-      const pwIssue = passwordProblem(authPassword);
-      if (pwIssue) { setAuthError(pwIssue); setAuthSubmitting(false); return; }
       const result = await withTimeout(supabase.auth.signUp({ email: authEmail, password: authPassword }), 8000);
       if (result === null) {
         clearStaleSupabaseSession();
@@ -403,7 +406,16 @@ export default function MeritLaunch() {
       }
       const { data, error } = result;
       if (error) { setAuthError(friendlyAuthError(error, "signup")); }
+      else if (isRepeatSignUp(data)) {
+        // Supabase answers a sign-up for an existing address with no error and
+        // sends nothing, so saying "we sent a link" here would be false.
+        setAuthDob("");
+        setAuthPassword("");
+        setAuthMode("signin");
+        setAuthError("An account with that email already exists. Sign in here, or use Forgot password to set a new one.");
+      }
       else {
+        setAuthDob(""); // discard DOB — not stored anywhere
         setAuthError("");
         setAuthMode("signin");
         setAuthPassword("");
@@ -677,6 +689,17 @@ export default function MeritLaunch() {
       // normally emits PASSWORD_RECOVERY; the flag covers the case where that
       // event fired before this listener was attached.
       let recoveryLink = new URLSearchParams(window.location.hash.substring(1)).get("type") === "recovery";
+      // An expired or already-used email link comes back with an error in the
+      // URL and no session. Say so, and offer a fresh link.
+      const linkProblem = authLinkProblem(window.location.hash, window.location.search);
+      if (linkProblem) {
+        recoveryLink = false;
+        setAuthMode("forgot");
+        setAuthNotice("");
+        setAuthError(linkProblem);
+        setShowAuthModal(true);
+        window.history.replaceState(null, "", window.location.pathname);
+      }
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         // Keep this callback synchronous. supabase-js holds its auth lock while
         // it runs, and any awaited Supabase call in here waits on that same lock

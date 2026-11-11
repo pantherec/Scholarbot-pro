@@ -198,3 +198,12 @@ artifact page for Corey.
   roles), profile_data key counts, the `strip_profile_contact_fields` trigger, Resend NXDOMAIN, and
   grep of the live bundle for a Sentry DSN.
 
+- 2026-11-11: Fifth review (main `aaec4cd` = live, 3 merged critics, no test password). Composite
+  6.6 → 6.9; 5 blockers, all on the sign-up door, checkout and email truth. Report:
+  `docs/critic/PRODUCT_REVIEW_2026-11-11.md`. Found by probing, not reading: a sign-up error wipes
+  the date of birth; `/#error_code=otp_expired` lands on a silent landing page (add both to the
+  public journey). The Upstash host is NXDOMAIN (fast fallback hides it: check DNS, not timing).
+  `git worktree remove` on the old lane folders emptied the main repo's `node_modules`; run
+  `npm ci` after removing worktrees, and have critics confirm `node_modules/vite` exists before
+  `vite preview`. Critics sharing one scratchpad overwrite each other's `local1`/`live1` folders:
+  give each its own output folder name in the brief. The live CSP blocks axe; run it on local.

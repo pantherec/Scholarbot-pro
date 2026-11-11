@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { friendlyAuthError, passwordProblem, PASSWORD_MIN } from "../authErrors.js";
+import { friendlyAuthError, passwordProblem, PASSWORD_MIN, isRepeatSignUp, authLinkProblem } from "../authErrors.js";
 
 describe("friendlyAuthError", () => {
   it("explains the password rules when Supabase rejects a weak password", () => {
     const out = friendlyAuthError({ message: "Password is known to be weak and easy to guess, please choose a different one." }, "signup");
-    expect(out).toMatch(new RegExp(`at least ${PASSWORD_MIN} characters`));
-    expect(out).toMatch(/data leaks/);
+    expect(out).toMatch(/data leak/);
+    expect(out).toMatch(/different one/);
   });
   it("owns a failed confirmation email instead of blaming the student", () => {
     const out = friendlyAuthError({ message: "Error sending confirmation email", code: "unexpected_failure" }, "signup");
@@ -25,7 +25,33 @@ describe("friendlyAuthError", () => {
 
 describe("passwordProblem", () => {
   it("rejects short passwords and accepts long ones", () => {
-    expect(passwordProblem("abc123")).toMatch(/too short/);
+    expect(passwordProblem("abc123")).toMatch(new RegExp(`too short. Use at least ${PASSWORD_MIN} characters`));
     expect(passwordProblem("river-lamp-orbit-42")).toBe("");
+  });
+});
+
+describe("isRepeatSignUp", () => {
+  it("spots Supabase's silent answer for an existing address", () => {
+    expect(isRepeatSignUp({ user: { id: "x", identities: [] } })).toBe(true);
+    expect(isRepeatSignUp({ user: { id: "x", identities: [{ id: "i" }] } })).toBe(false);
+    expect(isRepeatSignUp({ user: null })).toBe(false);
+    expect(isRepeatSignUp(null)).toBe(false);
+  });
+});
+
+describe("authLinkProblem", () => {
+  it("explains an expired link from the URL hash", () => {
+    const out = authLinkProblem("#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired", "");
+    expect(out).toMatch(/expired or was already used/);
+  });
+  it("reads the error from the query string too", () => {
+    expect(authLinkProblem("", "?error=access_denied&error_code=otp_expired")).toMatch(/expired/);
+  });
+  it("gives a general message for other link errors", () => {
+    expect(authLinkProblem("#error=server_error&error_code=unexpected_failure", "")).toMatch(/did not work/);
+  });
+  it("stays quiet on a normal URL and on a recovery link", () => {
+    expect(authLinkProblem("", "")).toBe("");
+    expect(authLinkProblem("#access_token=abc&type=recovery", "")).toBe("");
   });
 });
