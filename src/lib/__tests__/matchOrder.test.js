@@ -35,3 +35,25 @@ describe("pickNextMatch", () => {
     expect(pickNextMatch([mk("u", 50, 1)]).id).toBe("u");
   });
 });
+
+import { lastOfferedText } from "../../views/matchOrder.js";
+import { TERMS_SECTIONS } from "../../legalContent.js";
+
+describe("past-cycle matches", () => {
+  it("says when the award was last offered", () => {
+    expect(lastOfferedText(new Date(2026, 2, 15))).toBe("Last offered: applications closed March 15, 2026. Not open right now.");
+  });
+  it("still says something true when the date is unknown", () => {
+    expect(lastOfferedText(null)).toMatch(/date unknown/);
+  });
+});
+
+describe("terms: no promised outcomes", () => {
+  const text = JSON.stringify(TERMS_SECTIONS);
+  it("calls score suggestions estimates and not predictions or advice", () => {
+    expect(text).toMatch(/are estimates/);
+    expect(text).toMatch(/not predictions/);
+    expect(text).toMatch(/not a probability of winning/);
+    expect(text).toMatch(/does not guarantee/);
+  });
+});

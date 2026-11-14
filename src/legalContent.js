@@ -170,6 +170,10 @@ export const TERMS_SECTIONS = [
     heading: "No guarantee of results",
     body: [
       "MeritLaunch does not guarantee that you will be matched with, be eligible for, or win any scholarship. Scholarship awards are decided entirely by the awarding organizations, not by us.",
+      "Fit scores, match counts, and any suggestion about what could raise a score or open more awards (for example a higher GPA, an added activity, or more service hours) are estimates. They are our best reading of the scholarship listings in our catalog and of published guidance from scholarship providers and other sources we name. They are not predictions, and they are not academic, financial, or legal advice.",
+      "A fit score shows how closely a listing's stated rules match the profile you entered. It is not a probability of winning. Acting on a suggestion does not guarantee that you will qualify for, be selected for, or receive any award, and providers can change their rules at any time.",
+      "Where we cite research or a provider's published criteria, we name the source so you can read it yourself. Sources can be incomplete or out of date, and one provider's criteria do not describe every provider. Decisions about your courses, activities, time, and money are yours and your family's to make.",
+      "Listings marked as not open right now are shown for planning only. A past deadline does not mean the award will be offered again, on the same terms, or at all.",
     ],
   },
   {

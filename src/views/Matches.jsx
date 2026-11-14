@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
-import { rankByFit } from "./matchOrder.js";
+import { rankByFit, lastOfferedText } from "./matchOrder.js";
 import { OwnScholarshipTip } from "./LetterWriter.jsx";
 import { GlowCard, Badge, AppIcon, Button, SectionHeader, EmptyState, ProgressRing } from "../ui/components.jsx";
 
@@ -44,29 +44,35 @@ export default function Matches() {
                   for (const g of Object.keys(groups)) groups[g] = rankByFit(groups[g]);
                   const sections = [
                     ["soon", "Due in the next 30 days"], ["later", "Due later"],
-                    ["undated", "Rolling or varies"], ["closed", "Closed this cycle (usually back next year)"],
+                    ["undated", "Rolling or varies"], ["closed", "Not open right now"],
                   ];
                   return sections.filter(([k]) => groups[k].length).map(([k, title]) => {
-                    const shown = expanded[k] ? groups[k] : groups[k].slice(0, k === "closed" ? 0 : PER_GROUP);
+                    const shown = expanded[k] ? groups[k] : groups[k].slice(0, PER_GROUP);
                     const hidden = groups[k].length - shown.length;
                     return (
                     <section key={k} style={{ marginBottom: 28 }}>
                       <h2 style={{ fontSize: TYPE.lg, fontWeight: 400, marginBottom: 12, color: k === "closed" ? COLORS.textMuted : COLORS.text }}>
                         {title} <span style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted }}>({groups[k].length})</span>
                       </h2>
+                      {k === "closed" && (
+                        <p style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6, margin: "-4px 0 12px", maxWidth: 720 }}>
+                          These fit your profile, but their last deadline has passed and we have not seen new dates. Many return each year, so they stay here for planning, especially if you are not a senior yet. Track one and check the provider for new dates.
+                        </p>
+                      )}
                       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                         {shown.map(s => {
-                          const scoreColor = s.matchScore >= 50 ? COLORS.teal : COLORS.gold;
+                          const past = k === "closed";
+                          const scoreColor = past ? COLORS.textDim : s.matchScore >= 50 ? COLORS.teal : COLORS.gold;
                           const tracked = trackedApps.some(a => a.scholarshipId === s.id);
                           return (
-                            <GlowCard key={s.id} glow={scoreColor} className="match-card" style={{ padding: "18px 22px", display: "flex", alignItems: "center", gap: 18 }}>
+                            <GlowCard key={s.id} glow={scoreColor} hover={!past} className={past ? "match-card match-card-past" : "match-card"} style={{ padding: "18px 22px", display: "flex", alignItems: "center", gap: 18, ...(past ? { background: COLORS.bg, borderStyle: "dashed" } : {}) }}>
                               <div role="img" style={{ position: "relative", flexShrink: 0 }} aria-label={`Fit score ${s.matchScore} out of 100`}>
                                 <ProgressRing value={s.matchScore} color={scoreColor} />
                                 <div aria-hidden="true" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", fontSize: TYPE.base, fontWeight: 700, fontFamily: FONTS.body, color: scoreColor }}>{s.matchScore}</div>
                               </div>
                               <div className="match-body" style={{ flex: 1, minWidth: 0 }}>
                                 <div className="match-head" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
-                                  <div style={{ fontSize: TYPE.md, fontWeight: 400 }}>{s.name}</div>
+                                  <div style={{ fontSize: TYPE.md, fontWeight: 400, color: past ? COLORS.textMuted : undefined }}>{s.name}</div>
                                   <Badge color={s.dl.color}>{s.dl.tone === "undated" ? s.dl.label : s.dl.tone === "closed" ? "Closed this cycle" : `Due ${s.dl.date.toLocaleDateString("en-US", { month: "short", day: "numeric" })} · ${s.dl.days}d`}</Badge>
                                   <LinkCheck s={s} />
                                 </div>
@@ -76,7 +82,12 @@ export default function Matches() {
                                     <span key={j} style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, background: COLORS.surface, border: `1px solid ${COLORS.border}`, color: COLORS.textMuted, padding: "3px 8px", borderRadius: 5 }}>{r}</span>
                                   ))}
                                 </div>
-                                {s.amount && <div style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.gold, marginTop: 6 }}>{s.amount}</div>}
+                                {s.amount && <div style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: past ? COLORS.textMuted : COLORS.gold, marginTop: 6 }}>{s.amount}</div>}
+                                {past && (
+                                  <div style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.urgentText, marginTop: 6, fontWeight: 700 }}>
+                                    {lastOfferedText(s.dl.date)}
+                                  </div>
+                                )}
                               </div>
                               <div className="match-actions" style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
                                 {k === "closed" ? (
@@ -100,7 +111,7 @@ export default function Matches() {
                       </div>
                       {hidden > 0 && (
                         <Button variant="ghost" onClick={() => setExpanded(e => ({ ...e, [k]: true }))} style={{ marginTop: 10, fontSize: TYPE.sm }}>
-                          {k === "closed" ? `Show ${hidden} closed listing${hidden === 1 ? "" : "s"}` : `Show all ${groups[k].length}`}
+                          {`Show all ${groups[k].length}`}
                         </Button>
                       )}
                     </section>

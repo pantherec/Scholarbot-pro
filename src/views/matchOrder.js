@@ -25,3 +25,10 @@ export function pickNextMatch(liveMatches) {
   const roomy = all.find(m => !isUrgent(m) && m.matchScore >= 40);
   return roomy || soon[0] || all[0];
 }
+
+// The red line on a past-cycle match: when it was last offered, in plain words.
+export function lastOfferedText(date) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "Last offered: date unknown. Not open right now.";
+  const when = date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  return `Last offered: applications closed ${when}. Not open right now.`;
+}
