@@ -6,6 +6,7 @@ import { GlowCard, AppIcon, Button, SectionHeader, LinkButton } from "../ui/comp
 import { suggestFromBragSheet, applySuggestions, SUGGESTION_LABELS } from "../lib/bragsheet.js";
 import { DOC_KINDS, parseDocs, removeDoc, docFileNames } from "../lib/studentDocs.js";
 import { track } from "../analytics.js";
+import YourData from "./YourData.jsx";
 
 // Optional, and asked warmly: some awards are for women or men only. Stored as
 // "female" | "male" | "nonbinary" | "prefer_not"; blank excludes nothing. It is
@@ -181,6 +182,7 @@ export default function ProfileBuilder() {
                   )}
                   {bragSheet && <BragSuggestions bragSheet={bragSheet} profile={profile} saveProfile={saveProfile} notify={notify} />}
                 </GlowCard>
+                <YourData />
 
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                   <Button onClick={() => { track("profile_completed", { completion: profileCompletion }); runMatching(); }} disabled={!profile.ageOk}>See my matches</Button>

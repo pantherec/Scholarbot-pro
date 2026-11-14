@@ -198,7 +198,7 @@ export async function loadProfileFromSupabase(userId) {
 }
 
 // Save letter to Supabase
-export async function saveLetterToSupabase(userId, letter) {
+export async function saveLetterToSupabase(userId, letter, { isDraft = false } = {}) {
   if (!supabase || !userId) return false;
   try {
     const { data, error } = await supabase.from("saved_letters").insert({
@@ -207,6 +207,7 @@ export async function saveLetterToSupabase(userId, letter) {
       scholarship_name: letter.scholarshipName || "Unknown",
       template_name: letter.template || null,
       letter_content: letter.content,
+      is_draft: isDraft,
     }).select("id").single();
     if (error) return false;
     return data?.id || true;
@@ -234,9 +235,44 @@ export async function loadLettersFromSupabase(userId) {
       scholarshipName: l.scholarship_name,
       template: l.template_name,
       content: l.letter_content,
+      isDraft: !!l.is_draft,
       date: new Date(l.created_at).toLocaleDateString(),
     }));
   } catch(e) { return null; }
+}
+
+// A draft the student decides to keep becomes a saved letter, with any edits.
+export async function markLetterSaved(id, content) {
+  if (!supabase || typeof id !== "string") return false;
+  try {
+    const { error } = await supabase.from("saved_letters").update({ is_draft: false, letter_content: content }).eq("id", id);
+    return !error;
+  } catch(e) { return false; }
+}
+
+// Practice answers, resume and brag sheet text, voice notes and custom styles.
+// One row per student, readable and writable only by that student.
+export async function loadStudentWork(userId) {
+  if (!supabase || !userId) return null;
+  try {
+    const { data, error } = await supabase.from("student_work").select("practice_answers, documents, voice_profile, templates").eq("user_id", userId).maybeSingle();
+    if (error) return null;
+    return data || {};
+  } catch(e) { return null; }
+}
+export async function saveStudentWork(userId, work) {
+  if (!supabase || !userId) return false;
+  try {
+    const { error } = await supabase.from("student_work").upsert({
+      user_id: userId,
+      practice_answers: work.practiceAnswers || {},
+      documents: work.documents || "",
+      voice_profile: work.voiceProfile || "",
+      templates: work.templates || null,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id" });
+    return !error;
+  } catch(e) { return false; }
 }
 
 export const store = {

@@ -14,6 +14,8 @@ import { PRIVACY_SECTIONS, TERMS_SECTIONS, LAST_UPDATED } from "./legalContent.j
 import { statesOf, rankMatches } from "./lib/matching.js";
 import { friendlyAuthError, passwordProblem, isRepeatSignUp, authLinkProblem } from "./lib/authErrors.js";
 import { setDoc, docFileNames } from "./lib/studentDocs.js";
+import { scrubContact, countContact } from "./lib/scrub.js";
+import { loadStudentWork, saveStudentWork, markLetterSaved } from "./lib/api.js";
 import { parseDeadlineDate as parseDeadlineDateLib, deadlineInfo, compareByDeadline } from "./lib/deadline.js";
 import { PLANS, FREE_LIMITS, PAID_LIMITS } from "./lib/plans.js";
 import { computeCatalogStats, formatAwardTotal } from "./lib/catalogStats.js";
@@ -148,6 +150,11 @@ export default function MeritLaunch() {
   // Which account's cloud profile has loaded (gates cloud profile saves), and
   // which one is loading now (so duplicate session events don't reload it).
   const cloudReadyRef = useRef(null);
+  // Student work syncs to the account only after the account's copy has loaded.
+  const workReadyRef = useRef(null);
+  const [workSync, setWorkSync] = useState("saved"); // "saved" | "pending" | "failed"
+  const [currentDraftId, setCurrentDraftId] = useState(null);
+  const [workTick, setWorkTick] = useState(0);
   const restoringRef = useRef(null);
   // Which account's match list was rebuilt locally after sign-in (see below).
   const autoMatchedRef = useRef(null);
@@ -320,10 +327,12 @@ export default function MeritLaunch() {
     if (!file) return;
     setBragSheetUploading(kind);
     try {
-      const text = await readFileAsText(file);
+      const raw = await readFileAsText(file);
+      const removed = countContact(raw);
+      const text = scrubContact(raw);
       // Each kind has its own slot; a new file replaces only that slot.
       setBragSheet(prev => { const next = setDoc(prev, kind, file.name, text); setBragSheetFileName(docFileNames(next)); return next; });
-      notify(`Read "${file.name}". Check what it found for your profile below.`, "success");
+      notify(`Read "${file.name}".${removed ? ` We removed ${removed} contact detail${removed === 1 ? "" : "s"} (phone, email or address); letters never need them.` : ""} Check what it found for your profile below.`, "success");
     } catch(err) {
       notify(err?.message || "Error reading file. Try pasting the content instead.", "error");
     }
@@ -533,6 +542,14 @@ export default function MeritLaunch() {
   }, [showAuthModal, authMode]);
 
   const handleSignOut = async () => {
+    // Signing out wipes this browser. If the account does not have the latest
+    // work yet, say so first.
+    if (authUser && workSync !== "saved") {
+      const ok = window.confirm(workSync === "failed"
+        ? "Your latest changes could not be saved to your account. If you sign out now they will be lost.\n\nSign out anyway?"
+        : "Your latest changes are still saving. If you sign out now they may be lost.\n\nSign out anyway?");
+      if (!ok) return;
+    }
     // 3s cap — a deadlocked auth client must never trap the user signed-in.
     // On timeout, force-clear the persisted session so a reload starts clean.
     const result = await withTimeout(supabase?.auth.signOut() ?? Promise.resolve(true), 3000);
@@ -542,6 +559,8 @@ export default function MeritLaunch() {
     // Shared Chromebooks: nothing about this student stays in the browser.
     clearStudentLocalData();
     cloudReadyRef.current = null;
+    workReadyRef.current = null;
+    setWorkSync("saved"); setCurrentDraftId(null);
     autoMatchedRef.current = null;
     setAuthUser(null);
     setProfile({}); setSavedLetters([]); setTrackedApps([]); setMatchResults([]);
@@ -684,6 +703,22 @@ export default function MeritLaunch() {
         setSavedLetters(cloudLetters);
         store.set("scholarbot-letters", cloudLetters);
       }
+      // Practice answers, resume and brag sheet text, voice notes and styles.
+      // The account's copy wins when it has anything; otherwise what was built
+      // in this browser as a guest is kept and saved to the account.
+      const work = await loadStudentWork(user.id);
+      if (work) {
+        const has = (work.practice_answers && Object.keys(work.practice_answers).length) || work.documents || work.voice_profile || (Array.isArray(work.templates) && work.templates.length);
+        if (has) {
+          if (work.practice_answers) { setAppAnswers(work.practice_answers); store.set("scholarbot-answers", work.practice_answers); }
+          setBragSheet(work.documents || ""); setBragSheetFileName(docFileNames(work.documents || ""));
+          setGeneratedProfile(work.voice_profile || ""); store.set("scholarbot-voice-profile", work.voice_profile || "");
+          if (Array.isArray(work.templates) && work.templates.length) { setTemplates(work.templates); store.set("scholarbot-templates", work.templates); }
+        }
+        workReadyRef.current = user.id;
+        // Run the sync once now: a guest's work built before sign-up is saved to the new account.
+        if (!has) setWorkTick(t => t + 1);
+      }
       await loadAccountData(user);
     };
 
@@ -765,7 +800,28 @@ export default function MeritLaunch() {
     // Sync to cloud once this account's saved profile has loaded (see restoreAccount)
     if (authUser && cloudReadyRef.current === authUser.id) saveProfileToSupabase(authUser.id, p);
   };
+  // Every finished draft is kept in the account as a draft, so signing out
+  // (which wipes this browser) never costs a student the letter they spent.
+  const autoSaveDraft = (content, scholarshipName) => {
+    if (!authUser || !content) return;
+    const letter = { content, scholarshipName, template: selectedTemplate?.name, scholarshipId: selectedScholarship?.id };
+    saveLetterToSupabase(authUser.id, letter, { isDraft: true }).then((res) => {
+      if (typeof res !== "string") { notify("We couldn't keep this draft in your account. Use Save before you sign out.", "error"); return; }
+      setCurrentDraftId(res);
+      setSavedLetters(cur => { const next = [{ ...letter, id: res, isDraft: true, date: new Date().toLocaleDateString() }, ...cur]; store.set("scholarbot-letters", next); return next; });
+    });
+  };
   const saveLetter = (letter) => {
+    // The draft is already in the account: mark it saved, with any edits.
+    if (authUser && currentDraftId) {
+      const id = currentDraftId;
+      setSavedLetters(cur => { const next = cur.map(l => l.id === id ? { ...l, ...letter, id, isDraft: false } : l); store.set("scholarbot-letters", next); return next; });
+      markLetterSaved(id, letter.content).then((ok) => { if (!ok) notify("Saved in this browser only. We couldn't reach your account, so copy the letter somewhere safe before you sign out.", "error"); });
+      setCurrentDraftId(null);
+      track("letter_saved");
+      notify("Saved to your letters.", "success");
+      return;
+    }
     const localId = Date.now();
     const updated = [...savedLetters, { ...letter, id: localId, date: new Date().toLocaleDateString() }];
     setSavedLetters(updated); store.set("scholarbot-letters", updated);
@@ -783,6 +839,33 @@ export default function MeritLaunch() {
     notify("Letter saved!", "success");
   };
   const saveTemplates = (t) => { setTemplates(t); store.set("scholarbot-templates", t); };
+
+  // Self-serve deletion (My Profile, "Your data").
+  const deleteMyWork = async () => {
+    try {
+      const resp = await authFetch("/api/usage", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete_work" }) });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) { notify(data.error || "We couldn't delete your saved work. Please try again.", "error"); return false; }
+      for (const k of ["scholarbot-letters", "scholarbot-answers", "scholarbot-brag-sheet", "scholarbot-brag-sheet-name", "scholarbot-voice-profile", "scholarbot-templates", "scholarbot-draft", "scholarbot-tracked-apps"]) { try { localStorage.removeItem(k); } catch (e) { /* best effort */ } }
+      setSavedLetters([]); setTrackedApps([]); setAppAnswers({}); setBragSheet(""); setBragSheetFileName(""); setGeneratedProfile(""); setGeneratedLetter(""); setTemplates(DEFAULT_TEMPLATES); setCurrentDraftId(null);
+      notify("Your saved work was deleted.", "success");
+      return true;
+    } catch (e) { notify("We couldn't delete your saved work. Please try again.", "error"); return false; }
+  };
+  const deleteMyAccount = async () => {
+    try {
+      const resp = await authFetch("/api/usage", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete_account" }) });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) { notify(data.error || "We couldn't delete your account. Please try again.", "error"); return false; }
+      setWorkSync("saved");
+      clearStudentLocalData(); clearStaleSupabaseSession();
+      try { await withTimeout(supabase?.auth.signOut() ?? Promise.resolve(true), 3000); } catch (e) { /* the account is already gone */ }
+      setAuthUser(null); setProfile({}); setSavedLetters([]); setTrackedApps([]); setMatchResults([]); setAppAnswers({}); setBragSheet(""); setBragSheetFileName(""); setGeneratedProfile(""); setGeneratedLetter(""); setTemplates(DEFAULT_TEMPLATES);
+      setView("landing");
+      notify("Your account and everything in it were deleted.", "success");
+      return true;
+    } catch (e) { notify("We couldn't delete your account. Please try again.", "error"); return false; }
+  };
 
   // Application tracker helpers
   const trackApplication = (scholarship, status = "interested") => {
@@ -986,6 +1069,7 @@ export default function MeritLaunch() {
 
     setGeneratingLetter(true);
     setGeneratedLetter("");
+    setCurrentDraftId(null);
     setDraftError(null);
     setDraftStage("sending");
 
@@ -1053,6 +1137,7 @@ export default function MeritLaunch() {
         notify("The AI service returned an empty draft. You weren't charged. Please try again.", "error");
       } else {
         store.set("scholarbot-draft", fullText);
+        autoSaveDraft(fullText, scholarshipLabel);
         trackLetterGenerated({ scholarshipName: scholarshipLabel, template: selectedTemplate?.name || "unknown" });
         if (outline) track("letter_outline_generated");
       }
@@ -1176,6 +1261,17 @@ export default function MeritLaunch() {
 
   // Keep work across reloads.
   useEffect(() => { store.set("scholarbot-brag-sheet", bragSheet); }, [bragSheet]);
+  // Keep the account's copy of the student's work current. Debounced; contact
+  // details are stripped again here in case text was pasted, not uploaded.
+  useEffect(() => {
+    if (!authUser || workReadyRef.current !== authUser.id) return;
+    setWorkSync("pending");
+    const t = setTimeout(() => {
+      saveStudentWork(authUser.id, { practiceAnswers: appAnswers, documents: scrubContact(bragSheet), voiceProfile: generatedProfile, templates })
+        .then((ok) => setWorkSync(ok ? "saved" : "failed"));
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [authUser, appAnswers, bragSheet, generatedProfile, templates, workTick]);
   useEffect(() => { store.set("scholarbot-brag-sheet-name", bragSheetFileName); }, [bragSheetFileName]);
   // A different scholarship, style or question means different gaps: ask again.
   useEffect(() => { setDraftQuestions(null); setDraftAnswers({}); setDraftError(null); }, [selectedScholarship?.id, customScholarshipText, selectedTemplate?.id, essayPrompt, scholarshipInputMode]);
@@ -1386,6 +1482,9 @@ export default function MeritLaunch() {
     notify,
     saveProfile,
     saveLetter,
+    deleteMyWork,
+    deleteMyAccount,
+    workSync,
     saveTemplates,
     trackApplication,
     updateAppStatus,

@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { purgeOldDrafts } from "./_shared/account.js";
 import { isUrlSafe } from "./_shared/auth.js";
 import { daysUntilDeadline } from "./_shared/deadline.js";
 
@@ -193,6 +194,9 @@ export default async function handler(req, res) {
 
     const counts = results.reduce((acc, r) => { acc[r.outcome] = (acc[r.outcome] || 0) + 1; return acc; }, {});
     console.log(`refresh-expired: ${results.length} checked, ${updated} updated`, counts);
+    // Retention: auto-saved drafts older than the limit are removed.
+    try { const purged = await purgeOldDrafts(); if (purged) console.log(`retention: removed ${purged} old drafts`); }
+    catch (e) { console.error("retention sweep failed:", e.message); }
     return res.status(200).json({
       success: true,
       expiredInCatalog: allExpired.length,

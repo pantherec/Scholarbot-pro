@@ -1,5 +1,5 @@
 import { EMAIL_REMINDERS_LIVE } from "./lib/features.js";
-import { REFUND_POLICY } from "./lib/plans.js";
+import { REFUND_POLICY, DRAFT_RETENTION_DAYS } from "./lib/plans.js";
 
 // Privacy Policy and Terms of Service content for MeritLaunch.
 //
@@ -24,8 +24,8 @@ export const PRIVACY_SECTIONS = [
     body: [
       "Account info: your email address and password. Your password is handled by our sign-in provider, Supabase. We never see or store your raw password.",
       "Profile info you enter to get scholarship matches: first and last name, city and state, citizenship or residency status, how you identify (heritage, optional, with a \"prefer not to say\" choice), GPA, SAT or ACT score, high school, graduation year, intended major, financial-need category, activities, awards, community service, your personal story, your career goal, and your preferred writing voice.",
-      "Optional extras: a brag sheet (text from a file you upload, or text you paste) and application-prep answers.",
-      "Letters you generate and save, and the scholarships you track, with a status for each.",
+      "Optional extras: the text of a resume and a brag sheet (from files you upload, or text you paste), practice answers, the voice notes we build from your answers, and any writing styles you create. We remove phone numbers, email addresses and street addresses from this text before it is kept.",
+      "Letters: every draft you generate is kept in your account automatically, marked as a draft, along with the letters you choose to save and the scholarships you track.",
       "Billing info: if you upgrade, payment is handled by Stripe. Card details go directly to Stripe and never touch our servers. We keep only your plan and payment status.",
       "Basic product analytics for signed-in users, tied to an internal user ID. It does not include your name or email.",
       "We do not ask for your phone number.",
@@ -43,8 +43,8 @@ export const PRIVACY_SECTIONS = [
   {
     heading: "Where your data is stored",
     body: [
-      "On your own device, in your browser storage. This always happens.",
-      "In our database (Supabase), when you have an account and are signed in.",
+      "On your own device, in your browser storage, while you use the site. Signing out clears it, so nothing is left on a shared computer.",
+      "In our database (Supabase), when you have an account and are signed in. Each student can read and change only their own records.",
     ],
   },
   {
@@ -95,14 +95,17 @@ export const PRIVACY_SECTIONS = [
   {
     heading: "How long we keep it",
     body: [
-      "We keep your account and profile data in our database as long as your account is active. If you delete your account, we remove your profile, saved letters, and tracked applications from our database. We may keep billing records where we are required to for tax or legal reasons.",
+      "We keep your account, profile, saved letters, practice answers, uploaded resume and brag sheet text, voice notes, writing styles and tracked scholarships in our database as long as your account is active, or until you delete them.",
+      `Drafts you did not save are deleted automatically ${DRAFT_RETENTION_DAYS} days after they were written.`,
+      "If you delete your account, we remove all of the above from our database. We may keep billing records where we are required to for tax or legal reasons.",
     ],
   },
   {
     heading: "Your choices",
     body: [
       "You can edit or remove most profile fields yourself at any time.",
-      "To download a copy of your data, or to delete your account, contact us at privacy@meritlaunch.com. Deleting your account removes your profile, saved letters, and tracked applications from our database.",
+      "You can delete your saved work, or your whole account, yourself: go to My Profile and use the buttons under \"Your data.\" Deleting your saved work removes your letters, drafts, practice answers, uploaded text, voice notes, writing styles and tracked scholarships, and keeps your profile and account. Deleting your account removes everything and cancels any Premium subscription first.",
+      "To download a copy of your data, or if you cannot sign in, contact us at privacy@meritlaunch.com.",
       "Clearing your browser storage removes the copy kept on your device.",
       EMAIL_REMINDERS_LIVE
         ? "You can unsubscribe from emails with the link in any email, or turn alerts off from the toggle on your dashboard."

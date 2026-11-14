@@ -4,6 +4,9 @@
 export const FREE_LIMITS = { matchesPerMonth: 5, lettersPerMonth: 2, outlinesPerMonth: 5 };
 export const PAID_LIMITS = { matchesPerMonth: Infinity, lettersPerMonth: 50, outlinesPerMonth: Infinity };
 
+// Auto-saved drafts are kept this long (api/_shared/account.js deletes older ones).
+export const DRAFT_RETENTION_DAYS = 180;
+
 // One refund policy, shown in the Terms and on the parent payment page.
 export const REFUND_LETTER_CAP = 5;
 export const REFUND_POLICY =

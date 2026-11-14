@@ -3,6 +3,7 @@ import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { store, deleteLetterFromSupabase } from "../lib/api.js";
 import { copyText } from "../lib/clipboard.js";
+import { DRAFT_RETENTION_DAYS } from "../lib/plans.js";
 import { GlowCard, Button, SectionHeader, EmptyState } from "../ui/components.jsx";
 
 export default function SavedLetters() {
@@ -11,7 +12,7 @@ export default function SavedLetters() {
   const bodyOf = (l) => l.content || l.text || "";
   return (
               <div>
-                <SectionHeader title="Saved Letters" subtitle={savedLetters.length ? "Open a letter to read all of it, then copy it into your application." : undefined} />
+                <SectionHeader title="Saved Letters" subtitle={savedLetters.length ? "Every finished draft is kept here automatically. Open one to read all of it, then copy it into your application." : undefined} />
                 {savedLetters.length === 0 ? (
                   <EmptyState icon="saved" title="No saved letters yet" desc="Draft a letter, make it yours, and save it here."
                     action={() => setView("generate")} actionLabel="Write a letter" />
@@ -27,7 +28,10 @@ export default function SavedLetters() {
                           <button type="button" onClick={() => setOpenId(open ? null : l.id)} aria-expanded={open} aria-controls={panelId}
                             style={{ background: "none", border: "none", padding: 0, margin: 0, textAlign: "left", cursor: "pointer", color: COLORS.text, flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: TYPE.md, fontWeight: 400, fontFamily: FONTS.heading }}>{l.scholarshipName || l.scholarship || "Untitled"}</div>
-                            <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted }}>{[l.template, l.date].filter(Boolean).join(" · ")}</div>
+                            <div style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted }}>
+                              {l.isDraft && <span style={{ color: COLORS.gold, border: `1px solid ${COLORS.gold}66`, borderRadius: 4, padding: "0 6px", marginRight: 6 }}>Draft, kept {DRAFT_RETENTION_DAYS} days</span>}
+                              {[l.template, l.date].filter(Boolean).join(" · ")}
+                            </div>
                           </button>
                           <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
                             <Button variant="secondary" onClick={() => setOpenId(open ? null : l.id)} aria-expanded={open} aria-controls={panelId}
