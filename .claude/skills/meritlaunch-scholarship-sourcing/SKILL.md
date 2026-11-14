@@ -125,3 +125,18 @@ re-checks expired listings) stays and is unaffected.
 
 - 2026-11-14: Skill written after the review of the old pipeline. Baseline: 1,297 listings, 41 with
   dead links, 533 with no state tag, no written inclusion rule anywhere.
+- 2026-11-14 (first run, batch `2026-11-prelaunch`): 4 finders + 3 checkers on a cheaper model. 41
+  candidates: 33 verified, 8 rejected. Of the verified, **14 were already in the catalog** and only
+  19 were new, so dedupe BEFORE dispatching checkers next time (give finders the catalog's names
+  for their segment). Name-similarity dedupe gave two false hits ("Utah Opportunity" vs "Unity",
+  "National FFA" vs "National AI"): review every flagged duplicate by eye. Rhode Island, Arkansas
+  and nursing returned nothing admissible; many national programs post next-cycle dates in
+  January, so re-run then. Agents read pages through a summarizing fetch, so `eligibility_quote`
+  is close but not letter-exact: re-copy it by hand before a row goes live. Background agents'
+  output files were empty, so have checkers WRITE their JSON to a scratch file. The holding table
+  has no web access; load it with a short-lived, secret-guarded SECURITY DEFINER function called
+  through REST, then drop the function (a 75 KB insert pasted through the SQL tool is wasteful).
+  Open judgment calls left for Corey: paid-membership awards (National FFA), awards that mix
+  grants and loans (MOAA), awards with no stated amount (nsoro), and the Delaware compendium site
+  as a primary source. Candidate choices are stored on the decision page, db `candidates`
+  (`add`, `update`, `skip`), keyed by a slug of the award name.
