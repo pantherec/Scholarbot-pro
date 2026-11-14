@@ -33,6 +33,7 @@ import Landing from "./views/Landing.jsx";
 const ParentPay = lazy(() => import("./views/ParentPay.jsx"));
 import Sidebar from "./views/Sidebar.jsx";
 import AuthModal from "./views/modals/AuthModal.jsx";
+import Tour from "./views/modals/Tour.jsx";
 import LegalModal from "./views/modals/LegalModal.jsx";
 import UpgradeModal from "./views/modals/UpgradeModal.jsx";
 const Dashboard = lazy(() => import("./views/Dashboard.jsx"));
@@ -155,6 +156,7 @@ export default function MeritLaunch() {
   const workReadyRef = useRef(null);
   const [workSync, setWorkSync] = useState("saved"); // "saved" | "pending" | "failed"
   const [currentDraftId, setCurrentDraftId] = useState(null);
+  const [tourRequest, setTourRequest] = useState(0); // bumping this reopens the welcome tour
   const [workTick, setWorkTick] = useState(0);
   const restoringRef = useRef(null);
   // Which account's match list was rebuilt locally after sign-in (see below).
@@ -1485,6 +1487,8 @@ export default function MeritLaunch() {
     saveProfile,
     saveLetter,
     deleteMyWork,
+    tourRequest,
+    openTour: () => setTourRequest(n => n + 1),
     deleteMyAccount,
     workSync,
     saveTemplates,
@@ -1540,6 +1544,7 @@ export default function MeritLaunch() {
       )}
 
       <AuthModal />
+      <Tour active={!isLanding && !isStandalone} />
 
       <LegalModal />
 

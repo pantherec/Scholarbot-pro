@@ -126,6 +126,8 @@ const results = [];
 for (const vp of viewports) {
   for (const pg of journey) {
     const ctx = await browser.newContext({ viewport: { width: vp.w, height: vp.h }, deviceScaleFactor: vp.label === 'phone' ? 2 : 1, isMobile: vp.label === 'phone', hasTouch: vp.label === 'phone' });
+    // The welcome tour is a dialog over the app; switch it off so it never covers what is under test.
+    await ctx.addInitScript(() => { try { localStorage.setItem('meritlaunch-tour', JSON.stringify({ visits: 4, never: true })); } catch (e) {} });
     if (proxyOrigin) await ctx.route(proxyMatch, proxyRoute);
     if (storage.length) await ctx.addInitScript((items) => { for (const it of items) { try { (it.kind === 'local' ? localStorage : sessionStorage).setItem(it.k, it.v); } catch (e) {} } }, storage);
     await ctx.addInitScript(() => {

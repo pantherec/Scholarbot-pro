@@ -64,6 +64,8 @@ const routeMatch = (u) => u.hostname.endsWith('stripe.com') || (PROXY && (!['loc
 
 async function newPage() {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  // The welcome tour is a dialog over the app; switch it off so it never covers what is under test.
+  await ctx.addInitScript(() => { try { localStorage.setItem('meritlaunch-tour', JSON.stringify({ visits: 4, never: true })); } catch (e) {} });
   await ctx.route(routeMatch, route);
   const page = await ctx.newPage();
   page.__errors = [];

@@ -6,7 +6,7 @@ import { BrandMark, LinkButton, AppIcon } from "../ui/components.jsx";
 import { track } from "../analytics.js";
 
 export default function Sidebar() {
-  const { view, isMobile, profile, mobileMenuOpen, setMobileMenuOpen, authUser, setShowAuthModal, setAuthMode, setView, PRO_LIMITS, isPremium, remainingMatches, remainingLetters, remainingOutlines, openUpgrade, handleSignOut, notify, profileCompletion, catalogCount, navItems } = useApp();
+  const { view, isMobile, profile, mobileMenuOpen, setMobileMenuOpen, authUser, setShowAuthModal, setAuthMode, setView, PRO_LIMITS, isPremium, remainingMatches, remainingLetters, remainingOutlines, openTour, openUpgrade, handleSignOut, notify, profileCompletion, catalogCount, navItems } = useApp();
   // Escape closes the phone menu and hands focus back to the menu button.
   useEffect(() => {
     if (!isMobile || !mobileMenuOpen) return;
@@ -64,6 +64,9 @@ export default function Sidebar() {
             </div>
 
             {/* Landing link */}
+            <button onClick={() => { openTour(); if (isMobile) setMobileMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 20px", background: "none", border: "none", color: COLORS.textMuted, fontFamily: FONTS.body, fontSize: TYPE.sm, cursor: "pointer", textAlign: "left" }}>
+              <AppIcon name="info" size={14} /> Take the tour
+            </button>
             <button type="button" onClick={() => setView("landing")} style={{
               display: "flex", alignItems: "center", gap: 8, padding: "12px 20px",
               border: "none", background: "transparent", color: COLORS.textDim,

@@ -140,3 +140,14 @@ re-checks expired listings) stays and is unaffected.
   grants and loans (MOAA), awards with no stated amount (nsoro), and the Delaware compendium site
   as a primary source. Candidate choices are stored on the decision page, db `candidates`
   (`add`, `update`, `skip`), keyed by a slug of the award name.
+- 2026-11-14: **Monthly schedule set.** Scheduled task `meritlaunch-monthly-scholarship-update`
+  runs at 06:00 on the 1st (app must be open; otherwise it runs at next launch). It writes only to
+  the holding table and to the pinned page's database (collections `runs` and `finds`); Corey's
+  picks land in `candidates` (`add` / `update` / `skip`, keyed by the same slug). **To apply
+  picks** (only in an interactive session, when Corey says "apply the scholarship picks"): read
+  `candidates` and `finds` with ArtifactData; for each `add`, insert the holding-table row into
+  `public.scholarships` (id = first 8 chars of md5(source_url), state = states joined by commas,
+  link_status 'active', link_verified_at now()); for each `update`, update the live row named in
+  `duplicate_of`; set `decision='approved'` on the holding rows; then set `applied: true` and
+  `appliedAt` on each `finds` doc so the page shows it as done. The SQL used on 2026-11-14 is in
+  the meritlaunch-master learnings' commit history; multi-state awards need `statesOf()` (live).
