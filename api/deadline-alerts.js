@@ -60,7 +60,7 @@ function parseDeadlineDate(deadline) {
   // is in the text, but it is not the date the application is due.
   // Unless it goes on to name the due date: "Opens Nov 1, 2026; final Mar 1, 2027".
   if (NOT_A_DEADLINE.test(raw)) {
-    const m = raw.match(/(?:final|due|deadline|closes?):?\s+(.+)$/i);
+    const m = raw.match(/\b(?:final|due|deadline|closes?)\b:?\s+(.+)$/i);
     return m ? parseDeadlineDate(m[1]) : null;
   }
 
