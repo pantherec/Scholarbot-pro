@@ -14,8 +14,9 @@ import { PRIVACY_SECTIONS, TERMS_SECTIONS, LAST_UPDATED } from "./legalContent.j
 import { statesOf, rankMatches } from "./lib/matching.js";
 import { friendlyAuthError, passwordProblem, isRepeatSignUp, authLinkProblem } from "./lib/authErrors.js";
 import { setDoc, docFileNames } from "./lib/studentDocs.js";
-import { scrubContact, countContact } from "./lib/scrub.js";
+import { scrubContact, scrubDeep, countContact } from "./lib/scrub.js";
 import { loadStudentWork, saveStudentWork, markLetterSaved } from "./lib/api.js";
+import { signOutWarning, loadWithRetry } from "./lib/workSync.js";
 import { parseDeadlineDate as parseDeadlineDateLib, deadlineInfo, compareByDeadline } from "./lib/deadline.js";
 import { PLANS, FREE_LIMITS, PAID_LIMITS } from "./lib/plans.js";
 import { computeCatalogStats, formatAwardTotal } from "./lib/catalogStats.js";
@@ -154,7 +155,7 @@ export default function MeritLaunch() {
   const cloudReadyRef = useRef(null);
   // Student work syncs to the account only after the account's copy has loaded.
   const workReadyRef = useRef(null);
-  const [workSync, setWorkSync] = useState("saved"); // "saved" | "pending" | "failed"
+  const [workSync, setWorkSync] = useState("saved"); // see lib/workSync.js: "unknown" | "pending" | "saved" | "failed"
   const [currentDraftId, setCurrentDraftId] = useState(null);
   const [tourRequest, setTourRequest] = useState(0); // bumping this reopens the welcome tour
   const [workTick, setWorkTick] = useState(0);
@@ -547,12 +548,8 @@ export default function MeritLaunch() {
   const handleSignOut = async () => {
     // Signing out wipes this browser. If the account does not have the latest
     // work yet, say so first.
-    if (authUser && workSync !== "saved") {
-      const ok = window.confirm(workSync === "failed"
-        ? "Your latest changes could not be saved to your account. If you sign out now they will be lost.\n\nSign out anyway?"
-        : "Your latest changes are still saving. If you sign out now they may be lost.\n\nSign out anyway?");
-      if (!ok) return;
-    }
+    const warning = authUser ? signOutWarning(workSync) : "";
+    if (warning && !window.confirm(warning)) return;
     // 3s cap — a deadlocked auth client must never trap the user signed-in.
     // On timeout, force-clear the persisted session so a reload starts clean.
     const result = await withTimeout(supabase?.auth.signOut() ?? Promise.resolve(true), 3000);
@@ -709,7 +706,11 @@ export default function MeritLaunch() {
       // Practice answers, resume and brag sheet text, voice notes and styles.
       // The account's copy wins when it has anything; otherwise what was built
       // in this browser as a guest is kept and saved to the account.
-      const work = await loadStudentWork(user.id);
+      // Until the account's copy has been read, the status is "unknown", so
+      // signing out warns instead of silently wiping this browser.
+      setWorkSync("unknown");
+      const work = await loadWithRetry(() => loadStudentWork(user.id));
+      if (!work) setWorkSync("failed");
       if (work) {
         const has = (work.practice_answers && Object.keys(work.practice_answers).length) || work.documents || work.voice_profile || (Array.isArray(work.templates) && work.templates.length);
         if (has) {
@@ -719,6 +720,7 @@ export default function MeritLaunch() {
           if (Array.isArray(work.templates) && work.templates.length) { setTemplates(work.templates); store.set("scholarbot-templates", work.templates); }
         }
         workReadyRef.current = user.id;
+        if (has) setWorkSync("saved");
         // Run the sync once now: a guest's work built before sign-up is saved to the new account.
         if (!has) setWorkTick(t => t + 1);
       }
@@ -1270,7 +1272,7 @@ export default function MeritLaunch() {
     if (!authUser || workReadyRef.current !== authUser.id) return;
     setWorkSync("pending");
     const t = setTimeout(() => {
-      saveStudentWork(authUser.id, { practiceAnswers: appAnswers, documents: scrubContact(bragSheet), voiceProfile: generatedProfile, templates })
+      saveStudentWork(authUser.id, { practiceAnswers: scrubDeep(appAnswers), documents: scrubContact(bragSheet), voiceProfile: scrubContact(generatedProfile), templates: scrubDeep(templates) })
         .then((ok) => setWorkSync(ok ? "saved" : "failed"));
     }, 1500);
     return () => clearTimeout(t);

@@ -51,10 +51,18 @@ function buildDigestHtml(name, items, userId) {
 // FAFSA" carry no date, and V8's lenient parser once read them as January 1.
 const MONTH = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\b/i;
 const NUMERIC_DATE = /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}\b/;
+const NOT_A_DEADLINE = /^(re-?opens?|opens?|opening|applications? (re-?)?opens?|recipients?|winners?|awards?|awarded|announced|notification|notified)\b/i;
 function parseDeadlineDate(deadline) {
   if (!deadline || typeof deadline !== "string") return null;
   const raw = deadline.trim();
   if (!raw || /^(varies|rolling|ongoing|nomination only|n\/?a|tbd|none|open)$/i.test(raw)) return null;
+  // "Opens Oct 1", "Reopens Dec 2026", "Recipients announced May 2027": a date
+  // is in the text, but it is not the date the application is due.
+  // Unless it goes on to name the due date: "Opens Nov 1, 2026; final Mar 1, 2027".
+  if (NOT_A_DEADLINE.test(raw)) {
+    const m = raw.match(/(?:final|due|deadline|closes?):?\s+(.+)$/i);
+    return m ? parseDeadlineDate(m[1]) : null;
+  }
 
   const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (iso) return new Date(+iso[1], +iso[2] - 1, +iso[3]);

@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { sendEmail, emailFooter } from "./_shared/email.js";
-import { assertWritten } from "./_shared/planGuard.js";
+import { assertWritten, checkoutDecision } from "./_shared/planGuard.js";
 import { SEASON_PASS_MONTHS } from "./_shared/usage.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -21,6 +21,44 @@ async function buffer(readable) {
     chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
   }
   return Buffer.concat(chunks);
+}
+
+// True when this is the subscription written on the student's profile. A
+// subscription the account does not hold (a refunded duplicate) changes nothing.
+async function holdsSubscription(userId, subscriptionId) {
+  const read = await supabase.from("user_profiles").select("stripe_subscription_id").eq("id", userId).maybeSingle();
+  assertWritten(read, `Subscription lookup for ${userId}`);
+  return !!read.data && read.data.stripe_subscription_id === subscriptionId;
+}
+
+// A second payment for a student who already has a plan: give the money back.
+// Throws when the refund could not be made, so Stripe sends the event again.
+async function refundDuplicate(session) {
+  const key = { idempotencyKey: `dup-refund-${session.id}` };
+  if (session.mode === "subscription" && session.subscription) {
+    const sub = await stripe.subscriptions.retrieve(session.subscription, { expand: ["latest_invoice"] });
+    const pi = sub.latest_invoice?.payment_intent;
+    if (pi) await stripe.refunds.create({ payment_intent: typeof pi === "string" ? pi : pi.id }, key);
+    if (sub.status !== "canceled") await stripe.subscriptions.cancel(session.subscription);
+    if (!pi) throw new Error(`No payment found to refund for subscription ${session.subscription}`);
+  } else if (session.payment_intent) {
+    await stripe.refunds.create({ payment_intent: session.payment_intent }, key);
+  } else {
+    throw new Error(`No payment found to refund for session ${session.id}`);
+  }
+  // Tell the payer. Best effort: the refund is what matters.
+  try {
+    const to = session.customer_details?.email;
+    if (to) {
+      await sendEmail(to, "Your MeritLaunch payment was refunded", `<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a;">
+    <h2 style="color:#c9a227;margin-bottom:4px;">We refunded your payment</h2>
+    <p>This MeritLaunch account already had a paid plan, so the payment you just made was not needed. We have refunded it in full. Refunds usually reach the card in 5 to 10 business days.</p>
+    <p>The plan that was already on the account is unchanged. Questions: support@meritlaunch.com.</p>
+  </div>`);
+    }
+  } catch (mailErr) {
+    console.error("Duplicate-refund email error:", mailErr.message);
+  }
 }
 
 export default async function handler(req, res) {
@@ -64,6 +102,27 @@ export default async function handler(req, res) {
           break;
         }
 
+        // One plan, one charge. The checkout page refuses a second plan, but
+        // two pages opened side by side can both be paid, so decide again here.
+        const profRead = await supabase.from("user_profiles")
+          .select("subscription_status, seasonal_expires_at, stripe_subscription_id, last_checkout_session_id")
+          .eq("id", userId).maybeSingle();
+        assertWritten(profRead, `Plan lookup for ${userId} (session ${session.id})`);
+        const decision = checkoutDecision(profRead.data, session.id);
+        const markLinkUsed = async () => {
+          if (!session.metadata?.parent_link_token) return;
+          await supabase.from("parent_pay_links")
+            .update({ used_at: new Date().toISOString() })
+            .eq("token", session.metadata.parent_link_token);
+        };
+        if (decision === "done") { console.log(`Session ${session.id} already granted, skipping`); break; }
+        if (decision === "duplicate") {
+          await refundDuplicate(session);
+          await markLinkUsed();
+          console.error(`Duplicate payment refunded for user ${userId} (session ${session.id})`);
+          break;
+        }
+
         // Determine subscription type from the session
         if (session.mode === "subscription") {
           // Premium monthly subscription
@@ -71,6 +130,7 @@ export default async function handler(req, res) {
             subscription_status: "premium",
             stripe_customer_id: customerId,
             stripe_subscription_id: session.subscription,
+            last_checkout_session_id: session.id,
             updated_at: new Date().toISOString(),
           }).eq("id", userId), `Premium grant for ${userId} (session ${session.id})`);
         } else if (session.mode === "payment") {
@@ -84,16 +144,13 @@ export default async function handler(req, res) {
             subscription_status: "seasonal",
             stripe_customer_id: customerId,
             seasonal_expires_at: expiresAt.toISOString(),
+            last_checkout_session_id: session.id,
             updated_at: new Date().toISOString(),
           }).eq("id", userId), `Season Pass grant for ${userId} (session ${session.id})`);
         }
 
         // Paid through a parent link: mark it used so it can't start another checkout.
-        if (session.metadata?.parent_link_token) {
-          await supabase.from("parent_pay_links")
-            .update({ used_at: new Date().toISOString() })
-            .eq("token", session.metadata.parent_link_token);
-        }
+        await markLinkUsed();
 
         console.log(`Checkout completed for user ${userId}, mode: ${session.mode}`);
         break;
@@ -105,6 +162,7 @@ export default async function handler(req, res) {
 
         if (!userId) break;
 
+        if (!(await holdsSubscription(userId, subscription.id))) break;
         const status = subscription.status;
         // Map Stripe status to our app status
         // past_due keeps access while Stripe retries the card (the payment-failed
@@ -126,6 +184,7 @@ export default async function handler(req, res) {
 
         if (!userId) break;
 
+        if (!(await holdsSubscription(userId, subscription.id))) break;
         // Downgrade to free
         assertWritten(await supabase.from("user_profiles").update({
           subscription_status: "free",

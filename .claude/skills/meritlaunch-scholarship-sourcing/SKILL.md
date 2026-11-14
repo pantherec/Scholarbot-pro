@@ -151,3 +151,16 @@ re-checks expired listings) stays and is unaffected.
   `duplicate_of`; set `decision='approved'` on the holding rows; then set `applied: true` and
   `appliedAt` on each `finds` doc so the page shows it as done. The SQL used on 2026-11-14 is in
   the meritlaunch-master learnings' commit history; multi-state awards need `statesOf()` (live).
+- 2026-11-14 (scheduled run, batch `2026-11`, page run id `2026-11-2` because `runs/2026-11` already
+  held the first run: if a month's run doc exists, write `YYYY-MM-2` and use it as the finds' `run`):
+  42 checked, 37 new, 1 refresh, 4 rejected. Giving finders a skip-list FILE to grep
+  (name [state] host for every live row, saved from one `string_agg` query) cut duplicates from 14 to
+  1. Mid-November is too early: thin states, first-gen and grades 9-11 all fell short because pages
+  are closed or undated; retry Hebner, FCBA, Folds of Honor, RSM First Generation, Point Foundation,
+  Stonewall, Oklahoma Central, OERB, Wyoming Game Wardens, DC Pearls in January. The repo `.env` key
+  is anon, so it cannot load the holding table; `insert ... select ... from
+  jsonb_populate_recordset(null::public.scholarship_candidates, $J$[...]$J$::jsonb)` through the SQL
+  tool works in chunks of about 10 rows. Retried awards need `#retry-YYYY-MM` on `source_url`
+  (unique). Tell checkers whether "fee not stated" passes; this run let it pass with a note.
+  Listing health by script (`urllib` fetch + date regex) took one minute for 60 links; 403s are
+  blocks, not dead links.

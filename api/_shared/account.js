@@ -21,12 +21,16 @@ export async function deleteStudentWork(userId) {
 // deleting the auth user then removes the profile, letters, drafts, tracked
 // applications, notifications and payment links through the database's own
 // cascade rules.
-export async function deleteAccount(userId) {
-  const db = adminClient();
-  const { data: prof } = await db.from("user_profiles").select("stripe_subscription_id").eq("id", userId).maybeSingle();
+// `deps` lets a test stand in for the database and Stripe.
+export async function deleteAccount(userId, deps = {}) {
+  const db = deps.db || adminClient();
+  const { data: prof, error: readError } = await db.from("user_profiles").select("stripe_subscription_id").eq("id", userId).maybeSingle();
+  // Without the profile we cannot know whether a subscription is running.
+  if (readError) throw new Error("Could not check billing before deleting: " + readError.message);
   let subscriptionCancelled = false;
-  if (prof?.stripe_subscription_id && process.env.STRIPE_SECRET_KEY) {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  if (prof?.stripe_subscription_id) {
+    const stripe = deps.stripe || (process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null);
+    if (!stripe) throw new Error("Could not cancel the subscription: billing is not configured");
     try {
       await stripe.subscriptions.cancel(prof.stripe_subscription_id);
       subscriptionCancelled = true;

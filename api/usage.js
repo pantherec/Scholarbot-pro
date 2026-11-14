@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ deleted: "account", ...out });
     } catch (e) {
       console.error("Deletion error:", e.message);
-      return res.status(500).json({ error: "We couldn't finish the deletion. Nothing more was removed. Please try again, or write to privacy@meritlaunch.com." });
+      return res.status(500).json({ error: "We couldn't finish the deletion, and your account is still here. Please try again, or write to privacy@meritlaunch.com and we will finish it for you." });
     }
   }
 

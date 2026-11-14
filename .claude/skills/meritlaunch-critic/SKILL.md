@@ -1,221 +1,129 @@
 ---
 name: meritlaunch-critic
-description: Critical product review of MeritLaunch (meritlaunch.com) by a team of critics who take the contrary view. The critics load the real pages in headless Chrome, sign in to dedicated test accounts and run the real match-and-draft flow on a local build, read the code and prompts, and judge seven lenses against the best scholarship and consumer products. The lenses are visual design, information architecture, core task flow, trust and integrity (including minors' privacy and true numbers), accessibility and mobile, performance, and conversion. They report to the designing agent with a scorecard measured against the last review, evidence-backed findings, buildable proposals and Key Experience Moment briefs. Use when Corey asks "is MeritLaunch AAA / ready", "what's left before marketing", "run the critic team on MeritLaunch", "score the scholarship app", "what would a parent or reviewer say", or "/meritlaunch-critic". Also after a major build wave and before any marketing push. Load meritlaunch-master first.
+description: >
+  Critical product review of MeritLaunch (meritlaunch.com) by a team of critics who take the
+  contrary view. The critics load the real pages in headless Chrome, run a local build, read the
+  code (including the letter-generation prompts), and judge seven lenses against the best
+  scholarship and student-facing products: visual design and brand, information architecture and
+  layout, core task flow (profile to matches to letter), trust, integrity and copy (the "your own
+  voice, not an essay mill" promise, minors' privacy, true numbers), accessibility and mobile,
+  performance and technical quality, and conversion and commercial readiness. They report to the
+  designing agent with a scorecard, evidence-backed findings, buildable proposals and Key
+  Experience Moment briefs. Use when Corey asks for a critical review of MeritLaunch, "is
+  MeritLaunch professional yet", "what would a parent or student say", "score the scholarship
+  app", "make it feel premium", "run the critic team on MeritLaunch", or "/meritlaunch-critic".
+  Also after a major build wave and before a launch or marketing push. Load meritlaunch-master first.
 ---
 
 # MeritLaunch critic
 
-A team of critics who take the contrary view. Each **assumes MeritLaunch is not yet a
-category-leading product and sets out to prove why**, with evidence. Then the team hands the
-designing agent (the lead running `meritlaunch-master`) a ranked, buildable plan. The goal: a
-student who is short on time finds scholarships they actually qualify for, gets a draft that sounds
-like them on a good day, and comes back every week of the season. Their parent trusts it enough to
-pay, and nothing about the student is ever invented, sold or exposed.
+A team of critics who take the contrary view. Each **assumes MeritLaunch is not yet a full
+professional, category-leading product and sets out to prove why**, with evidence. Then the team
+hands the designing agent (the lead running `meritlaunch-master`) a ranked, buildable plan. The
+goal: a student (and the parent beside them) arrives overwhelmed, leaves with scholarships that
+truly fit and a letter that sounds like them, and trusts MeritLaunch enough to pay and to tell a friend.
 
-Method borrowed from `juripath-critic` and the game critics: **play, measure, then judge.** Two
-things only show up by playing. The 2026-09-30 review found a white Iowa student matched to the
-Gates Scholarship. The 2026-10-10 simulation found a returning student who signs in sees an empty
-profile. No code read had caught either.
+Method borrowed from the game critics (`bb-aaa-critic`): **play, measure, then judge.** The first
+harness run (2026-09-30) showed on the live landing page "Browse 30 Scholarships" and "Last
+Database Refresh Feb 11", a trust problem no code review had surfaced.
 
 ## 1. Setup (non-negotiable isolation)
-- **Repo:** `pantherec/Scholarbot-pro` (React 18 + Vite; views in `src/views/`, logic in `src/lib/`,
-  serverless API in `api/`). On Corey's PC it's `Scholarbot_Pro/`; in a cloud session it's the
-  checkout root.
+- **Repo:** `C:\Users\corey\Desktop\Claude\Scholarbot_Pro` (branch `main`; React 18 + Vite; one
+  `src/App.jsx` view machine: landing, home, search, profile, profileResult, matches, generate,
+  saved, templates, tracker, apply; serverless `api/` for generation, checkout, webhooks, crons).
 - **Read-only.** Critics never edit, commit or push. Only the lead writes the report.
-- **Local build per critic:** `npm install && npm run build`, then
-  `npx vite preview --port 58xx --host 127.0.0.1 --strictPort` in the background.
-  - Ports **5890–5909**, one per critic. Never 5000. Use `http://127.0.0.1`. Stop your server when done.
-  - `vite preview` doesn't run `api/`. Signed-in journeys therefore send `/api/*` to production
-    with `--proxy https://meritlaunch.com`. The server code under test is then the live deploy, not
-    the local branch. Say so in the report, and review `api/` changes by reading the code.
-- **Live site, read-only:** `https://meritlaunch.com`. Page loads and measurements only.
-- **Harness** (this skill's `scripts/`):
-  - `web_audit.mjs`: public pages at 390×844 and 1440×900, with screenshots, LCP, CLS, transfer
-    size, console errors, failed requests, contrast, labels, tap targets, sideways scroll and
-    metadata. The journey is `scripts/journeys/public.json`.
-    `node web_audit.mjs --url http://127.0.0.1:5891 --out <tmp> --journey journeys/public.json`
-  - `signed_in_flow.mjs`: signs in to the test accounts through the real form, checks that the
-    saved profile comes back, then runs dashboard → match → draft. Add `--full` for outline, voice
-    profile, upgrade dialog, parent link and parent page; add `--checkout` to confirm a Stripe URL.
-    `ML_TEST_PASSWORD=… node signed_in_flow.mjs --url http://127.0.0.1:5891 --out <tmp> --accounts lexi,wei --full`
-  - **Corey's PC:** both scripts default to the installed Chrome. Pass
-    `--pw <dir with playwright-core>` if it isn't resolvable.
-    **Cloud sandbox:** the browser has no internet. Pass
-    `--chrome /opt/pw-browsers/chromium-*/chrome-linux/chrome --pw /opt/node22/lib/node_modules/playwright --proxy https://meritlaunch.com`.
-    Google Fonts will fail there; ignore that console error.
-  - Full-page screenshots show fixed bars mid-page. That's the capture method, not an overlap bug.
-  - Optional: `npm i axe-core` in your temp dir and set `AXE_PATH` to its `axe.min.js`.
-- **Test accounts only.** Five confirmed accounts exist for signed-in work:
-  `coreyskinner+{lexi,ethan,maria,amara,wei}test@gmail.com`. Lexi and Ethan are biracial (Black and
-  White), Maria is Hispanic and Pell-eligible, Amara is DACA/TPS and multiracial, and Wei is an
-  international student with no major. The password is held by the lead and passed only as
-  `ML_TEST_PASSWORD`. Never write it to a file.
-  - Each draft spends one free letter and a real Anthropic call. Between runs, the lead resets
-    usage for these accounts only:
-    `update user_profiles set letters_used_this_month=0, matches_used_this_month=0 where id in (select id from auth.users where email like 'coreyskinner+%test@gmail.com');`
-  - Never sign in as a real user. Never enter card details. `--checkout` only checks that a
-    checkout.stripe.com URL comes back, and the redirect is aborted.
-  - `test-profiles/` (the `+ml-*` aliases) is Corey's manual E2E set. Don't use it unless he has
-    signed those accounts up.
-- **Tests:** `npm test` (Vitest, `src/lib/__tests__`). Read them to learn what is pinned.
+- **Local build per critic:** in the repo run `npx vite --port 58xx --host 127.0.0.1 --strictPort`
+  in the background. Use ports **5890–5909**, one per critic. Never 5000. Use `http://127.0.0.1`.
+  Stop your server when done.
+  - Vite serves the UI only. The `api/` functions (letter generation, checkout) do not run under
+    Vite. **Do not start `vercel dev` or call the live API**: generation spends real money and
+    needs an account. Judge generation from `api/generate.js`, `api/generate-stream.js` and the
+    prompt and style rules in `src/App.jsx`.
+- **Live site, read-only:** `https://www.meritlaunch.com`. Page loads and measurements only.
+- **No accounts, ever.** Sign-up and sign-in go to the live Supabase project. Critics may OPEN the
+  sign-up form to judge it, never submit it. Signed-in screens are judged from the code paths that
+  render them and from any signed-out states the view machine allows.
+- **Never use the shared browser pane.**
+- **Evidence harness:** `C:\Users\corey\.claude\skills\shared-bases\scripts\web_audit.mjs`
+  (headless Chrome; screenshots at 390×844 and 1440×900 plus vitals, errors, contrast, labels, tap
+  targets, sideways scroll, metadata, into `audit.json`).
+  - Example: `node web_audit.mjs --url https://www.meritlaunch.com --out <tmp> --journey <journey.json>`
+  - Starter journey: `scripts/journey_ml.json` (landing, bottom of landing, browse, sign-up form).
+  - **Load timings vary a lot run to run** (one desktop landing LCP measured 33 s, the next 2.5 s).
+    Run a page at least twice and report the median; a single outlier is not a finding.
+  - Full-page screenshots are capped at 8,000 px tall (a long list can crash the renderer); the
+    record says so when it cropped.
+  - Optional: `npm i axe-core` in your temp dir and set `AXE_PATH` for a full WCAG scan.
 
 ## 2. The team
-Dispatch one critic agent per lens, in parallel. Give each one this SKILL.md path, its lens, its
-port, and the rubric anchors in `references/rubric.md`:
+Dispatch one `web-critic` agent per lens, in parallel, with this SKILL.md path and its lens. The
+lenses and anchors are in `references/rubric.md`:
 
 | Critic | Lens | Main evidence |
 |---|---|---|
-| 1 | Visual design and brand | screenshots at both sizes, `src/ui/theme.js` and `components.jsx`, literal colours and sizes in `src/views/` |
-| 2 | Information architecture and layout | nav, landing, dashboard, routes (`src/routes.js`); clicks to first match and first draft; the returning-student landing |
-| 3 | Core task flow | `signed_in_flow.mjs` on 2+ accounts; matching (`src/lib/matching.js`) against each profile; each draft against the profile, sentence by sentence |
-| 4 | Trust, integrity and copy | every number, claim and disclaimer; `src/legalContent.js` against real data flows; the prompts in `api/_shared/prompts.js`; scholarship data defects on Browse |
-| 5 | Accessibility and mobile | harness at 390px, keyboard-only walk, axe, reduced motion |
-| 6 | Performance and technical quality | harness vitals on local and live, build chunks, `npm test`, headers, robots and sitemap, staying signed in across a reload |
-| 7 | Conversion and commercial readiness | `src/lib/plans.js`, `UpgradeModal.jsx`, `ParentPay.jsx`, `api/create-checkout.js`, `api/parent-pay.js`, funnel events, the deadline-email path, social proof |
+| 1 | Visual design and brand | screenshots both sizes, the `COLORS` tokens and components in `src/App.jsx`, and `meritlaunch-master/references/premium-website-playbook.md` (the house standard) |
+| 2 | Information architecture and layout | landing, nav, dashboard cards, view machine; clicks to first match |
+| 3 | Core task flow | profile builder → matching → letter, from code + the signed-out states; the brag-sheet upload path |
+| 4 | Trust, integrity and copy | every number and claim, the "your own voice" promise vs the prompts, minors' privacy, legal pages |
+| 5 | Accessibility and mobile | harness at 390px, keyboard pass, labels, focus, contrast |
+| 6 | Performance and technical quality | harness vitals (median of 2+), bundle from `npm run build`, SEO/OG, headers |
+| 7 | Conversion and commercial readiness | free vs paid limits, the two plans, checkout path in code, retention (deadline alerts, tracker) |
 
-For a quick run, merge into 3 critics: **1+2+5** (look and reach), **3+4** (flow and truth),
-**6+7** (engine and money).
+For a quick run, merge into 3 critics: 1+2+5, 3+4, 6+7.
 
 ## 3. MeritLaunch's product rules (a proposal that breaks one is not a proposal)
-- **The student stays the author.** Drafts are built only from what the student told us and are
-  marked as drafts to revise. Never invent an experience, number, name or award. Never frame AI
-  output as something to pass off as human writing.
-- **The AI-policy step stays.** Before a draft, the student says whether the scholarship allows AI
-  help; "not sure" gets an outline and questions, not a letter.
-- **Minors' data:** under-13 is blocked and the data dropped. Only a 13+ flag is kept, never the
-  birth year. No contact fields in any AI prompt. No student data in URLs or on the parent page.
-  Nothing is sold or shared for advertising.
-- **True numbers only:** every count, dollar figure and date on the site is computed from the live
-  catalog (`src/lib/catalogStats.js`). No fabricated outcomes, testimonials or "students helped"
-  counts. Plan cards come from `src/lib/plans.js` and match `api/_shared/usage.js`.
-- **Charge fairly:** a letter counts only after a draft arrives, outlines are free, and a free
-  regenerate asks first.
-- **Voice:** warm, specific and never condescending, with the banned words in `meritlaunch-master`.
-- **Benchmarks** (report only, never in the product): Going Merry, Bold.org, Scholarships360,
-  Fastweb, ScholarshipOwl and the Common App for the category; Grammarly and Duolingo for writing
-  help and retention; Stripe and Linear for craft.
+- **The student is the author.** Letters are drafted from the student's real experiences in their
+  own voice. Never propose inventing achievements, ghost-writing that hides the student, or
+  anything that helps break a scholarship's own rules on outside help or AI.
+- **Minors.** Users can be 13–17. The COPPA age gate (under-13 refused, DOB never stored) stays.
+  Collect only what matching needs; no selling or sharing student data.
+- **True numbers.** Scholarship counts, award totals, deadlines and "last refreshed" dates must be
+  current and true. Verify any number against the data (`scholarship_db.json`,
+  the embedded list in `src/App.jsx`, the refresh crons) before praising or criticising it.
+- **Prices:** read them from the code (`src/App.jsx` price map, `api/create-checkout.js`) rather
+  than from memory; they were Premium $9.99/month and a $29.99 Seasonal Pass as of 2026-06-25.
+- **Public copy:** "built by a parent" is fine; no employer or job title for Corey.
+- **Benchmarks** (report only, never in the product): Going Merry, Scholarships360, Bold.org,
+  Fastweb, Niche, ScholarshipOwl; for craft, Duolingo's onboarding, Headspace, Notion.
 
 ## 4. Evidence rules
-- **Specifics:** every finding carries at least one of: file:line, a measured number, a screenshot
-  name, or a quote under 15 words.
-- **Severity:** **blocker** (a student can't finish, loses work, or the site says something false,
-  unsafe or unlawful), **major**, or **minor**.
-- **Verification:** reproduce a bug twice, and on the live site too where it applies. Trust the
-  code over any doc. If a result might be a sandbox artifact (no internet, headless browser
-  quirks), say so and give the one check Corey can do on his own phone to settle it.
-- **Balance:** no praise padding, but name one thing per lens that works and must be protected.
-- **Delta:** compare each lens to the last review in `docs/critic/`. Say which earlier findings
-  are closed (with the measurement that moved) and which have come back.
+- **Specifics:** every finding carries file:line, a measured number, a screenshot name, or a quote
+  under 15 words.
+- **Severity:** **blocker** (a student cannot finish, or the site says something false or puts a
+  minor at risk), **major**, or **minor**.
+- **Verification:** reproduce twice; trust the code and data over any doc (the repo holds many old
+  Word plans and playbooks).
+- **Balance:** name one thing per lens that works and must be protected.
 
 ## 5. Report to the designing agent
-Each critic returns (under 900 words): a verdict and lens score (1–10, plus the change since the
-last review) against the rubric anchors; ranked findings with evidence, severity and a one-task
-fix; what to protect; and, for flow, trust and conversion, at least 3 Key Experience Moment briefs
-in the `references/experience_brief.md` format.
+Each critic returns (under 900 words): a verdict and lens score (1–10) against the rubric anchors;
+ranked findings with evidence, severity and a one-task fix; what to protect; and, for flow, trust
+and conversion, at least 3 Key Experience Moment briefs in the `references/experience_brief.md` format.
 
-The lead then synthesizes:
-- **Scorecard:** 7 lenses, the score now, the change since the last review, and the gap to 9.
-- **Blockers first,** then majors ranked by their effect on finishing a draft and on a parent's trust.
-- **What needs Corey, not code:** logins, DNS, money, outreach (e.g. Resend, Sentry DSN, social proof).
-- **The experience-moments plan:** 5–8 briefs, ordered so earlier ones set up later ones.
-- **Build waves:** worktree-sized lanes that don't share files.
-- **Protect list.**
+The lead then synthesizes: a 7-lens scorecard with the gap to 9; blockers first, then majors by
+impact on finishing and on trust; an experience-moments plan of 5–8 briefs; worktree-sized build
+lanes that don't share files; a protect list.
 
-**Write it to** `docs/critic/PRODUCT_REVIEW_<YYYY-MM-DD>.md` in the repo, and publish it as an
-artifact page for Corey.
+**Write it to** `docs/critic/PRODUCT_REVIEW_<YYYY-MM-DD>.md` in the Scholarbot_Pro repo, and
+publish it as an artifact page for Corey.
 
 ## 6. How the designing agent acts on it
-- **Blockers:** fixed first, each with a regression check (a Vitest test in `src/lib/__tests__`
-  or an assertion in `signed_in_flow.mjs`).
-- **Build lanes:** each lane in its own git worktree; lanes don't share files.
-- **Verification:** re-run the harness and the lens that raised a finding once the fix merges.
-  Close it only when the measurement moves.
-- **Learnings:** add a dated line below for anything the next run should know.
+- **Blockers:** fixed first, each with a check that would catch it again.
+- **Build lanes:** each lane in its own git worktree; lanes don't share files (`src/App.jsx` is one
+  3,500-line file, so plan lanes by region of it, or extract components first).
+- **Verification:** re-run the harness and the lens once the fix merges; close a finding only when
+  the measurement moves.
 
 ## Learnings
-- 2026-09-30: First review (run from Corey's PC, harness `shared-bases/scripts/web_audit.mjs`).
-  Composite 4.2; 7 blockers (RLS self-upgrade to Premium, open Claude proxy, ineligible matches,
-  false plan cards, fabricated numbers, keyboard picker and dialog, privacy policy). All 7 closed
-  the same day (`979c439`, `506333a`). Report: `docs/critic/PRODUCT_REVIEW_2026-09-30.md`.
-- 2026-10-10: Skill written into the repo from `juripath-critic`; harness copied here with
-  `--chrome` and `--proxy` so it runs in a cloud session. The 10-10 simulation on all 5 test
-  accounts passed matching, drafts, outline, voice profile, parent link and both Stripe checkout
-  URLs. Two auth findings came out of it:
-  (1) `onAuthStateChange` never calls `loadProfileFromSupabase` (`src/App.jsx` ~568). A normal
-  sign-in shows the age question and an empty form until reload. `signed_in_flow.mjs` reports this
-  as `cloudProfileOnSignIn`.
-  (2) In the sandbox browser, `supabase.auth.getSession()` hangs on reload, and the 8 s
-  `withTimeout` fallback then wipes the session (signed out at ~9 s). This may be a headless Web
-  Locks quirk; it matches the July auth-lock learning but isn't confirmed on a real phone.
-- 2026-10-10: The auth dialog and the landing nav both have a "Sign In" button. Submit the form by
-  pressing Enter in the password field (it's a real `<form onSubmit>`).
-- 2026-10-11: After signing in, move only with the sidebar, never `page.goto`. A full load re-runs
-  `getSession()` and, in the sandbox, signs the student out. In the sandbox every signed-in API call
-  also waits out `getAccessTokenSafe`'s 3 s `getSession()` cap first. So wait for the outcome (a URL
-  or a new draft), not a fixed time: a late `runMatching` once yanked the app to Matches mid-draft.
-  Validated run (Wei, `--full --checkout`): 80 eligible matches, matching 7 s, draft 22 s at 392 words
-  with no em dashes; outline, voice profile, parent link, a parent page with no student data, and a
-  Stripe URL all OK.
-- 2026-10-11: Second review (in-repo skill, 3 merged critics). Composite 4.2 → 5.6; 7 new blockers.
-  Report: `docs/critic/PRODUCT_REVIEW_2026-10-11.md`. The reload sign-out is NOT a sandbox quirk:
-  `onAuthStateChange` awaits a Supabase query while `initialize()` holds the auth lock (deadlock).
-  Critic subagents can't write report files in a cloud session; have them return the report as
-  their final message. Lexi's cloud profile lacks `ageOk`, so her "See my matches" stays disabled.
-- 2026-10-11 (fixes): Blockers 1–4 and 7 fixed on this branch. Sign-in now lands on `/app`, where
-  the sidebar calls the dashboard "Home". The age question needs a Continue click. The AI-policy
-  radio starts unanswered, so the harness checks "allowed" before drafting. `signed_in_flow.mjs` now
-  reports `signedInAfterReload`, and a reload no longer signs out in the sandbox. Lexi has since
-  answered the age question, so her profile has `ageOk`. Don't `pkill -f "vite preview"` in the
-  same shell command as other work: the pattern matches that shell and kills it.
-- 2026-10-21: Third review (pre-launch, branch `f316a60`, live API = main). Composite 5.6 → 6.2.
-  All 10-11 session fixes held under measurement (reload 3/3, profile on sign-in 3/3, shared device
-  clean). Report: `docs/critic/PRODUCT_REVIEW_2026-10-21.md`. New: clearing local data on sign-out
-  means matches don't follow the student (results were only ever in localStorage); drafts volunteer
-  DACA status because CITIZENSHIP is always in the prompt; three more email promises hide in
-  `Deadlines.jsx`, the dashboard toggle and `legalContent.js`. Invented facts: 4/4 drafts across two
-  reviews. To stop preview servers use `pgrep -f "[v]ite preview"`: a plain pattern matches the
-  shell running it and exit code 144 kills your own command.
-- 2026-10-21 (fixes): Wave 1 and most of wave 2 shipped on the branch. Drafts now carry a fact
-  check (`src/lib/factcheck.js`): every number, age, weekday, time phrase and proper noun absent
-  from the profile is listed under the draft, and Save/Copy wait until each is marked true or
-  rewritten. Numbers compare as written (a 4.0 GPA doesn't vouch for "four"). Citizenship and
-  financial need reach the prompt only when the scholarship text asks or the student ticks the
-  toggle. Matches rebuild locally on sign-in (no run spent). `EMAIL_REMINDERS_LIVE` in
-  `src/lib/features.js` gates every email promise; flip it after the first delivered Resend send.
-  React detaches `<main>`'s ref while a lazy chunk loads, so route focus retries. Never put the
-  server start and a `pkill`/`pgrep -f` of it in the same shell command: the command line itself
-  matches and the shell dies (exit 144). Use `pgrep -f "[v]ite preview"` in its own call.
-- 2026-10-30: Fourth review (launch re-score, main `04ebeae` = live, no test password available so
-  no draft, sign-in or checkout; critics run one at a time). Composite 6.2 → 6.6; all 10-21 UI fixes
-  held. Report: `docs/critic/PRODUCT_REVIEW_2026-10-30.md`. New blocker found by timing, not reading:
-  every rate-limited route takes ~4.5 s because Upstash answers "fetch failed" and the client retries
-  before the in-memory fallback (Vercel runtime log, Hobby plan keeps 1 h, query `since: "30m"`).
-  **Every run: curl `GET /api/parent-pay?token=x` three times; over 1.5 s means the limiter is down.**
-  Also: `residen\w*` in `SENSITIVE_FIELDS` matches 404 catalog rows ("US Legal Resident"), so DACA
-  status still reaches the prompt; the fact checker flags "Committee"/"Foundation" on honest drafts
-  (write an honest fixture, not only invented ones); `initAnalytics()` runs for guests against the
-  policy. Lead checks that worked: `pg_policies` + `table_privileges` (no UPDATE/INSERT for web
-  roles), profile_data key counts, the `strip_profile_contact_fields` trigger, Resend NXDOMAIN, and
-  grep of the live bundle for a Sentry DSN.
-
-- 2026-11-11: Fifth review (main `aaec4cd` = live, 3 merged critics, no test password). Composite
-  6.6 → 6.9; 5 blockers, all on the sign-up door, checkout and email truth. Report:
-  `docs/critic/PRODUCT_REVIEW_2026-11-11.md`. Found by probing, not reading: a sign-up error wipes
-  the date of birth; `/#error_code=otp_expired` lands on a silent landing page (add both to the
-  public journey). The Upstash host is NXDOMAIN (fast fallback hides it: check DNS, not timing).
-  `git worktree remove` on the old lane folders emptied the main repo's `node_modules`; run
-  `npm ci` after removing worktrees, and have critics confirm `node_modules/vite` exists before
-  `vite preview`. Critics sharing one scratchpad overwrite each other's `local1`/`live1` folders:
-  give each its own output folder name in the brief. The live CSP blocks axe; run it on local.
-- 2026-11-11 (signed-in run): the test password now lives in the repo's git-ignored `.env` as
-  `ML_TEST_PASSWORD` (all five test accounts were re-set to it by writing a locally made bcrypt
-  hash to `auth.users`, so the password never left the machine). Read it into the env from there;
-  never print it. Maria and Wei passed sign-in, reload, matching (112 / 75 eligible) and a draft
-  (29 s, 383 / 366 words, 0 em dashes). `--checkout` alone prints nothing: it needs `--full`, or
-  check directly by POSTing `/api/create-checkout` with a test account's bearer token (expect a
-  checkout.stripe.com URL when free, 409 `already_paid` when the account is set to premium by
-  SQL; set it back to free afterwards). The scratch `pw/` folder holds playwright-core for `--pw`.
-- 2026-11-14: The Ethan test account was deleted on purpose to test "Delete my account" (it
-  worked: auth user, profile, letters, drafts, saved work and tracked awards all gone, sign-in
-  refused). **Four test accounts remain: lexi, maria, amara, wei.** The Stripe-cancel branch of
-  account deletion is still untested (no test account holds a real subscription).
+- 2026-09-30: skill created, modelled on `bb-aaa-critic`. First harness run on the live site:
+  18 low-contrast text elements (stat labels at 2.74:1, needs 4.5:1), "Last Database Refresh Feb 11"
+  on the landing page, 1.0–1.2 MB on a phone landing, no console errors. The embedded scholarship
+  list carries deadlines already past (QuestBridge 2026-09-26).
+- 2026-09-30 (first full 7-lens run, composite 4.2): the critics' "open question" items are worth the
+  lead verifying directly. Critic 7 asked whether users can write their own billing columns; a
+  read-only `pg_policies` + `information_schema.column_privileges` query confirmed they can (B1). Do
+  that check every run. Also: check numbers against the LIVE Supabase table, not the stale
+  `scholarship_db.json` (552 rows); Critic 4 misjudged the $11.5M total from the local file. The
+  harness's "no sideways scroll" can be a false pass when the root has `overflow:hidden`; look at the
+  phone screenshots for clipped content.
+- 2026-11-14 (sixth review, composite 6.9, unchanged): all five 11-11 blockers closed, but features shipped the same day opened three new ones (free-text "Opens/Reopens" dates read as deadlines in `src/lib/deadline.js`; work sync never starting when the load returns nothing; privacy wording ahead of what `scrubContact` covers). Lesson: run the flow-and-trust critic on any same-day feature wave before calling it done, and have it check every new legal sentence against the code path it describes. Probe `deadlineInfo` with free-text catalog dates each run. Open money items: double charge via two checkout sessions, `account.js:26` ignoring a failed profile read. Report: `docs/critic/PRODUCT_REVIEW_2026-11-14.md`.

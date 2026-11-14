@@ -19,6 +19,15 @@ export function scrubContact(text) {
     .replace(PHONE_RE, "[removed]");
 }
 
+// The same, for anything shaped like the student's stored work: every string
+// inside an object or list is scrubbed; keys, numbers and flags are left alone.
+export function scrubDeep(value) {
+  if (typeof value === "string") return scrubContact(value);
+  if (Array.isArray(value)) return value.map(scrubDeep);
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, scrubDeep(v)]));
+  return value;
+}
+
 // How many contact details a text holds, for the "we removed N" notice.
 export function countContact(text) {
   const t = String(text || "");
