@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { rankByFit } from "./matchOrder.js";
+import { OwnScholarshipTip } from "./LetterWriter.jsx";
 import { GlowCard, Badge, AppIcon, Button, SectionHeader, EmptyState, ProgressRing } from "../ui/components.jsx";
 
 export default function Matches() {
-  const { profile, matchResults, setSelectedScholarship, trackedApps, setScholarshipInputMode, setView, trackApplication, runMatching, parseDeadline, LinkCheck } = useApp();
+  const { profile, matchResults, setSelectedScholarship, trackedApps, setScholarshipInputMode, setView, trackApplication, runMatching, parseDeadline, LinkCheck, isPremium } = useApp();
   // Five per group until the student asks for more; closed listings start
   // folded. A guest list once ran to 137 cards and 48,000 px on a phone.
   const [expanded, setExpanded] = useState({});
@@ -27,6 +28,8 @@ export default function Matches() {
                   <AppIcon name="info" size={16} color={COLORS.gold} style={{ marginTop: 1 }} />
                   <span>We screen on state, citizenship, GPA minimums and heritage, but listings come from public sources. Always confirm eligibility and deadlines with the provider. Never pay to apply.</span>
                 </div>
+
+                <OwnScholarshipTip isPremium={isPremium} compact />
 
                 {matchResults.length === 0 ? (
                   <EmptyState icon="matches" title="No matches yet" desc="Finish the first steps of your profile and we'll show the scholarships you're eligible for."

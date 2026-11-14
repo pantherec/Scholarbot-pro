@@ -207,3 +207,11 @@ artifact page for Corey.
   `npm ci` after removing worktrees, and have critics confirm `node_modules/vite` exists before
   `vite preview`. Critics sharing one scratchpad overwrite each other's `local1`/`live1` folders:
   give each its own output folder name in the brief. The live CSP blocks axe; run it on local.
+- 2026-11-11 (signed-in run): the test password now lives in the repo's git-ignored `.env` as
+  `ML_TEST_PASSWORD` (all five test accounts were re-set to it by writing a locally made bcrypt
+  hash to `auth.users`, so the password never left the machine). Read it into the env from there;
+  never print it. Maria and Wei passed sign-in, reload, matching (112 / 75 eligible) and a draft
+  (29 s, 383 / 366 words, 0 em dashes). `--checkout` alone prints nothing: it needs `--full`, or
+  check directly by POSTing `/api/create-checkout` with a test account's bearer token (expect a
+  checkout.stripe.com URL when free, 409 `already_paid` when the account is set to premium by
+  SQL; set it back to free afterwards). The scratch `pw/` folder holds playwright-core for `--pw`.

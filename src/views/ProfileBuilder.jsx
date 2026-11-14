@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { yearIsUnder13, PROFILE_QUESTIONS, PROFILE_STEPS, GRAD_YEARS } from "../data/profile.js";
 import { GlowCard, AppIcon, Button, SectionHeader, LinkButton } from "../ui/components.jsx";
 import { suggestFromBragSheet, applySuggestions, SUGGESTION_LABELS } from "../lib/bragsheet.js";
+import { DOC_KINDS, parseDocs, removeDoc, docFileNames } from "../lib/studentDocs.js";
 import { track } from "../analytics.js";
 
 // Optional, and asked warmly: some awards are for women or men only. Stored as
@@ -26,6 +27,7 @@ const QUESTIONS = (() => {
 
 export default function ProfileBuilder() {
   const { profile, bragSheet, setBragSheet, generatingLetter, bragSheetFileName, setBragSheetFileName, bragSheetUploading, profileStep, setProfileStep, bragFileRef, handleBragSheetUpload, saveProfile, answered, profileCompletion, runMatching, generateCandidateProfile, notify } = useApp();
+  const docs = parseDocs(bragSheet);
   return (
               <div>
                 <SectionHeader title="My Profile" subtitle="Your answers drive your matches, and every letter draft is built only from them." />
@@ -146,9 +148,9 @@ export default function ProfileBuilder() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                     <div>
                       <h3 style={{ fontSize: TYPE.md, fontWeight: 400, marginBottom: 4 }}>
-                        Your Brag Sheet <span style={{ color: COLORS.textDim, fontSize: TYPE.xs }}>(optional)</span>
+                        Your Resume and Brag Sheet <span style={{ color: COLORS.textDim, fontSize: TYPE.xs }}>(optional)</span>
                       </h3>
-                      <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted }}>Upload a PDF, Word doc, or text file, or paste it. Letter drafts can draw on it.</p>
+                      <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted }}>Add a resume, a brag sheet, or both. Each can be a PDF, Word doc, or text file, or you can paste below. Letter drafts and the profile suggestions read both.</p>
                     </div>
                     {bragSheet && (
                       <button onClick={() => { setBragSheet(""); setBragSheetFileName(""); }} style={{
@@ -158,37 +160,13 @@ export default function ProfileBuilder() {
                     )}
                   </div>
 
-                  <div
-                    role="button" tabIndex={0} aria-label="Upload your brag sheet"
-                    onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); bragFileRef.current?.click(); } }}
-                    onClick={() => bragFileRef.current?.click()}
-                    onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = COLORS.gold; }}
-                    onDragLeave={e => { e.currentTarget.style.borderColor = COLORS.border; }}
-                    onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = COLORS.border; const f = e.dataTransfer.files[0]; if(f) handleBragSheetUpload({target:{files:[f]}}); }}
-                    style={{
-                      border: `2px dashed ${COLORS.border}`, borderRadius: 12, padding: "24px 20px",
-                      textAlign: "center", cursor: "pointer", marginBottom: 14, transition: "border-color 0.2s",
-                      background: COLORS.bg,
-                    }}>
-                    <input ref={bragFileRef} type="file" accept=".pdf,.doc,.docx,.txt,.md,.rtf" onChange={handleBragSheetUpload} style={{ display: "none" }} />
-                    {bragSheetUploading ? (
-                      <div style={{ color: COLORS.gold, fontFamily: FONTS.body, fontSize: TYPE.sm }}>Reading file...</div>
-                    ) : bragSheetFileName ? (
-                      <div>
-                        <div style={{ fontSize: TYPE.xl, marginBottom: 4, color: COLORS.teal }}>✓</div>
-                        <div style={{ fontFamily: FONTS.body, fontSize: TYPE.sm, color: COLORS.gold }}>{bragSheetFileName}</div>
-                        <div style={{ fontFamily: FONTS.body, fontSize: TYPE.xs, color: COLORS.textDim, marginTop: 4 }}>Click or drop to replace</div>
-                      </div>
-                    ) : (
-                      <div>
-                        <div style={{ fontSize: TYPE["2xl"], marginBottom: 6, color: COLORS.textDim }}>↑</div>
-                        <div style={{ fontFamily: FONTS.body, fontSize: TYPE.sm, color: COLORS.textMuted }}>Drop your brag sheet here, or click to browse</div>
-                        <div style={{ fontFamily: FONTS.body, fontSize: TYPE.xs, color: COLORS.textDim, marginTop: 4 }}>PDF, Word, or text files accepted</div>
-                      </div>
-                    )}
+                  <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+                    {DOC_KINDS.map(k => <DocSlot key={k.id} kind={k} doc={docs[k.id]} busy={bragSheetUploading === k.id}
+                      onFile={(e) => handleBragSheetUpload(e, k.id)}
+                      onRemove={() => { const next = removeDoc(bragSheet, k.id); setBragSheet(next); setBragSheetFileName(docFileNames(next)); }} />)}
                   </div>
 
-                  <textarea value={bragSheet} onChange={e => setBragSheet(e.target.value)} aria-label="Brag sheet text"
+                  <textarea value={bragSheet} onChange={e => setBragSheet(e.target.value)} aria-label="Resume and brag sheet text"
                     placeholder="Or paste your resume, brag sheet, or activity list here..."
                     rows={5} style={{
                       width: "100%", padding: "12px 16px", background: COLORS.bg,
@@ -235,6 +213,41 @@ function AgeQuestion({ id, hintId, options, onConfirm }) {
 // matcher and the letter prompt read. Ticked by default; the student unticks
 // anything the keyword router got wrong, then adds the rest with one click.
 // Items already in the profile drop out, so the panel empties as it is used.
+// One upload slot. A new file replaces only this slot's text.
+function DocSlot({ kind, doc, busy, onFile, onRemove }) {
+  const ref = useRef(null);
+  return (
+    <div>
+      <div
+        role="button" tabIndex={0} aria-label={`Upload your ${kind.label.toLowerCase()}`}
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ref.current?.click(); } }}
+        onClick={() => ref.current?.click()}
+        onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = COLORS.gold; }}
+        onDragLeave={e => { e.currentTarget.style.borderColor = COLORS.border; }}
+        onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = COLORS.border; const f = e.dataTransfer.files[0]; if (f) onFile({ target: { files: [f] } }); }}
+        style={{ border: `2px dashed ${COLORS.border}`, borderRadius: 12, padding: "18px 14px", textAlign: "center", cursor: "pointer", transition: "border-color 0.2s", background: COLORS.bg, minHeight: 104, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        <input ref={ref} type="file" accept=".pdf,.doc,.docx,.txt,.md,.rtf" onChange={onFile} style={{ display: "none" }} />
+        <div style={{ fontFamily: FONTS.body, fontSize: TYPE.sm, color: COLORS.text, marginBottom: 4 }}>{kind.label}</div>
+        {busy ? (
+          <div style={{ color: COLORS.gold, fontFamily: FONTS.body, fontSize: TYPE.sm }}>Reading file...</div>
+        ) : doc ? (
+          <>
+            <div style={{ fontFamily: FONTS.body, fontSize: TYPE.sm, color: COLORS.gold, overflowWrap: "anywhere" }}>✓ {doc.name}</div>
+            <div style={{ fontFamily: FONTS.body, fontSize: TYPE.xs, color: COLORS.textDim, marginTop: 4 }}>Click or drop to replace</div>
+          </>
+        ) : (
+          <div style={{ fontFamily: FONTS.body, fontSize: TYPE.xs, color: COLORS.textMuted }}>Drop a file here, or click to browse</div>
+        )}
+      </div>
+      {doc && !busy && (
+        <button type="button" onClick={onRemove} style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.pink, background: "none", border: "none", cursor: "pointer", padding: "6px 0 0" }}>
+          Remove {kind.label.toLowerCase()}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function BragSuggestions({ bragSheet, profile, saveProfile, notify }) {
   const sug = useMemo(() => suggestFromBragSheet(bragSheet, profile, { gradYears: GRAD_YEARS }), [bragSheet, profile]);
   const [off, setOff] = useState(() => new Set());       // keys the student unticked

@@ -1,8 +1,8 @@
 // One source of truth for what each plan includes. The landing cards, the upgrade
 // dialog, and the sidebar all render from this, and api/_shared/usage.js enforces
 // the same numbers (a test keeps them in step).
-export const FREE_LIMITS = { matchesPerMonth: 5, lettersPerMonth: 2 };
-export const PAID_LIMITS = { matchesPerMonth: Infinity, lettersPerMonth: 50 };
+export const FREE_LIMITS = { matchesPerMonth: 5, lettersPerMonth: 2, outlinesPerMonth: 5 };
+export const PAID_LIMITS = { matchesPerMonth: Infinity, lettersPerMonth: 50, outlinesPerMonth: Infinity };
 
 // One refund policy, shown in the Terms and on the parent payment page.
 export const REFUND_LETTER_CAP = 5;
@@ -21,6 +21,7 @@ export const PLANS = [
       "Browse every scholarship we track",
       `${FREE_LIMITS.matchesPerMonth} match runs per month`,
       `${FREE_LIMITS.lettersPerMonth} AI letter drafts per month`,
+      `${FREE_LIMITS.outlinesPerMonth} essay outlines per month`,
       "All 4 writing styles",
       // Say "emails" again once the Resend domain is verified and the weekly digest delivers.
       "Application tracker and deadline reminders",
@@ -37,6 +38,7 @@ export const PLANS = [
       "Everything in Free, plus:",
       "Unlimited match runs",
       `${PAID_LIMITS.lettersPerMonth} AI letter drafts per month`,
+      "Unlimited essay outlines",
       "Import any scholarship from a URL",
       "Cancel anytime",
     ],

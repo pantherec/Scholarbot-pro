@@ -6,7 +6,7 @@ import { BrandMark, LinkButton, AppIcon } from "../ui/components.jsx";
 import { track } from "../analytics.js";
 
 export default function Sidebar() {
-  const { view, isMobile, profile, mobileMenuOpen, setMobileMenuOpen, authUser, setShowAuthModal, setAuthMode, setView, PRO_LIMITS, isPremium, remainingMatches, remainingLetters, openUpgrade, handleSignOut, notify, profileCompletion, catalogCount, navItems } = useApp();
+  const { view, isMobile, profile, mobileMenuOpen, setMobileMenuOpen, authUser, setShowAuthModal, setAuthMode, setView, PRO_LIMITS, isPremium, remainingMatches, remainingLetters, remainingOutlines, openUpgrade, handleSignOut, notify, profileCompletion, catalogCount, navItems } = useApp();
   // Escape closes the phone menu and hands focus back to the menu button.
   useEffect(() => {
     if (!isMobile || !mobileMenuOpen) return;
@@ -98,6 +98,9 @@ export default function Sidebar() {
                       <span>Letters: {remainingLetters}{isPremium ? `/${PRO_LIMITS.lettersPerMonth}` : ""} left</span>
                       {!isPremium && <LinkButton onClick={() => openUpgrade(null)} style={{ fontSize: TYPE.xs }}>Upgrade</LinkButton>}
                     </div>
+                    {!isPremium && remainingOutlines !== null && (
+                      <div style={{ fontSize: TYPE.xs, color: COLORS.textDim, marginTop: 4 }}>Outlines: {remainingOutlines} left</div>
+                    )}
                   </div>
                   {isPremium && (
                     <button type="button" onClick={async () => {

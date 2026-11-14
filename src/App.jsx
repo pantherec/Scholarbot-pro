@@ -13,6 +13,7 @@ import {
 import { PRIVACY_SECTIONS, TERMS_SECTIONS, LAST_UPDATED } from "./legalContent.js";
 import { rankMatches } from "./lib/matching.js";
 import { friendlyAuthError, passwordProblem, isRepeatSignUp, authLinkProblem } from "./lib/authErrors.js";
+import { setDoc, docFileNames } from "./lib/studentDocs.js";
 import { parseDeadlineDate as parseDeadlineDateLib, deadlineInfo, compareByDeadline } from "./lib/deadline.js";
 import { PLANS, FREE_LIMITS, PAID_LIMITS } from "./lib/plans.js";
 import { computeCatalogStats, formatAwardTotal } from "./lib/catalogStats.js";
@@ -182,6 +183,7 @@ export default function MeritLaunch() {
   const [usageResetsOn, setUsageResetsOn] = useState(null);
   const [userSubscription, setUserSubscription] = useState("free"); // free | premium | seasonal
   const [monthlyLettersUsed, setMonthlyLettersUsed] = useState(0);
+  const [monthlyOutlinesUsed, setMonthlyOutlinesUsed] = useState(0);
   const [monthlyMatchesUsed, setMonthlyMatchesUsed] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
@@ -194,6 +196,7 @@ export default function MeritLaunch() {
     ? monthlyLettersUsed < PRO_LIMITS.lettersPerMonth
     : monthlyLettersUsed < FREE_LIMITS.lettersPerMonth;
   const remainingMatches = isPremium ? "Unlimited" : Math.max(0, FREE_LIMITS.matchesPerMonth - monthlyMatchesUsed);
+  const remainingOutlines = isPremium ? null : Math.max(0, FREE_LIMITS.outlinesPerMonth - monthlyOutlinesUsed);
   const remainingLetters = isPremium
     ? Math.max(0, PRO_LIMITS.lettersPerMonth - monthlyLettersUsed)
     : Math.max(0, FREE_LIMITS.lettersPerMonth - monthlyLettersUsed);
@@ -206,6 +209,7 @@ export default function MeritLaunch() {
     setUserSubscription(u.plan || "free");
     setUsageLoaded(true);
     setMonthlyLettersUsed(u.lettersUsed || 0);
+    setMonthlyOutlinesUsed(u.outlinesUsed || 0);
     setMonthlyMatchesUsed(u.matchesUsed || 0);
     setUsageResetsOn(u.resetsOn || null);
   };
@@ -311,18 +315,17 @@ export default function MeritLaunch() {
   }, []);
 
 
-  const handleBragSheetUpload = async (e) => {
+  const handleBragSheetUpload = async (e, kind = "brag") => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setBragSheetUploading(true);
-    setBragSheetFileName(file.name);
+    setBragSheetUploading(kind);
     try {
       const text = await readFileAsText(file);
-      setBragSheet(prev => prev ? prev + "\n\n--- Uploaded from: " + file.name + " ---\n\n" + text : text);
+      // Each kind has its own slot; a new file replaces only that slot.
+      setBragSheet(prev => { const next = setDoc(prev, kind, file.name, text); setBragSheetFileName(docFileNames(next)); return next; });
       notify(`Read "${file.name}". Check what it found for your profile below.`, "success");
     } catch(err) {
       notify(err?.message || "Error reading file. Try pasting the content instead.", "error");
-      setBragSheetFileName("");
     }
     setBragSheetUploading(false);
     if (bragFileRef.current) bragFileRef.current.value = "";
@@ -763,10 +766,19 @@ export default function MeritLaunch() {
     if (authUser && cloudReadyRef.current === authUser.id) saveProfileToSupabase(authUser.id, p);
   };
   const saveLetter = (letter) => {
-    const updated = [...savedLetters, { ...letter, id: Date.now(), date: new Date().toLocaleDateString() }];
+    const localId = Date.now();
+    const updated = [...savedLetters, { ...letter, id: localId, date: new Date().toLocaleDateString() }];
     setSavedLetters(updated); store.set("scholarbot-letters", updated);
-    // Sync to cloud if logged in
-    if (authUser) saveLetterToSupabase(authUser.id, letter);
+    // Sync to the account, and say so plainly if that fails: the browser copy
+    // is wiped at sign-out, so a silent failure would lose the letter.
+    if (authUser) {
+      saveLetterToSupabase(authUser.id, letter).then((res) => {
+        if (!res) { notify("Saved in this browser only. We couldn't reach your account, so copy the letter somewhere safe before you sign out.", "error"); return; }
+        if (typeof res === "string") {
+          setSavedLetters(cur => { const next = cur.map(l => l.id === localId ? { ...l, id: res } : l); store.set("scholarbot-letters", next); return next; });
+        }
+      });
+    }
     track("letter_saved");
     notify("Letter saved!", "success");
   };
@@ -995,7 +1007,12 @@ export default function MeritLaunch() {
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         setGeneratingLetter(false); setDraftStage("");
-        if (response.status === 402) { setGeneratedLetter(""); openUpgrade("letter", errData.resetsOn); return; }
+        if (response.status === 402) {
+          setGeneratedLetter("");
+          if (errData.kind === "outline") notify(errData.error || "You've used this month's outlines.", "info");
+          openUpgrade("letter", errData.resetsOn);
+          return;
+        }
         setGeneratedLetter("");
         notify(errData.error || "Couldn't draft the letter. Please try again.", "error");
         return;
@@ -1012,7 +1029,8 @@ export default function MeritLaunch() {
           fullText += evt.delta.text;
           setGeneratedLetter(fullText);
         } else if (evt.type === "meritlaunch_usage") {
-          setMonthlyLettersUsed(evt.lettersUsed || 0);
+          if (typeof evt.outlinesUsed === "number") setMonthlyOutlinesUsed(evt.outlinesUsed);
+          else setMonthlyLettersUsed(evt.lettersUsed || 0);
         } else if (evt.type === "meritlaunch_error") {
           streamError = { reason: evt.reason || "error", message: evt.message || "The draft stopped early. You weren't charged. Try again." };
         }
@@ -1170,10 +1188,10 @@ export default function MeritLaunch() {
     {id:"profile",icon:"profile",label:"My Profile"},
     {id:"matches",icon:"matches",label:"My Matches"},
     {id:"search",icon:"search",label:"Find Scholarships"},
+    {id:"apply",icon:"apply",label:"Practice Answers"},
     {group:"Write"},
     {id:"generate",icon:"generate",label:"Write a Letter"},
     {id:"saved",icon:"saved",label:"Saved Letters"},
-    {id:"apply",icon:"apply",label:"Practice Answers"},
     {id:"templates",icon:"templates",label:"Writing Styles"},
     {group:"Track"},
     {id:"tracker",icon:"calendar",label:"My Deadlines"},
@@ -1349,6 +1367,7 @@ export default function MeritLaunch() {
     canGenerateLetter,
     remainingMatches,
     remainingLetters,
+    remainingOutlines,
     applyUsage,
     refreshUsage,
     localMonthKey,

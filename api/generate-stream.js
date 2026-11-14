@@ -60,6 +60,9 @@ export default async function handler(req, res) {
   // Outlines are planning help, not a drafted letter, so they don't spend a letter.
   const isOutline = req.body?.mode === "outline";
   if (!isOutline && !canUse(usage, "letter")) return res.status(402).json(limitResponse(usage, "letter"));
+  // An outline is still a real AI call, so the Free plan gets a monthly number
+  // of them. Paid plans are bound only by the hourly rate limit.
+  if (isOutline && !canUse(usage, "outline")) return res.status(402).json(limitResponse(usage, "outline"));
 
   const request = { ...buildLetterRequest(req.body || {}), stream: true };
 
@@ -102,6 +105,14 @@ export default async function handler(req, res) {
     if (outcome) {
       console.error("Draft did not finish:", outcome.reason, st.error?.type || st.stopReason || "", `tokens=${st.outputTokens}`);
       res.write(`data: ${JSON.stringify({ type: "meritlaunch_error", ...outcome })}\n\n`);
+    } else if (isOutline && streamCountsAsLetter(st)) {
+      // Counted only once an outline actually arrived, same rule as letters.
+      try {
+        const used = await recordUse(user.id, "outline");
+        res.write(`data: ${JSON.stringify({ type: "meritlaunch_usage", outlinesUsed: used, outlinesLimit: usage.outlinesLimit })}\n\n`);
+      } catch (e) {
+        console.error("Outline usage record failed:", e.message);
+      }
     } else if (!isOutline && streamCountsAsLetter(st)) {
       try {
         const used = await recordUse(user.id, "letter");

@@ -7,8 +7,20 @@ import { findUnsupportedDetails, describeDetail } from "../lib/factcheck.js";
 import { PROFILE_QUESTIONS } from "../data/profile.js";
 import { track } from "../analytics.js";
 
+// Students keep missing that the list is not the only way in. Upload and Paste
+// are on every plan; pulling a listing in from a link is a paid feature.
+export function OwnScholarshipTip({ isPremium, compact = false }) {
+  return (
+    <p style={{ fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6, margin: compact ? "0 0 16px" : "-14px 0 22px", maxWidth: 760 }}>
+      <strong style={{ color: COLORS.gold, fontWeight: 700 }}>Did you know?</strong>{" "}
+      You can write for any scholarship, not only the ones on our list. {compact ? "On the Write a Letter page, upload" : "Upload"} the application file or paste its text
+      {isPremium ? ", or pull it in from a link." : ". Pulling one in from a link is part of Premium and the Season Pass."}
+    </p>
+  );
+}
+
 export default function LetterWriter() {
-  const { bragSheet, appAnswers, generatedProfile, includeSensitive, setIncludeSensitive, profile, scholarshipQuery, setScholarshipQuery, scholarshipPickerOpen, setScholarshipPickerOpen, scholarshipDB, matchResults, essayPrompt, setEssayPrompt, wordLimit, setWordLimit, aiPolicy, setAiPolicy, pickerActive, setPickerActive, selectedScholarship, setSelectedScholarship, selectedTemplate, setSelectedTemplate, templates, generatedLetter, setGeneratedLetter, generatingLetter, setProfileStep, scholarshipInputMode, setScholarshipInputMode, customScholarshipText, setCustomScholarshipText, customScholarshipName, setCustomScholarshipName, scholarshipUrl, setScholarshipUrl, fetchingUrl, uploadedScholarshipName, authUser, monthlyLettersUsed, setView, scholarshipFileRef, isPremium, openUpgrade, handleScholarshipUpload, fetchScholarshipFromUrl, notify, saveLetter, thinFields, generateLetter, parseDeadline, catalogCount, bragSheetFileName, draftQuestions, draftAnswers, setDraftAnswers, askingQuestions, draftStage, draftError } = useApp();
+  const { bragSheet, appAnswers, generatedProfile, includeSensitive, setIncludeSensitive, profile, scholarshipQuery, setScholarshipQuery, scholarshipPickerOpen, setScholarshipPickerOpen, scholarshipDB, matchResults, essayPrompt, setEssayPrompt, wordLimit, setWordLimit, aiPolicy, setAiPolicy, pickerActive, setPickerActive, selectedScholarship, setSelectedScholarship, selectedTemplate, setSelectedTemplate, templates, generatedLetter, setGeneratedLetter, generatingLetter, setProfileStep, scholarshipInputMode, setScholarshipInputMode, customScholarshipText, setCustomScholarshipText, customScholarshipName, setCustomScholarshipName, scholarshipUrl, setScholarshipUrl, fetchingUrl, uploadedScholarshipName, authUser, monthlyLettersUsed, remainingOutlines, setView, scholarshipFileRef, isPremium, openUpgrade, handleScholarshipUpload, fetchScholarshipFromUrl, notify, saveLetter, thinFields, generateLetter, parseDeadline, catalogCount, bragSheetFileName, draftQuestions, draftAnswers, setDraftAnswers, askingQuestions, draftStage, draftError } = useApp();
 
   // What this draft is built from, named, so "using only what's in your
   // profile" is never shown while a brag sheet or answers are in play.
@@ -77,6 +89,7 @@ export default function LetterWriter() {
   return (
               <div>
                 <SectionHeader title="Write a Letter" subtitle="Pick a scholarship and a style. You get a draft built from your real details, then you make it yours." />
+                <OwnScholarshipTip isPremium={isPremium} />
 
                 <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 24 }}>
                   {/* Scholarship Input */}
@@ -319,7 +332,7 @@ export default function LetterWriter() {
                   <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                     {[
                       ["allowed", "Allowed: draft a letter I'll revise"],
-                      ["unsure", "Not sure or not allowed: give me an outline and questions instead (free)"],
+                      ["unsure", `Not sure or not allowed: give me an outline and questions instead (${isPremium ? "does not use a letter" : `does not use a letter; ${remainingOutlines} of ${FREE_LIMITS.outlinesPerMonth} outlines left this month`})`],
                     ].map(([val, label]) => (
                       <label key={val} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, cursor: "pointer", maxWidth: 420 }}>
                         <input type="radio" name="ai-policy" value={val} checked={aiPolicy === val} onChange={() => setAiPolicy(val)} style={{ width: 18, height: 18, accentColor: COLORS.gold, marginTop: 1 }} />

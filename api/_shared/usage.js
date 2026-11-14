@@ -6,8 +6,8 @@ import { createClient } from "@supabase/supabase-js";
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://zudczsepvkjbjgomgilz.supabase.co";
 
 export const LIMITS = {
-  free: { matchesPerMonth: 5, lettersPerMonth: 2 },
-  paid: { matchesPerMonth: Infinity, lettersPerMonth: 50 },
+  free: { matchesPerMonth: 5, lettersPerMonth: 2, outlinesPerMonth: 5 },
+  paid: { matchesPerMonth: Infinity, lettersPerMonth: 50, outlinesPerMonth: Infinity },
 };
 
 let _admin = null;
@@ -34,7 +34,7 @@ export async function getUsage(userId) {
   const db = adminClient();
   const { data: prof, error } = await db
     .from("user_profiles")
-    .select("subscription_status, seasonal_expires_at, letters_used_this_month, matches_used_this_month, usage_reset_at")
+    .select("subscription_status, seasonal_expires_at, letters_used_this_month, matches_used_this_month, outlines_used_this_month, usage_reset_at")
     .eq("id", userId)
     .single();
   if (error || !prof) throw new Error("Profile not found");
@@ -49,10 +49,13 @@ export async function getUsage(userId) {
 
   let lettersUsed = prof.letters_used_this_month || 0;
   let matchesUsed = prof.matches_used_this_month || 0;
+  let outlinesUsed = prof.outlines_used_this_month || 0;
   const resetAt = prof.usage_reset_at ? new Date(prof.usage_reset_at) : new Date(0);
   if (monthsBetween(resetAt, now) >= 1) {
     lettersUsed = 0;
     matchesUsed = 0;
+    outlinesUsed = 0;
+    updates.outlines_used_this_month = 0;
     updates.letters_used_this_month = 0;
     updates.matches_used_this_month = 0;
     updates.usage_reset_at = now.toISOString();
@@ -74,6 +77,9 @@ export async function getUsage(userId) {
     matchesLimit: Number.isFinite(limits.matchesPerMonth) ? limits.matchesPerMonth : null,
     lettersRemaining: Math.max(0, limits.lettersPerMonth - lettersUsed),
     matchesRemaining: Number.isFinite(limits.matchesPerMonth) ? Math.max(0, limits.matchesPerMonth - matchesUsed) : null,
+    outlinesUsed,
+    outlinesLimit: Number.isFinite(limits.outlinesPerMonth) ? limits.outlinesPerMonth : null,
+    outlinesRemaining: Number.isFinite(limits.outlinesPerMonth) ? Math.max(0, limits.outlinesPerMonth - outlinesUsed) : null,
     seasonalExpiresAt: status === "seasonal" ? prof.seasonal_expires_at : null,
     resetsOn: nextResetDate(now),
   };
@@ -82,6 +88,7 @@ export async function getUsage(userId) {
 export function canUse(usage, kind) {
   if (kind === "letter") return usage.lettersUsed < usage.lettersLimit;
   if (kind === "match") return usage.matchesLimit === null || usage.matchesUsed < usage.matchesLimit;
+  if (kind === "outline") return usage.outlinesLimit === null || usage.outlinesUsed < usage.outlinesLimit;
   return false;
 }
 
@@ -89,7 +96,7 @@ export function canUse(usage, kind) {
 // bounds concurrency, and the worst case of a race is one uncounted use.
 export async function recordUse(userId, kind) {
   const db = adminClient();
-  const col = kind === "letter" ? "letters_used_this_month" : "matches_used_this_month";
+  const col = kind === "letter" ? "letters_used_this_month" : kind === "outline" ? "outlines_used_this_month" : "matches_used_this_month";
   const { data } = await db.from("user_profiles").select(col).eq("id", userId).single();
   const next = ((data && data[col]) || 0) + 1;
   await db.from("user_profiles").update({ [col]: next, updated_at: new Date().toISOString() }).eq("id", userId);
@@ -100,7 +107,9 @@ export function limitResponse(usage, kind) {
   return {
     error: kind === "letter"
       ? `You've used all ${usage.lettersLimit} letters for this month.`
-      : `You've used all ${usage.matchesLimit} match runs for this month.`,
+      : kind === "outline"
+        ? `You've used all ${usage.outlinesLimit} outlines for this month.`
+        : `You've used all ${usage.matchesLimit} match runs for this month.`,
     code: "limit_reached",
     kind,
     plan: usage.plan,

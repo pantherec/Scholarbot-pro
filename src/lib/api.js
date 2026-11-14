@@ -201,13 +201,24 @@ export async function loadProfileFromSupabase(userId) {
 export async function saveLetterToSupabase(userId, letter) {
   if (!supabase || !userId) return false;
   try {
-    const { error } = await supabase.from("saved_letters").insert({
+    const { data, error } = await supabase.from("saved_letters").insert({
       user_id: userId,
       scholarship_id: letter.scholarshipId || null,
       scholarship_name: letter.scholarshipName || "Unknown",
       template_name: letter.template || null,
       letter_content: letter.content,
-    });
+    }).select("id").single();
+    if (error) return false;
+    return data?.id || true;
+  } catch(e) { return false; }
+}
+
+// Remove a saved letter from the account. Letters saved in this browser before
+// the cloud copy answered carry a numeric local id; those have no row to delete.
+export async function deleteLetterFromSupabase(id) {
+  if (!supabase || typeof id !== "string") return false;
+  try {
+    const { error } = await supabase.from("saved_letters").delete().eq("id", id);
     return !error;
   } catch(e) { return false; }
 }

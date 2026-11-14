@@ -78,6 +78,7 @@ describe("plans stay true (B4)", () => {
     const free = PLANS.find((p) => p.id === "free").features.join(" ");
     expect(free).toContain(`${FREE_LIMITS.matchesPerMonth} match runs`);
     expect(free).toContain(`${FREE_LIMITS.lettersPerMonth} AI letter drafts`);
+    expect(free).toContain(`${FREE_LIMITS.outlinesPerMonth} essay outlines`);
     const all = PLANS.flatMap((p) => p.features).join(" ");
     expect(all).not.toMatch(/batch|priority support/i);
   });
