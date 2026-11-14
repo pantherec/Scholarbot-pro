@@ -215,3 +215,7 @@ artifact page for Corey.
   check directly by POSTing `/api/create-checkout` with a test account's bearer token (expect a
   checkout.stripe.com URL when free, 409 `already_paid` when the account is set to premium by
   SQL; set it back to free afterwards). The scratch `pw/` folder holds playwright-core for `--pw`.
+- 2026-11-14: The Ethan test account was deleted on purpose to test "Delete my account" (it
+  worked: auth user, profile, letters, drafts, saved work and tracked awards all gone, sign-in
+  refused). **Four test accounts remain: lexi, maria, amara, wei.** The Stripe-cancel branch of
+  account deletion is still untested (no test account holds a real subscription).
