@@ -57,3 +57,21 @@ describe("terms: no promised outcomes", () => {
     expect(text).toMatch(/does not guarantee/);
   });
 });
+
+import { statesOf, checkEligibility, scoreMatch } from "../matching.js";
+
+describe("awards that cover several states", () => {
+  const award = { name: "Regional award", criteria: "For residents.", state: "CA,HI", country: "US" };
+  it("reads one or several state codes", () => {
+    expect(statesOf({ state: "ID" })).toEqual(["ID"]);
+    expect(statesOf(award)).toEqual(["CA", "HI"]);
+    expect(statesOf({ state: null })).toEqual([]);
+  });
+  it("is open to students in any listed state and closed to others", () => {
+    expect(checkEligibility({ location: "Hilo, HI", citizenship: "U.S. Citizen" }, award).eligible).toBe(true);
+    expect(checkEligibility({ location: "Reno, NV", citizenship: "U.S. Citizen" }, award)).toEqual({ eligible: false, why: "state" });
+  });
+  it("scores the home-state fit for a listed state", () => {
+    expect(scoreMatch({ location: "Fresno, CA" }, award).reasons).toContain("For CA students");
+  });
+});

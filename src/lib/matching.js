@@ -15,6 +15,12 @@ const US_STATES = {
   WI:"wisconsin",WY:"wyoming",PR:"puerto rico",
 };
 
+// The states a listing is limited to. The catalog's `state` column holds one
+// code ("ID") or several separated by commas ("CA,HI") for regional awards.
+export function statesOf(s) {
+  return String((s && s.state) || "").toUpperCase().split(/[^A-Z]+/).filter(Boolean);
+}
+
 // Student's state from "City, ST" or "City, State Name". Null when unknown.
 export function stateFromLocation(location) {
   if (!location) return null;
@@ -173,9 +179,10 @@ export function checkEligibility(profile, s) {
 
   // State-specific awards (the catalog tags these with a state code).
   const myState = stateFromLocation(profile.location);
-  if (s.state && myState && s.state !== myState) return { eligible: false, why: "state" };
+  const awardStates = statesOf(s);
+  if (awardStates.length && myState && !awardStates.includes(myState)) return { eligible: false, why: "state" };
   // A student outside the US can't hold a US state residency award.
-  if (s.state && !myState && cit.startsWith("international")) return { eligible: false, why: "state" };
+  if (awardStates.length && !myState && cit.startsWith("international")) return { eligible: false, why: "state" };
 
   // Gender-restricted awards (only when the student chose to answer).
   const g = String(profile.gender || "").toLowerCase();
@@ -216,7 +223,7 @@ export function scoreMatch(profile, s) {
   if (cit.startsWith("daca") && /(daca|dreamer|undocumented)/.test(text)) add(30, "Open to DACA/TPS students");
 
   const myState = stateFromLocation(profile.location);
-  if (s.state && myState && s.state === myState) add(25, `For ${myState} students`);
+  if (myState && statesOf(s).includes(myState)) add(25, `For ${myState} students`);
 
   const need = (profile.financialNeed || "").toLowerCase();
   if (s.needBased === "Y" && need.startsWith("yes")) add(15, "Need-based, and you have need");

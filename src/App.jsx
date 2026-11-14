@@ -11,7 +11,7 @@ import {
   track,
 } from "./analytics.js";
 import { PRIVACY_SECTIONS, TERMS_SECTIONS, LAST_UPDATED } from "./legalContent.js";
-import { rankMatches } from "./lib/matching.js";
+import { statesOf, rankMatches } from "./lib/matching.js";
 import { friendlyAuthError, passwordProblem, isRepeatSignUp, authLinkProblem } from "./lib/authErrors.js";
 import { setDoc, docFileNames } from "./lib/studentDocs.js";
 import { parseDeadlineDate as parseDeadlineDateLib, deadlineInfo, compareByDeadline } from "./lib/deadline.js";
@@ -1107,7 +1107,7 @@ export default function MeritLaunch() {
     // Optional state filter: national scholarships (no state) ALWAYS show — a student
     // considering schools elsewhere still wants those. Picking a state adds that
     // state's scholarships on top; it never hides the national ones.
-    const matchesState = filterState === "all" || !s.state || s.state === filterState;
+    const matchesState = filterState === "all" || !s.state || statesOf(s).includes(filterState);
     return matchesSearch && matchesNeed && matchesCountry && matchesState;
   });
 
@@ -1115,7 +1115,7 @@ export default function MeritLaunch() {
   // Restrict the state filter to real US jurisdictions — the data also carries
   // Canadian province codes (e.g. "ON") that must not leak into "All States".
   const US_STATE_CODES = new Set(["AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"]);
-  const availableStates = [...new Set(scholarshipDB.map(s => s.state).filter(s => s && US_STATE_CODES.has(s)))].sort();
+  const availableStates = [...new Set(scholarshipDB.flatMap(s => statesOf(s)).filter(s => US_STATE_CODES.has(s)))].sort();
 
   // Country flag helper — uses Flagpedia CDN for crisp flag images
   const CountryFlag = ({ country }) => {
