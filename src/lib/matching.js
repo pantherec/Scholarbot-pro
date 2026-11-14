@@ -116,7 +116,7 @@ const ACTIVITY_KEYWORDS = [
   ["JROTC", /\bjrotc\b/], ["NHS", /\b(national honor society|nhs)\b/], ["church", /\b(church|faith|ministry)\b/],
 ];
 
-function parseGpaRequirement(text) {
+export function parseGpaRequirement(text) {
   const m = text.match(/(\d\.\d{1,2})\s*\+?\s*(?:or (?:higher|above)\s*)?(?:minimum\s*)?(?:unweighted\s*|cumulative\s*)?gpa/)
     || text.match(/gpa\s*(?:of\s*|minimum\s*|min\.?\s*)?(?:at least\s*)?(\d\.\d{1,2})/)
     || text.match(/minimum (?:gpa )?(?:of )?(\d\.\d{1,2})/);
@@ -205,11 +205,16 @@ export function checkEligibility(profile, s) {
   return { eligible: true, why: null };
 }
 
-export function scoreMatch(profile, s) {
+// Every scoring rule that applies to this listing, split into points the
+// student earned and points they did not, each with a plain reason. The fit
+// score is the sum of the earned points, so the breakdown a student sees is
+// the score itself, not a second calculation that could drift from it.
+export function scoreParts(profile, s) {
   const text = `${s.name || ""} ${s.criteria || ""}`.toLowerCase();
-  let score = 0;
-  const reasons = [];
-  const add = (pts, why) => { score += pts; reasons.push(why); };
+  const earned = [];
+  const missed = [];
+  const add = (pts, why) => earned.push({ pts, why });
+  const miss = (pts, why) => missed.push({ pts, why });
 
   const heritage = scholarshipHeritage(s);
   if (heritage.restricted) {
@@ -226,31 +231,58 @@ export function scoreMatch(profile, s) {
   if (myState && statesOf(s).includes(myState)) add(25, `For ${myState} students`);
 
   const need = (profile.financialNeed || "").toLowerCase();
-  if (s.needBased === "Y" && need.startsWith("yes")) add(15, "Need-based, and you have need");
-
-  const major = (profile.intendedMajor || "").toLowerCase();
-  if (major) {
-    for (const [field, re] of MAJOR_FIELDS) {
-      if (re.test(major) && re.test(text)) { add(20, `Fits your major (${field})`); break; }
-    }
+  if (s.needBased === "Y") {
+    if (need.startsWith("yes")) add(15, "Need-based, and you have need");
+    else miss(15, need ? "It is need-based, and your profile does not show financial need" : "It is need-based, and you have not answered the financial need question");
   }
 
+  const major = (profile.intendedMajor || "").toLowerCase();
+  const awardField = MAJOR_FIELDS.find(([, re]) => re.test(text));
+  let majorHit = null;
+  if (major) {
+    for (const [field, re] of MAJOR_FIELDS) {
+      if (re.test(major) && re.test(text)) { majorHit = field; break; }
+    }
+  }
+  if (majorHit) add(20, `Fits your major (${majorHit})`);
+  else if (awardField) miss(20, major ? `It mentions ${awardField[0]}, which does not match the major in your profile` : `It mentions ${awardField[0]}, and your profile has no intended major yet`);
+
   const acts = `${profile.activities || ""} ${profile.awards || ""}`.toLowerCase();
+  let actHit = null;
   if (acts) {
     for (const [label, re] of ACTIVITY_KEYWORDS) {
-      if (re.test(acts) && re.test(text)) { add(15, `Rewards ${label}`); break; }
+      if (re.test(acts) && re.test(text)) { actHit = label; break; }
     }
-    if (/\bleadership\b/.test(text) && acts.length > 30) add(5, "Values leadership");
-    if (/\b(community service|volunteer)/.test(text) && (profile.communityService || "").length > 20) add(5, "Values service");
+  }
+  const awardAct = ACTIVITY_KEYWORDS.find(([, re]) => re.test(text));
+  if (actHit) add(15, `Rewards ${actHit}`);
+  else if (awardAct) miss(15, `It rewards ${awardAct[0]}, which is not in your activities`);
+
+  if (/\bleadership\b/.test(text)) {
+    if (acts && acts.length > 30) add(5, "Values leadership");
+    else miss(5, "It values leadership, and your Activities answer is short or empty");
+  }
+  if (/\b(community service|volunteer)/.test(text)) {
+    if (acts && (profile.communityService || "").length > 20) add(5, "Values service");
+    else miss(5, "It values community service, and your Community service answer is short or empty");
   }
 
   const req = parseGpaRequirement(text);
   const gpa = parseFloat(profile.gpa);
-  if (req && Number.isFinite(gpa) && gpa >= req) add(10, `Your ${String(profile.gpa).trim()} GPA meets the ${req.toFixed(1)} minimum`);
+  if (req) {
+    if (Number.isFinite(gpa) && gpa >= req) add(10, `Your ${String(profile.gpa).trim()} GPA meets the ${req.toFixed(1)} minimum`);
+    else if (!Number.isFinite(gpa)) miss(10, `It has a ${req.toFixed(1)} GPA minimum, and your profile has no GPA yet`);
+  }
 
   if (/(high school senior|graduating senior|graduating high school)/.test(text)) add(5, "For graduating seniors");
 
-  return { score: Math.min(score, 100), reasons };
+  return { earned, missed };
+}
+
+export function scoreMatch(profile, s) {
+  const { earned } = scoreParts(profile, s);
+  const score = earned.reduce((n, e) => n + e.pts, 0);
+  return { score: Math.min(score, 100), reasons: earned.map((e) => e.why) };
 }
 
 // The match list: eligible, at least one specific signal, then ordered with live

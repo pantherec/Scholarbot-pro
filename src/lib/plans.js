@@ -26,6 +26,7 @@ export const PLANS = [
       `${FREE_LIMITS.lettersPerMonth} AI letter drafts per month`,
       `${FREE_LIMITS.outlinesPerMonth} essay outlines per month`,
       "All 4 writing styles",
+      "\"Why this score\" breakdown on every match",
       // Say "emails" again once the Resend domain is verified and the weekly digest delivers.
       "Application tracker and deadline reminders",
     ],
@@ -42,6 +43,7 @@ export const PLANS = [
       "Unlimited match runs",
       `${PAID_LIMITS.lettersPerMonth} AI letter drafts per month`,
       "Unlimited essay outlines",
+      "Score Coach: your GPA against our list, and sourced guidance by grade",
       "Import any scholarship from a URL",
       "Cancel anytime",
     ],

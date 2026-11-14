@@ -2,14 +2,38 @@ import { useState } from "react";
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { rankByFit, lastOfferedText } from "./matchOrder.js";
+import { scoreParts } from "../lib/matching.js";
+import { COACH_DISCLAIMER } from "../lib/coach.js";
 import { OwnScholarshipTip } from "./LetterWriter.jsx";
-import { GlowCard, Badge, AppIcon, Button, SectionHeader, EmptyState, ProgressRing } from "../ui/components.jsx";
+import { LinkButton, GlowCard, Badge, AppIcon, Button, SectionHeader, EmptyState, ProgressRing } from "../ui/components.jsx";
+
+// The points behind a fit score: what was earned, and what was not and why.
+// It is the scorer's own working (scoreParts), so the rows add up to the score.
+function WhyThisScore({ id, profile, s }) {
+  const { earned, missed } = scoreParts(profile, s);
+  const row = { display: "grid", gridTemplateColumns: "44px 1fr", gap: 10, padding: "5px 0", borderBottom: `1px solid ${COLORS.border}`, fontSize: TYPE.sm, fontFamily: FONTS.body };
+  return (
+    <div id={id} style={{ marginTop: 8, padding: "12px 14px", borderRadius: 10, background: COLORS.bg, border: `1px solid ${COLORS.border}`, maxWidth: 640 }}>
+      {earned.map((e, i) => (
+        <div key={"e" + i} style={row}><span style={{ color: COLORS.teal, fontWeight: 700 }}>+{e.pts}</span><span style={{ color: COLORS.text }}>{e.why}</span></div>
+      ))}
+      {missed.map((m, i) => (
+        <div key={"m" + i} style={row}><span style={{ color: COLORS.textDim }}>+{m.pts}</span><span style={{ color: COLORS.textMuted }}>Not earned: {m.why}</span></div>
+      ))}
+      {missed.length === 0 && (
+        <div style={{ ...row, borderBottom: "none", gridTemplateColumns: "1fr", color: COLORS.textMuted }}>You earned every point this listing's text offers. Awards that name more specifics can score higher.</div>
+      )}
+      <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.5, margin: "8px 0 0" }}>{COACH_DISCLAIMER}</p>
+    </div>
+  );
+}
 
 export default function Matches() {
   const { profile, matchResults, setSelectedScholarship, trackedApps, setScholarshipInputMode, setView, trackApplication, runMatching, parseDeadline, LinkCheck, isPremium } = useApp();
   // Five per group until the student asks for more; closed listings start
   // folded. A guest list once ran to 137 cards and 48,000 px on a phone.
   const [expanded, setExpanded] = useState({});
+  const [whyOpen, setWhyOpen] = useState(null); // id of the match whose score is explained
   const PER_GROUP = 5;
   return (
               <div>
@@ -88,6 +112,12 @@ export default function Matches() {
                                     {lastOfferedText(s.dl.date)}
                                   </div>
                                 )}
+                                <div style={{ marginTop: 8 }}>
+                                  <LinkButton onClick={() => setWhyOpen(whyOpen === s.id ? null : s.id)} aria-expanded={whyOpen === s.id} aria-controls={`why-${s.id}`} style={{ fontSize: TYPE.sm }}>
+                                    {whyOpen === s.id ? "Hide the score breakdown" : "Why this score"}
+                                  </LinkButton>
+                                </div>
+                                {whyOpen === s.id && <WhyThisScore id={`why-${s.id}`} profile={profile} s={s} />}
                               </div>
                               <div className="match-actions" style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
                                 {k === "closed" ? (

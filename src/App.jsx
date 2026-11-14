@@ -41,6 +41,7 @@ const ProfileBuilder = lazy(() => import("./views/ProfileBuilder.jsx"));
 const VoiceProfile = lazy(() => import("./views/VoiceProfile.jsx"));
 const Browse = lazy(() => import("./views/Browse.jsx"));
 const Matches = lazy(() => import("./views/Matches.jsx"));
+const ScoreCoach = lazy(() => import("./views/ScoreCoach.jsx"));
 const PracticeAnswers = lazy(() => import("./views/PracticeAnswers.jsx"));
 const LetterWriter = lazy(() => import("./views/LetterWriter.jsx"));
 const WritingStyles = lazy(() => import("./views/WritingStyles.jsx"));
@@ -1283,6 +1284,7 @@ export default function MeritLaunch() {
     {id:"home",icon:"home",label:"Home"},
     {id:"profile",icon:"profile",label:"My Profile"},
     {id:"matches",icon:"matches",label:"My Matches"},
+    {id:"coach",icon:"rise",label:"Score Coach"},
     {id:"search",icon:"search",label:"Find Scholarships"},
     {id:"apply",icon:"apply",label:"Practice Answers"},
     {group:"Write"},
@@ -1592,6 +1594,7 @@ export default function MeritLaunch() {
 
             {/* ====== MATCHES ====== */}
             {view === "matches" && <Matches />}
+            {view === "coach" && <ScoreCoach />}
 
             {/* ====== APPLICATION PREP ====== */}
             {view === "apply" && <PracticeAnswers />}
