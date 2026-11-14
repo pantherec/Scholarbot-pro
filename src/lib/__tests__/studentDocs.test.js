@@ -34,14 +34,15 @@ describe("resume and brag sheet slots", () => {
 });
 
 describe("outline allowance", () => {
-  it("gives Free 5 outlines a month and paid plans no monthly cap", () => {
+  it("gives Free 5 outlines a month and paid plans 50", () => {
     expect(LIMITS.free.outlinesPerMonth).toBe(5);
-    expect(LIMITS.paid.outlinesPerMonth).toBe(Infinity);
+    expect(LIMITS.paid.outlinesPerMonth).toBe(50);
   });
-  it("refuses the sixth outline on Free and never refuses a paid plan", () => {
+  it("refuses the sixth outline on Free and the fifty-first on a paid plan", () => {
     expect(canUse({ outlinesUsed: 4, outlinesLimit: 5 }, "outline")).toBe(true);
     expect(canUse({ outlinesUsed: 5, outlinesLimit: 5 }, "outline")).toBe(false);
-    expect(canUse({ outlinesUsed: 400, outlinesLimit: null }, "outline")).toBe(true);
+    expect(canUse({ outlinesUsed: 49, outlinesLimit: 50 }, "outline")).toBe(true);
+    expect(canUse({ outlinesUsed: 50, outlinesLimit: 50 }, "outline")).toBe(false);
     expect(limitResponse({ outlinesLimit: 5, plan: "free" }, "outline").error).toMatch(/all 5 outlines/);
   });
 });

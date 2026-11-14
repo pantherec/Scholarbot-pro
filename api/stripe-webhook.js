@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { sendEmail, emailFooter } from "./_shared/email.js";
 import { assertWritten } from "./_shared/planGuard.js";
+import { SEASON_PASS_MONTHS } from "./_shared/usage.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const supabase = createClient(
@@ -74,10 +75,10 @@ export default async function handler(req, res) {
           }).eq("id", userId), `Premium grant for ${userId} (session ${session.id})`);
         } else if (session.mode === "payment") {
           // Seasonal one-time payment — expiry matches the marketed product:
-          // the pricing page sells "$29.99 / 4 months" ("4 months of full
+          // the plan card sells the pass for SEASON_PASS_MONTHS months ("months of full
           // access"), so write exactly that. (Was +6, an unadvertised bonus.)
           const expiresAt = new Date();
-          expiresAt.setMonth(expiresAt.getMonth() + 4);
+          expiresAt.setMonth(expiresAt.getMonth() + SEASON_PASS_MONTHS);
 
           assertWritten(await supabase.from("user_profiles").update({
             subscription_status: "seasonal",

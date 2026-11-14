@@ -101,9 +101,7 @@ export default function Sidebar() {
                       <span>Letters: {remainingLetters}{isPremium ? `/${PRO_LIMITS.lettersPerMonth}` : ""} left</span>
                       {!isPremium && <LinkButton onClick={() => openUpgrade(null)} style={{ fontSize: TYPE.xs }}>Upgrade</LinkButton>}
                     </div>
-                    {!isPremium && remainingOutlines !== null && (
-                      <div style={{ fontSize: TYPE.xs, color: COLORS.textDim, marginTop: 4 }}>Outlines: {remainingOutlines} left</div>
-                    )}
+                    <div style={{ fontSize: TYPE.xs, color: COLORS.textDim, marginTop: 4 }}>Outlines: {remainingOutlines}{isPremium ? `/${PRO_LIMITS.outlinesPerMonth}` : ""} left</div>
                   </div>
                   {isPremium && (
                     <button type="button" onClick={async () => {

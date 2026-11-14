@@ -206,7 +206,7 @@ export default function MeritLaunch() {
     ? monthlyLettersUsed < PRO_LIMITS.lettersPerMonth
     : monthlyLettersUsed < FREE_LIMITS.lettersPerMonth;
   const remainingMatches = isPremium ? "Unlimited" : Math.max(0, FREE_LIMITS.matchesPerMonth - monthlyMatchesUsed);
-  const remainingOutlines = isPremium ? null : Math.max(0, FREE_LIMITS.outlinesPerMonth - monthlyOutlinesUsed);
+  const remainingOutlines = Math.max(0, (isPremium ? PRO_LIMITS : FREE_LIMITS).outlinesPerMonth - monthlyOutlinesUsed);
   const remainingLetters = isPremium
     ? Math.max(0, PRO_LIMITS.lettersPerMonth - monthlyLettersUsed)
     : Math.max(0, FREE_LIMITS.lettersPerMonth - monthlyLettersUsed);

@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { alreadyPaidMessage, assertWritten } from "../../../api/_shared/planGuard.js";
-import { REFUND_POLICY, REFUND_LETTER_CAP } from "../plans.js";
+import { REFUND_POLICY, REFUND_LETTER_CAP, SEASON_PASS_MONTHS, PLANS } from "../plans.js";
+import { SEASON_PASS_MONTHS as SERVER_MONTHS } from "../../../api/_shared/usage.js";
+import { TERMS_SECTIONS } from "../../legalContent.js";
 
 describe("one plan at a time", () => {
   it("refuses checkout for a student who already has a paid plan", () => {
@@ -26,5 +28,21 @@ describe("refund policy", () => {
     expect(REFUND_POLICY).toMatch(/within 7 days/);
     expect(REFUND_POLICY).toContain(`${REFUND_LETTER_CAP} or fewer letters`);
     expect(REFUND_LETTER_CAP).toBe(5);
+  });
+});
+
+describe("Season Pass", () => {
+  it("lasts 6 months on the client and the server", () => {
+    expect(SEASON_PASS_MONTHS).toBe(6);
+    expect(SERVER_MONTHS).toBe(SEASON_PASS_MONTHS);
+  });
+  it("says how long it lasts and that it never renews, wherever it is sold", () => {
+    const card = PLANS.find(p => p.id === "seasonal").features.join(" | ");
+    expect(card).toContain("for 6 months");
+    expect(card).toMatch(/never renews/);
+    const terms = JSON.stringify(TERMS_SECTIONS);
+    expect(terms).toMatch(/for 6 months from the day you buy it/);
+    expect(terms).toMatch(/does not renew/);
+    expect(card + terms).not.toMatch(/forever|lifetime|4 months/i);
   });
 });

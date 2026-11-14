@@ -39,7 +39,7 @@ describe("tour: free versus paid slide", () => {
   it("shows the limits the server enforces", () => {
     expect(row("Letter drafts")).toMatchObject({ free: `${LIMITS.free.lettersPerMonth} a month`, paid: `${LIMITS.paid.lettersPerMonth} a month` });
     expect(row("Match runs")).toMatchObject({ free: `${LIMITS.free.matchesPerMonth} a month`, paid: "Unlimited" });
-    expect(row("Outlines")).toMatchObject({ free: `${LIMITS.free.outlinesPerMonth} a month`, paid: "Unlimited" });
+    expect(row("Outlines")).toMatchObject({ free: `${LIMITS.free.outlinesPerMonth} a month`, paid: `${LIMITS.paid.outlinesPerMonth} a month` });
   });
   it("puts Score Coach and link import on the paid side, and the score breakdown on both", () => {
     expect(row("Score Coach")).toMatchObject({ free: "No", paid: "Yes" });

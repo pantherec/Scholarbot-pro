@@ -2,7 +2,10 @@
 // dialog, and the sidebar all render from this, and api/_shared/usage.js enforces
 // the same numbers (a test keeps them in step).
 export const FREE_LIMITS = { matchesPerMonth: 5, lettersPerMonth: 2, outlinesPerMonth: 5 };
-export const PAID_LIMITS = { matchesPerMonth: Infinity, lettersPerMonth: 50, outlinesPerMonth: Infinity };
+export const PAID_LIMITS = { matchesPerMonth: Infinity, lettersPerMonth: 50, outlinesPerMonth: 50 };
+// A Season Pass lasts this many months from purchase and never renews (the
+// server uses the same number; a test keeps them equal).
+export const SEASON_PASS_MONTHS = 6;
 
 // Auto-saved drafts are kept this long (api/_shared/account.js deletes older ones).
 export const DRAFT_RETENTION_DAYS = 180;
@@ -42,7 +45,7 @@ export const PLANS = [
       "Everything in Free, plus:",
       "Unlimited match runs",
       `${PAID_LIMITS.lettersPerMonth} AI letter drafts per month`,
-      "Unlimited essay outlines",
+      `${PAID_LIMITS.outlinesPerMonth} essay outlines per month`,
       "Score Coach: your GPA against our list, and sourced guidance by grade",
       "Import any scholarship from a URL",
       "Cancel anytime",
@@ -55,11 +58,11 @@ export const PLANS = [
     name: "Season Pass",
     price: "$29.99",
     period: " one time",
-    tagline: "One payment covers fall through winter deadlines",
+    tagline: "One payment covers a full application season",
     features: [
-      "Everything in Premium, for 4 months",
-      "No auto-renewal",
-      "Saves 25% vs. 4 months of Premium",
+      `Everything in Premium, for ${SEASON_PASS_MONTHS} months`,
+      "Ends on its own. It never renews",
+      `Half the cost of ${SEASON_PASS_MONTHS} months of Premium`,
     ],
     cta: "Get Season Pass",
   },

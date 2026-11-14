@@ -3,7 +3,7 @@ import { useApp } from "../../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../../ui/theme.js";
 import { Modal, Button, LinkButton } from "../../ui/components.jsx";
 import { TOUR_STEPS, TOUR_MAX_VISITS, readTour, writeTour, nextTourVisit, planComparison } from "../../lib/tour.js";
-import { FREE_LIMITS, PAID_LIMITS, PLANS } from "../../lib/plans.js";
+import { FREE_LIMITS, PAID_LIMITS, PLANS, SEASON_PASS_MONTHS } from "../../lib/plans.js";
 
 // A small drawing for each step, built from the site's own colours so it reads
 // as part of the product. Decorative: the text carries the meaning.
@@ -101,7 +101,7 @@ function PlanTable() {
         </tbody>
       </table>
       <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, margin: "8px 0 0", lineHeight: 1.5 }}>
-        Paid plans: Premium, {price("premium")}, or the Season Pass, {price("seasonal")} with no renewal.
+        Paid plans: Premium, {price("premium")}, or the Season Pass, $29.99 paid once for {SEASON_PASS_MONTHS} months. The pass ends on its own and never renews.
       </p>
     </div>
   );

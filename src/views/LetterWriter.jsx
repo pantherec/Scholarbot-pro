@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { useApp } from "../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../ui/theme.js";
 import { GlowCard, ICON_PATHS, LinkButton, AppIcon, Button, SectionHeader } from "../ui/components.jsx";
-import { FREE_LIMITS } from "../lib/plans.js";
+import { FREE_LIMITS, PAID_LIMITS } from "../lib/plans.js";
 import { findUnsupportedDetails, describeDetail } from "../lib/factcheck.js";
 import { PROFILE_QUESTIONS } from "../data/profile.js";
 import { track } from "../analytics.js";
@@ -332,7 +332,7 @@ export default function LetterWriter() {
                   <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                     {[
                       ["allowed", "Allowed: draft a letter I'll revise"],
-                      ["unsure", `Not sure or not allowed: give me an outline and questions instead (${isPremium ? "does not use a letter" : `does not use a letter; ${remainingOutlines} of ${FREE_LIMITS.outlinesPerMonth} outlines left this month`})`],
+                      ["unsure", `Not sure or not allowed: give me an outline and questions instead (does not use a letter; ${remainingOutlines} of ${(isPremium ? PAID_LIMITS : FREE_LIMITS).outlinesPerMonth} outlines left this month)`],
                     ].map(([val, label]) => (
                       <label key={val} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: TYPE.sm, fontFamily: FONTS.body, color: COLORS.textMuted, cursor: "pointer", maxWidth: 420 }}>
                         <input type="radio" name="ai-policy" value={val} checked={aiPolicy === val} onChange={() => setAiPolicy(val)} style={{ width: 18, height: 18, accentColor: COLORS.gold, marginTop: 1 }} />

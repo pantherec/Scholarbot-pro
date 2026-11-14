@@ -7,8 +7,11 @@ const SUPABASE_URL = process.env.SUPABASE_URL || "https://zudczsepvkjbjgomgilz.s
 
 export const LIMITS = {
   free: { matchesPerMonth: 5, lettersPerMonth: 2, outlinesPerMonth: 5 },
-  paid: { matchesPerMonth: Infinity, lettersPerMonth: 50, outlinesPerMonth: Infinity },
+  paid: { matchesPerMonth: Infinity, lettersPerMonth: 50, outlinesPerMonth: 50 },
 };
+
+// How long a Season Pass lasts from the day it is bought. It never renews.
+export const SEASON_PASS_MONTHS = 6;
 
 let _admin = null;
 export function adminClient() {
