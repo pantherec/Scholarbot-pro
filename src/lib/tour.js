@@ -22,6 +22,22 @@ export function nextTourVisit(state) {
   return { show: true, state: { ...state, visits: state.visits + 1 } };
 }
 
+// The Free versus paid table on the tour's plans slide. Every number comes
+// from the plan limits, so the slide cannot drift from what is enforced.
+export function planComparison(free, paid) {
+  const n = (v) => (Number.isFinite(v) ? `${v} a month` : "Unlimited");
+  return [
+    { feature: "Profile, matches, search", free: "Yes", paid: "Yes" },
+    { feature: "Match runs", free: n(free.matchesPerMonth), paid: n(paid.matchesPerMonth) },
+    { feature: "Letter drafts", free: n(free.lettersPerMonth), paid: n(paid.lettersPerMonth) },
+    { feature: "Outlines", free: n(free.outlinesPerMonth), paid: n(paid.outlinesPerMonth) },
+    { feature: "\"Why this score\"", free: "Yes", paid: "Yes" },
+    { feature: "Saved letters, deadlines", free: "Yes", paid: "Yes" },
+    { feature: "Score Coach", free: "No", paid: "Yes" },
+    { feature: "Import from a link", free: "No", paid: "Yes" },
+  ];
+}
+
 // What each part of the site does, in the order a student meets it. `view` is
 // where "Take me there" goes; `art` picks the drawing.
 export const TOUR_STEPS = [
@@ -32,13 +48,15 @@ export const TOUR_STEPS = [
   { id: "matches", art: "matches", view: "matches", title: "My Matches: awards you appear eligible for",
     body: "Each match has a fit score that shows how specifically the award is aimed at you. Choose \"Why this score\" to see the points you earned and the ones you did not. Awards that are not open right now stay in their own section for planning." },
   { id: "coach", art: "coach", view: "coach", title: "Score Coach: what would open more awards",
-    body: "See how your GPA compares with the awards on our list, and what official sources say to do in your grade. These are estimates from our listings and named sources, never a promise of winning." },
+    body: "Part of Premium and the Season Pass. See how your GPA compares with the awards on our list, and what official sources say to do in your grade. These are estimates from our listings and named sources, never a promise of winning. The \"Why this score\" breakdown on each match is free." },
   { id: "find", art: "find", view: "search", title: "Find Scholarships: browse, or bring your own",
     body: "Search every award we track. If yours is not on our list, you can still write for it: upload the application or paste its text on the Write a Letter page." },
   { id: "write", art: "write", view: "generate", title: "Write a Letter: a draft you make yours",
     body: "Say whether the scholarship allows AI help. If it does, you get a draft built only from what you told us, with anything unverified flagged for you to check. If not, you get an outline and questions instead. Practice Answers and Writing Styles shape your drafts." },
   { id: "keep", art: "keep", view: "saved", title: "Saved Letters and My Deadlines",
     body: "Every finished draft is kept in your account, so it is there on any device. Track the awards you are applying to and watch their deadlines in one place." },
+  { id: "plans", art: "plans", title: "Free and paid, side by side",
+    body: "Finding scholarships and writing your first letters is free. A paid plan lifts the monthly limits and adds Score Coach and link import." },
   { id: "data", art: "data", view: "profile", title: "Your data stays yours",
     body: "You are the author of every letter. We never sell your information, and you can delete your saved work or your whole account yourself, from My Profile under \"Your data\"." },
 ];

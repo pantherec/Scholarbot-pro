@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useApp } from "../../AppContext.js";
 import { COLORS, FONTS, TYPE } from "../../ui/theme.js";
 import { Modal, Button, LinkButton } from "../../ui/components.jsx";
-import { TOUR_STEPS, TOUR_MAX_VISITS, readTour, writeTour, nextTourVisit } from "../../lib/tour.js";
+import { TOUR_STEPS, TOUR_MAX_VISITS, readTour, writeTour, nextTourVisit, planComparison } from "../../lib/tour.js";
+import { FREE_LIMITS, PAID_LIMITS, PLANS } from "../../lib/plans.js";
 
 // A small drawing for each step, built from the site's own colours so it reads
 // as part of the product. Decorative: the text carries the meaning.
@@ -73,11 +74,44 @@ function Art({ kind }) {
   );
 }
 
+// The plans slide: a table instead of a drawing, because the comparison is the point.
+function PlanTable() {
+  const rows = planComparison(FREE_LIMITS, PAID_LIMITS);
+  const price = (id) => { const p = PLANS.find(x => x.id === id); return p ? `${p.price}${p.period}` : ""; };
+  const cell = { padding: "4px 6px", borderBottom: `1px solid ${COLORS.border}`, fontSize: TYPE.sm, fontFamily: FONTS.body, textAlign: "left", verticalAlign: "top", lineHeight: 1.35 };
+  const mark = (v) => v === "Yes" ? <span style={{ color: COLORS.teal, fontWeight: 700 }}>Yes</span> : v === "No" ? <span style={{ color: COLORS.textDim }}>No</span> : v;
+  return (
+    <div style={{ background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: "8px 10px", overflowX: "auto" }}>
+      <table style={{ borderCollapse: "collapse", width: "100%" }}>
+        <thead>
+          <tr>
+            <th scope="col" style={{ ...cell, color: COLORS.textMuted, fontWeight: 400, width: "46%" }}><span style={{ position: "absolute", left: -9999 }}>Feature</span></th>
+            <th scope="col" style={{ ...cell, color: COLORS.text, fontWeight: 700 }}>Free</th>
+            <th scope="col" style={{ ...cell, color: COLORS.gold, fontWeight: 700 }}>Paid plans</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(r => (
+            <tr key={r.feature}>
+              <th scope="row" style={{ ...cell, color: COLORS.textMuted, fontWeight: 400 }}>{r.feature}</th>
+              <td style={{ ...cell, color: COLORS.text }}>{mark(r.free)}</td>
+              <td style={{ ...cell, color: COLORS.text }}>{mark(r.paid)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, margin: "8px 0 0", lineHeight: 1.5 }}>
+        Paid plans: Premium, {price("premium")}, or the Season Pass, {price("seasonal")} with no renewal.
+      </p>
+    </div>
+  );
+}
+
 // `active` is true once the visitor is inside the app (not the landing page or
 // the parent payment page). The tour opens on the first few visits; "Skip"
 // closes it for this visit, and the checkbox stops it for good.
 export default function Tour({ active }) {
-  const { setView, tourRequest } = useApp();
+  const { setView, tourRequest, openUpgrade, isPremium } = useApp();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [never, setNever] = useState(false);
@@ -112,9 +146,9 @@ export default function Tour({ active }) {
         </span>
         <LinkButton onClick={close} style={{ fontSize: TYPE.sm }}>Skip the tour</LinkButton>
       </div>
-      <Art kind={s.art} />
+      {s.id === "plans" ? <PlanTable /> : <Art kind={s.art} />}
       <h2 id="tour-title" style={{ fontSize: TYPE.xl, fontWeight: 400, margin: "16px 0 8px" }}>{s.title}</h2>
-      <p aria-live="polite" style={{ fontSize: TYPE.base, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6, margin: 0, minHeight: 104 }}>{s.body}</p>
+      <p aria-live="polite" style={{ fontSize: TYPE.base, fontFamily: FONTS.body, color: COLORS.textMuted, lineHeight: 1.6, margin: 0, minHeight: s.id === "plans" ? 0 : 104 }}>{s.body}</p>
 
       <div aria-hidden="true" style={{ display: "flex", gap: 6, justifyContent: "center", margin: "14px 0" }}>
         {TOUR_STEPS.map((x, i) => <span key={x.id} style={{ width: i === step ? 18 : 8, height: 8, borderRadius: 4, background: i === step ? COLORS.gold : COLORS.border, transition: "width 0.2s" }} />)}
@@ -126,6 +160,9 @@ export default function Tour({ active }) {
           {s.view && (
             <Button variant="secondary" onClick={() => { setView(s.view); close(); }} style={{ fontSize: TYPE.sm, padding: "10px 16px" }}>Take me there</Button>
           )}
+          {s.id === "plans" && !isPremium && (
+            <Button variant="secondary" onClick={() => { close(); openUpgrade(null); }} style={{ fontSize: TYPE.sm, padding: "10px 16px" }}>See plans</Button>
+          )}
           <Button onClick={() => (last ? close() : setStep(n => n + 1))} style={{ fontSize: TYPE.sm, padding: "10px 20px" }}>{last ? "Finish" : "Next"}</Button>
         </div>
       </div>
@@ -134,7 +171,7 @@ export default function Tour({ active }) {
         <input type="checkbox" checked={never} onChange={e => setNever(e.target.checked)} style={{ width: 18, height: 18, accentColor: COLORS.gold }} />
         Don't show this again
       </label>
-      <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textDim, margin: "6px 0 0" }}>
+      <p style={{ fontSize: TYPE.xs, fontFamily: FONTS.body, color: COLORS.textDim, margin: "6px 0 0", display: s.id === "plans" ? "none" : "block" }}>
         The tour appears on your first {TOUR_MAX_VISITS} visits. You can open it any time from "Take the tour" in the menu.
       </p>
     </Modal>

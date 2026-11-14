@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { readTour, writeTour, nextTourVisit, TOUR_STEPS, TOUR_MAX_VISITS, TOUR_KEY } from "../tour.js";
+import { readTour, writeTour, nextTourVisit, TOUR_STEPS, TOUR_MAX_VISITS, TOUR_KEY, planComparison } from "../tour.js";
+import { FREE_LIMITS, PAID_LIMITS } from "../plans.js";
+import { LIMITS } from "../../../api/_shared/usage.js";
 import { STUDENT_STORAGE_KEYS } from "../api.js";
 import { VIEW_PATHS } from "../../routes.js";
 
@@ -28,5 +30,24 @@ describe("welcome tour", () => {
     for (const v of ["profile", "matches", "coach", "search", "generate", "saved"]) expect(views).toContain(v);
     for (const v of views) expect(VIEW_PATHS[v]).toBeTruthy();
     for (const s of TOUR_STEPS) { expect(s.title.length).toBeGreaterThan(5); expect(s.body).not.toMatch(/guarantee|will win/i); }
+  });
+});
+
+describe("tour: free versus paid slide", () => {
+  const rows = planComparison(FREE_LIMITS, PAID_LIMITS);
+  const row = (name) => rows.find(r => r.feature.startsWith(name));
+  it("shows the limits the server enforces", () => {
+    expect(row("Letter drafts")).toMatchObject({ free: `${LIMITS.free.lettersPerMonth} a month`, paid: `${LIMITS.paid.lettersPerMonth} a month` });
+    expect(row("Match runs")).toMatchObject({ free: `${LIMITS.free.matchesPerMonth} a month`, paid: "Unlimited" });
+    expect(row("Outlines")).toMatchObject({ free: `${LIMITS.free.outlinesPerMonth} a month`, paid: "Unlimited" });
+  });
+  it("puts Score Coach and link import on the paid side, and the score breakdown on both", () => {
+    expect(row("Score Coach")).toMatchObject({ free: "No", paid: "Yes" });
+    expect(row("Import from a link")).toMatchObject({ free: "No", paid: "Yes" });
+    expect(rows.find(r => r.feature.includes("Why this score"))).toMatchObject({ free: "Yes", paid: "Yes" });
+  });
+  it("is a step in the tour, and the coach step says it is paid", () => {
+    expect(TOUR_STEPS.some(s => s.id === "plans")).toBe(true);
+    expect(TOUR_STEPS.find(s => s.id === "coach").body).toMatch(/Premium and the Season Pass/);
   });
 });
