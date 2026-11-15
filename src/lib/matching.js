@@ -99,8 +99,10 @@ const MAJOR_FIELDS = [
   ["engineering", /\bengineer/], ["agriculture", /\b(agricultur|agronom|farm|ffa|animal science)/],
   ["computer science", /\b(computer|computing|software|coding|cyber|information technology)/],
   ["nursing", /\bnurs/], ["health", /\b(pre-?med|medicine|medical|health|biolog|pharm|dental)/],
-  ["education", /\b(teach|education)/], ["business", /\b(business|accounting|finance|marketing|entrepreneur)/],
-  ["journalism", /\b(journalism|media|communications|broadcast)/], ["law", /\b(pre-?law|law|legal|justice)/],
+  // Third entry: what counts in a LISTING. Nearly every listing says "higher
+  // education", so the listing must name teaching or an education degree.
+  ["education", /\b(teach|education)/, /\b(teach(?:er|ers|ing)?|educators?|education (?:major|degree|program|student)s?|(?:major|degree|career)s? in education)\b/], ["business", /\b(business|accounting|finance|marketing|entrepreneur)/],
+  ["journalism", /\b(journalism|media|communications|broadcast)/], ["law", /\b(pre-?law|law|legal studies|paralegal|criminal justice)\b/], // whole words: "legally blind" is not law
   ["social work", /\b(social work|public policy|public service|political science)/],
   ["arts", /\b(art|music|theater|theatre|film|design|creative writing|poetry)/],
   ["humanities", /\b(classics|philosophy|history|english|literature|humanities)/],
@@ -205,11 +207,23 @@ export function checkEligibility(profile, s) {
   return { eligible: true, why: null };
 }
 
+// Which grade a student is in, from the graduation year in their profile.
+// The school year turns over in August. Returns 9-12, "college", or null.
+export function gradeFromGradYear(gradYear, now = new Date()) {
+  if (/college/i.test(String(gradYear || ""))) return "college";
+  const y = parseInt(gradYear, 10);
+  if (!Number.isFinite(y)) return null;
+  const seniorClass = now.getMonth() >= 7 ? now.getFullYear() + 1 : now.getFullYear();
+  const grade = 12 - (y - seniorClass);
+  if (grade > 12) return "college";
+  return grade >= 9 ? grade : grade >= 6 ? 9 : null; // middle schoolers get the grade 9 list
+}
+
 // Every scoring rule that applies to this listing, split into points the
 // student earned and points they did not, each with a plain reason. The fit
 // score is the sum of the earned points, so the breakdown a student sees is
 // the score itself, not a second calculation that could drift from it.
-export function scoreParts(profile, s) {
+export function scoreParts(profile, s, now = new Date()) {
   const text = `${s.name || ""} ${s.criteria || ""}`.toLowerCase();
   const earned = [];
   const missed = [];
@@ -237,11 +251,11 @@ export function scoreParts(profile, s) {
   }
 
   const major = (profile.intendedMajor || "").toLowerCase();
-  const awardField = MAJOR_FIELDS.find(([, re]) => re.test(text));
+  const awardField = MAJOR_FIELDS.find(([, re, textRe = re]) => textRe.test(text));
   let majorHit = null;
   if (major) {
-    for (const [field, re] of MAJOR_FIELDS) {
-      if (re.test(major) && re.test(text)) { majorHit = field; break; }
+    for (const [field, re, textRe = re] of MAJOR_FIELDS) {
+      if (re.test(major) && textRe.test(text)) { majorHit = field; break; }
     }
   }
   if (majorHit) add(20, `Fits your major (${majorHit})`);
@@ -274,7 +288,11 @@ export function scoreParts(profile, s) {
     else if (!Number.isFinite(gpa)) miss(10, `It has a ${req.toFixed(1)} GPA minimum, and your profile has no GPA yet`);
   }
 
-  if (/(high school senior|graduating senior|graduating high school)/.test(text)) add(5, "For graduating seniors");
+  // Only a senior (or a student who has not given a graduation year) earns this.
+  if (/(high school senior|graduating senior|graduating high school)/.test(text)) {
+    const grade = gradeFromGradYear(profile.gradYear, now);
+    if (grade === 12 || grade === null) add(5, "For graduating seniors");
+  }
 
   return { earned, missed };
 }

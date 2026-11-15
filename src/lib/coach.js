@@ -37,17 +37,7 @@ export function ladderSummary(ladder, gpaText) {
   return { gpa, now, next: nextRung ? { gpa: nextRung, more: ladder.openAt(nextRung) - now } : null };
 }
 
-// Which grade a student is in, from the graduation year in their profile.
-// The school year turns over in August. Returns 9-12, "college", or null.
-export function gradeFromGradYear(gradYear, now = new Date()) {
-  if (/college/i.test(String(gradYear || ""))) return "college";
-  const y = parseInt(gradYear, 10);
-  if (!Number.isFinite(y)) return null;
-  const seniorClass = now.getMonth() >= 7 ? now.getFullYear() + 1 : now.getFullYear();
-  const grade = 12 - (y - seniorClass);
-  if (grade > 12) return "college";
-  return grade >= 9 ? grade : grade >= 6 ? 9 : null; // middle schoolers get the grade 9 list
-}
+export { gradeFromGradYear } from "./matching.js";
 
 // Sourced guidance. Each card says where it comes from; `grades` is who sees it.
 // Every source here was opened and read on 2026-11-14 (docs/research/). Do not

@@ -5,6 +5,7 @@ import { signOutWarning, loadWithRetry } from "../workSync.js";
 import { scrubDeep } from "../scrub.js";
 import { checkoutDecision } from "../../../api/_shared/planGuard.js";
 import { deleteAccount } from "../../../api/_shared/account.js";
+import { scoreParts } from "../matching.js";
 
 const NOW = new Date(2026, 10, 14);
 
@@ -96,5 +97,27 @@ describe("deleting an account", () => {
     const { db, deleteUser } = fakeDb({ stripe_subscription_id: null });
     expect(await deleteAccount("u1", { db })).toEqual({ subscriptionCancelled: false });
     expect(deleteUser).toHaveBeenCalled();
+  });
+});
+
+describe("Why this score gives true reasons", () => {
+  const why = (profile, s) => { const p = scoreParts(profile, s, NOW); return { earned: p.earned.map(e => e.why).join(" | "), missed: p.missed.map(e => e.why).join(" | ") }; };
+  const seniorAward = { name: "Local Award", criteria: "Open to any graduating senior." };
+  it("credits graduating seniors only to seniors", () => {
+    expect(why({ gradYear: "2027" }, seniorAward).earned).toMatch(/graduating seniors/);
+    expect(why({}, seniorAward).earned).toMatch(/graduating seniors/);
+    expect(why({ gradYear: "2024" }, seniorAward).earned).not.toMatch(/graduating seniors/);
+    expect(why({ gradYear: "2029" }, seniorAward).earned).not.toMatch(/graduating seniors/);
+  });
+  it("does not read law into legally blind, or education into higher education", () => {
+    const blind = { name: "Vision Award", criteria: "For students who are legally blind and pursuing higher education." };
+    const r = why({ intendedMajor: "Biology" }, blind);
+    expect(r.missed).not.toMatch(/mentions (law|education)/);
+    expect(why({ intendedMajor: "Pre-law" }, blind).earned).not.toMatch(/Fits your major/);
+  });
+  it("still matches real law and teaching awards", () => {
+    expect(why({ intendedMajor: "Pre-law" }, { name: "Bar Award", criteria: "For students who plan to study law." }).earned).toMatch(/Fits your major \(law\)/);
+    expect(why({ intendedMajor: "Elementary Education" }, { name: "Future Teachers", criteria: "For students who plan a career in teaching." }).earned).toMatch(/Fits your major \(education\)/);
+    expect(why({ intendedMajor: "Criminal Justice" }, { name: "Justice Award", criteria: "For criminal justice majors." }).earned).toMatch(/Fits your major \(law\)/);
   });
 });
