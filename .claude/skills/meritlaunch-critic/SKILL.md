@@ -28,9 +28,9 @@ harness run (2026-09-30) showed on the live landing page "Browse 30 Scholarships
 Database Refresh Feb 11", a trust problem no code review had surfaced.
 
 ## 1. Setup (non-negotiable isolation)
-- **Repo:** `C:\Users\corey\Desktop\Claude\Scholarbot_Pro` (branch `main`; React 18 + Vite; one
-  `src/App.jsx` view machine: landing, home, search, profile, profileResult, matches, generate,
-  saved, templates, tracker, apply; serverless `api/` for generation, checkout, webhooks, crons).
+- **Repo:** `C:\Users\corey\Desktop\Claude\Scholarbot_Pro` (branch `main`; React 18 + Vite). State lives in
+  `src/App.jsx` and reaches pages through `useApp()`; pages are `src/views/*`, logic is `src/lib/*`,
+  routes are `/app/...` in `src/routes.js`; serverless `api/*` with shared code in `api/_shared/`.
 - **Read-only.** Critics never edit, commit or push. Only the lead writes the report.
 - **Local build per critic:** in the repo run `npx vite --port 58xx --host 127.0.0.1 --strictPort`
   in the background. Use ports **5890–5909**, one per critic. Never 5000. Use `http://127.0.0.1`.
@@ -38,11 +38,13 @@ Database Refresh Feb 11", a trust problem no code review had surfaced.
   - Vite serves the UI only. The `api/` functions (letter generation, checkout) do not run under
     Vite. **Do not start `vercel dev` or call the live API**: generation spends real money and
     needs an account. Judge generation from `api/generate.js`, `api/generate-stream.js` and the
-    prompt and style rules in `src/App.jsx`.
+    prompt and style rules in `api/_shared/prompts.js`.
 - **Live site, read-only:** `https://www.meritlaunch.com`. Page loads and measurements only.
-- **No accounts, ever.** Sign-up and sign-in go to the live Supabase project. Critics may OPEN the
-  sign-up form to judge it, never submit it. Signed-in screens are judged from the code paths that
-  render them and from any signed-out states the view machine allows.
+- **Accounts.** Never create an account, sign in as a real user, pay, or submit a form on the live
+  site. The flow-and-trust critic may sign in to the four test accounts (`coreyskinner+...test@gmail.com`)
+  with `ML_TEST_PASSWORD` from the repo's git-ignored `.env`; never print or record the password.
+  Set `localStorage["meritlaunch-tour"]` to `{visits:4,never:true}` before entering the app. The lead
+  resets the test accounts' usage counters and deletes harness drafts after the run.
 - **Never use the shared browser pane.**
 - **Evidence harness:** `C:\Users\corey\.claude\skills\shared-bases\scripts\web_audit.mjs`
   (headless Chrome; screenshots at 390×844 and 1440×900 plus vitals, errors, contrast, labels, tap
@@ -61,8 +63,8 @@ lenses and anchors are in `references/rubric.md`:
 
 | Critic | Lens | Main evidence |
 |---|---|---|
-| 1 | Visual design and brand | screenshots both sizes, the `COLORS` tokens and components in `src/App.jsx`, and `meritlaunch-master/references/premium-website-playbook.md` (the house standard) |
-| 2 | Information architecture and layout | landing, nav, dashboard cards, view machine; clicks to first match |
+| 1 | Visual design and brand | screenshots both sizes, the `COLORS` and `TYPE` tokens in `src/ui/theme.js` and components in `src/ui/components.jsx`, and `meritlaunch-master/references/premium-website-playbook.md` (the house standard) |
+| 2 | Information architecture and layout | landing, nav, dashboard cards, routes; clicks to first match |
 | 3 | Core task flow | profile builder → matching → letter, from code + the signed-out states; the brag-sheet upload path |
 | 4 | Trust, integrity and copy | every number and claim, the "your own voice" promise vs the prompts, minors' privacy, legal pages |
 | 5 | Accessibility and mobile | harness at 390px, keyboard pass, labels, focus, contrast |
@@ -79,8 +81,8 @@ For a quick run, merge into 3 critics: 1+2+5, 3+4, 6+7.
   Collect only what matching needs; no selling or sharing student data.
 - **True numbers.** Scholarship counts, award totals, deadlines and "last refreshed" dates must be
   current and true. Verify any number against the data (`scholarship_db.json`,
-  the embedded list in `src/App.jsx`, the refresh crons) before praising or criticising it.
-- **Prices:** read them from the code (`src/App.jsx` price map, `api/create-checkout.js`) rather
+  the live Supabase `scholarships` table, the refresh crons) before praising or criticising it.
+- **Prices:** read them from the code (`src/lib/plans.js`, `api/_shared/billing.js`) rather
   than from memory; they were Premium $9.99/month and a $29.99 Seasonal Pass as of 2026-06-25.
 - **Public copy:** "built by a parent" is fine; no employer or job title for Corey.
 - **Benchmarks** (report only, never in the product): Going Merry, Scholarships360, Bold.org,

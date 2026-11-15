@@ -164,3 +164,4 @@ re-checks expired listings) stays and is unaffected.
   (unique). Tell checkers whether "fee not stated" passes; this run let it pass with a note.
   Listing health by script (`urllib` fetch + date regex) took one minute for 60 links; 403s are
   blocks, not dead links.
+- 2026-11-15: How the app reads the `deadline` field (`src/lib/deadline.js`): an ISO date or "Mar 1" is a due date. Text that starts with Opens, Reopens, Recipients, Winners, Awards, Announced or Notified is shown as written and never counted down, unless it goes on to name the due date ("Opens Nov 1, 2026; final Mar 1, 2027"). When a sponsor has only posted an opening date, write it that way; never put an opening date in as a bare date. `state` may hold several codes ("CA,HI"). The live catalog was 1,316 on 2026-11-15; ads say "1300+ potential scholarships and growing", so adding listings no longer makes ad copy stale.
