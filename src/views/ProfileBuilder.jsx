@@ -144,8 +144,8 @@ export default function ProfileBuilder() {
                   )}
                 </div>
 
-                {/* Brag Sheet */}
-                <GlowCard hover={false} style={{ marginBottom: 24 }}>
+                {/* Brag Sheet: shown only once the age question is answered, like every other step. */}
+                {profile.ageOk && (<GlowCard hover={false} style={{ marginBottom: 24 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                     <div>
                       <h3 style={{ fontSize: TYPE.md, fontWeight: 400, marginBottom: 4 }}>
@@ -181,7 +181,7 @@ export default function ProfileBuilder() {
                     </div>
                   )}
                   {bragSheet && <BragSuggestions bragSheet={bragSheet} profile={profile} saveProfile={saveProfile} notify={notify} />}
-                </GlowCard>
+                </GlowCard>)}
                 <YourData />
 
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>

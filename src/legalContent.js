@@ -28,6 +28,7 @@ export const PRIVACY_SECTIONS = [
       "Letters: every draft you generate is kept in your account automatically, marked as a draft, along with the letters you choose to save and the scholarships you track.",
       "Billing info: if you upgrade, payment is handled by Stripe. Card details go directly to Stripe and never touch our servers. We keep only your plan and payment status.",
       "Basic product analytics for signed-in users, tied to an internal user ID. It does not include your name or email.",
+      "Anonymous visit counts, signed in or not: a daily total of how many times a page was opened or a button was pressed, and which of our ads or posts the visit came from. The count holds no name, no user ID and no cookie, and your IP address is not stored with it.",
       "We do not ask for your phone number.",
     ],
   },

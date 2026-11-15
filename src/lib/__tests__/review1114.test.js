@@ -6,6 +6,9 @@ import { scrubDeep } from "../scrub.js";
 import { checkoutDecision } from "../../../api/_shared/planGuard.js";
 import { deleteAccount } from "../../../api/_shared/account.js";
 import { scoreParts } from "../matching.js";
+import { cleanVisit, VISIT_EVENTS } from "../../../api/_shared/visits.js";
+import { visitTag, firstThisSession } from "../visits.js";
+import { PRIVACY_SECTIONS } from "../../legalContent.js";
 
 const NOW = new Date(2026, 10, 14);
 
@@ -119,5 +122,28 @@ describe("Why this score gives true reasons", () => {
     expect(why({ intendedMajor: "Pre-law" }, { name: "Bar Award", criteria: "For students who plan to study law." }).earned).toMatch(/Fits your major \(law\)/);
     expect(why({ intendedMajor: "Elementary Education" }, { name: "Future Teachers", criteria: "For students who plan a career in teaching." }).earned).toMatch(/Fits your major \(education\)/);
     expect(why({ intendedMajor: "Criminal Justice" }, { name: "Justice Award", criteria: "For criminal justice majors." }).earned).toMatch(/Fits your major \(law\)/);
+  });
+});
+
+describe("anonymous visit counts", () => {
+  const mem = () => { const m = {}; return { getItem: (k) => (k in m ? m[k] : null), setItem: (k, v) => { m[k] = String(v); } }; };
+  it("accepts only known events and plain tags", () => {
+    expect(cleanVisit({ event: "landing_view", source: "Meta", content: "parent_data" })).toEqual({ event: "landing_view", source: "meta", content: "parent_data" });
+    expect(cleanVisit({ event: "landing_view", source: "jo@example.com", content: "<script>" })).toEqual({ event: "landing_view", source: "", content: "" });
+    expect(cleanVisit({ event: "anything_else" })).toBeNull();
+    expect(cleanVisit(null)).toBeNull();
+    expect(Object.keys(cleanVisit({ event: "signup", user_id: "u1", email: "x" }))).toEqual(["event", "source", "content"]);
+  });
+  it("keeps the ad tag for the session and counts each event once", () => {
+    const s = mem();
+    expect(visitTag("?utm_source=meta&utm_content=student_fit", s)).toEqual({ source: "meta", content: "student_fit" });
+    expect(visitTag("", s)).toEqual({ source: "meta", content: "student_fit" });
+    expect(firstThisSession("landing_view", s)).toBe(true);
+    expect(firstThisSession("landing_view", s)).toBe(false);
+    expect(firstThisSession("signup", s)).toBe(true);
+  });
+  it("is described in the privacy policy", () => {
+    expect(VISIT_EVENTS).toContain("parent_view");
+    expect(JSON.stringify(PRIVACY_SECTIONS)).toMatch(/Anonymous visit counts/);
   });
 });

@@ -4,9 +4,26 @@
 import { verifyAuth, checkRateLimit } from "./_shared/auth.js";
 import { getUsage, canUse, recordUse, limitResponse } from "./_shared/usage.js";
 import { deleteStudentWork, deleteAccount } from "./_shared/account.js";
+import { adminClient } from "./_shared/usage.js";
+import { cleanVisit } from "./_shared/visits.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET" && req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+  // Anonymous visit count: needs no sign-in and stores nothing about the
+  // visitor. It lives here because the hosting plan caps the number of routes.
+  if (req.method === "POST" && req.body?.action === "count") {
+    const visit = cleanVisit(req.body);
+    if (!visit) return res.status(400).json({ error: "Unknown event" });
+    const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "unknown";
+    const rl = await checkRateLimit(`count:${ip}`, 60, 3600000);
+    if (!rl.allowed) return res.status(204).end();
+    try {
+      const { error } = await adminClient().rpc("bump_visit_count", { p_event: visit.event, p_source: visit.source, p_content: visit.content });
+      if (error) console.error("Visit count error:", error.message);
+    } catch (e) { console.error("Visit count error:", e.message); }
+    return res.status(204).end();
+  }
 
   const { user, error: authError } = await verifyAuth(req);
   if (!user) return res.status(401).json({ error: authError || "Authentication required" });

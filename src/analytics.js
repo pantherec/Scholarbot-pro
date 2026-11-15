@@ -14,6 +14,10 @@ const POSTHOG_KEY = typeof import.meta !== "undefined"
 
 const POSTHOG_HOST = "https://us.i.posthog.com";
 
+// A few events are also counted anonymously, signed in or not (lib/visits.js).
+import { countVisit } from "./lib/visits.js";
+const COUNTED = { start_free_clicked: "start_free", parent_page_viewed: "parent_view", parent_checkout_started: "parent_checkout", parent_checkout_completed: "parent_paid" };
+
 let ph = null;
 let initializing = false;
 
@@ -107,6 +111,7 @@ export function trackSignupStarted() {
 }
 
 export function trackSignupCompleted(userId) {
+  countVisit("signup");
   capture("signup_completed", { user_id: userId });
 }
 
@@ -119,6 +124,7 @@ export function trackLetterGenerated({ scholarshipName, template }) {
 
 // Generic track for any future event
 export function track(event, properties = {}) {
+  if (COUNTED[event]) countVisit(COUNTED[event]);
   capture(event, properties);
 }
 

@@ -17,6 +17,7 @@ import { setDoc, docFileNames } from "./lib/studentDocs.js";
 import { scrubContact, scrubDeep, countContact } from "./lib/scrub.js";
 import { loadStudentWork, saveStudentWork, markLetterSaved } from "./lib/api.js";
 import { signOutWarning, loadWithRetry } from "./lib/workSync.js";
+import { countVisit } from "./lib/visits.js";
 import { parseDeadlineDate as parseDeadlineDateLib, deadlineInfo, compareByDeadline } from "./lib/deadline.js";
 import { PLANS, FREE_LIMITS, PAID_LIMITS } from "./lib/plans.js";
 import { computeCatalogStats, formatAwardTotal } from "./lib/catalogStats.js";
@@ -1302,6 +1303,7 @@ export default function MeritLaunch() {
   const isLanding = view === "landing";
   // The parent payment page stands alone: no app shell, no student data.
   const isStandalone = view === "parentPay";
+  useEffect(() => { if (isLanding) countVisit("landing_view"); }, [isLanding]);
   // Shared "#pricing" links (e.g. the parent hand-off) scroll to the plans.
   useEffect(() => {
     if (isLanding && window.location.hash === "#pricing") {
@@ -1546,7 +1548,9 @@ export default function MeritLaunch() {
       )}
 
       <AuthModal />
-      <Tour active={!isLanding && !isStandalone} />
+      {/* The tour waits until the visitor has matches and no other dialog is open,
+          so it never covers the first question a new visitor has to answer. */}
+      <Tour active={!isLanding && !isStandalone && matchResults.length > 0 && !showAuthModal} />
 
       <LegalModal />
 
