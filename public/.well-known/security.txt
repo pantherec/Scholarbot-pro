@@ -1,0 +1,6 @@
+# MeritLaunch (Synprax Labs LLC). To report a security problem, write to the address below.
+# Please give us a reasonable time to fix it before you share details.
+Contact: mailto:support@meritlaunch.com
+Expires: 2027-11-01T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://meritlaunch.com/.well-known/security.txt
